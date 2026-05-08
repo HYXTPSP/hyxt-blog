@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>幻影 - 官方站点</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        /* ---------- 设计变量 ---------- */
+        :root{
+            --blue:#00bfff;
+            --blue-glow:0 0 8px var(--blue),0 0 16px var(--blue),0 0 24px var(--blue);
+            --bg:rgba(2,6,23,.55);          /* 毛玻璃底色 */
+            --blur:blur(20px);
+        }
+
+        /* ---------- 全局 ---------- */
+        *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+        html,body{min-height:100vh}
+        body{
+            background:url('bg.jpg') center/cover fixed;
+            color:#e5e5e5;
+            display:flex;
+            flex-direction:column;
+        }
+        /* 毛玻璃遮罩 */
+        body::before{
+            content:'';
+            position:fixed;
+            inset:0;
+            backdrop-filter:var(--blur);
+            -webkit-backdrop-filter:var(--blur);
+            background:var(--bg);
+            z-index:-1;
+        }
+
+        /* ---------- 光晕文字 ---------- */
+        .glow{
+            color:var(--blue);
+            text-shadow:var(--blue-glow);
+            animation:pulse 2.2s ease-in-out infinite;
+            font-weight:700;
+        }
+        @keyframes pulse{
+            0%,100%{filter:brightness(1);}
+            50%{filter:brightness(1.25);}
+        }
+
+        /* ---------- 布局 ---------- */
+        header{padding:80px 20px 60px;text-align:center}
+        header img{width:140px;height:140px;border-radius:28px;object-fit:cover}
+        header h1{font-size:56px;letter-spacing:2px}
+        header p{font-size:22px;margin-top:10px}
+
+        main{
+            flex:1;
+            max-width:960px;
+            margin:0 auto;
+            padding:0 20px 60px;
+            font-size:20px;
+            line-height:1.8;
+        }
+        h2{
+            font-size:38px;
+            margin:60px 0 30px;
+            display:inline-block;
+            position:relative;
+        }
+        h2::after{
+            content:'';
+            position:absolute;
+            left:0;
+            bottom:-6px;
+            width:60px;
+            height:3px;
+            background:var(--blue);
+            box-shadow:0 0 8px var(--blue);
+        }
+
+        .cards{display:grid;gap:30px;margin-bottom:80px}
+        .card{
+            background:rgba(15,23,42,.45);
+            border:1px solid rgba(0,191,255,.25);
+            border-radius:16px;
+            padding:30px;
+            transition:.3s;
+            backdrop-filter:var(--blur);
+            -webkit-backdrop-filter:var(--blur);
+        }
+        .card:hover{transform:translateY(-4px)}
+
+        .btn-group{display:flex;gap:30px;justify-content:center;flex-wrap:wrap}
+        .btn{
+            background:var(--blue);
+            color:#000;
+            font-size:18px;
+            font-weight:700;
+            padding:16px 40px;
+            border-radius:40px;
+            text-decoration:none;
+            transition:.3s;
+            box-shadow:0 0 12px var(--blue);
+        }
+        .btn:hover{transform:scale(1.08) translateY(-2px);box-shadow:0 0 22px var(--blue)}
+
+        /* ---------- 最底部截图 ---------- */
+        footer{
+            text-align:center;
+            padding:0 20px 60px;
+        }
+        .screenshots{
+            display:flex;
+            justify-content:center;
+            gap:40px;
+            flex-wrap:wrap;
+            margin-bottom:40px;
+        }
+        .screenshots img{
+            width:280px;
+            max-width:90%;
+            border-radius:14px;
+            box-shadow:0 6px 24px rgba(0,0,0,.45);
+            transition:.4s;
+        }
+        .screenshots img:hover{transform:scale(1.05);box-shadow:0 8px 32px rgba(0,191,255,.4)}
+
+        /* ---------- 响应 ---------- */
+        @media(max-width:600px){
+            header h1{font-size:42px}
+            header p{font-size:18px}
+            main{font-size:18px}
+            h2{font-size:32px}
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="icon.ico" alt="幻影">
+        <h1 class="glow">幻影</h1>
+        <p class="glow">高清资源极速更新 · 安卓客户端 &amp; 网页版</p>
+    </header>
+
+    <main>
+        <h2 class="glow">核心特色</h2>
+        <div class="cards">
+            <div class="card">
+                <strong>完全免费</strong>：注册即赠999天VIP，解锁所有功能。
+            </div>
+            <div class="card">
+                <strong>海量片库</strong>：聚合全网最新最热电影、电视剧、综艺、动漫。
+            </div>
+            <div class="card">
+                <strong>智能推荐</strong>：推荐当前热映的电影，电视剧，动漫，综艺等。
+            </div>
+            <div class="card">
+                <strong>弹幕评论</strong>：搭载弹幕&评论系统，营造良好的观影气氛。
+            </div>
+            <div class="card">
+                <strong>极简体验</strong>：无广告打扰，夜间护眼模式，沉浸式观影更专注。
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <a class="btn" href="https://pan.quark.cn/s/57daf3e195bb" target="_blank">安卓客户端下载</a>
+            <a class="btn" href="http://185.239.85.188/" target="_blank">网页版在线观看</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="screenshots">
+            <img src="jt.jpg" alt="软件截图1">
+            <img src="jt2.jpg" alt="软件截图2">
+        </div>
+        <p style="font-size:14px;color:#7dd3fc">© 2025 幻影 · 仅供学习交流</p>
+    </footer>
+</body>
+</html>

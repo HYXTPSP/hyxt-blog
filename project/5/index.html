@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>敬请期待</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:#1a1a40;
+            background-image:radial-gradient(circle,#a855f7 1px,transparent 1px);
+            background-size:30px 30px;
+            font-family:"Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB",sans-serif;
+            overflow:hidden;
+            perspective:1000px;
+        }
+        .stage{
+            transform-style:preserve-3d;
+            transition:transform .2s ease;
+        }
+        .text-3d{
+            position:relative;
+            font-size:clamp(36px,10vw,80px);
+            font-weight:900;
+            color:#38bdf8;
+            user-select:none;
+            cursor:default;
+            transform-style:preserve-3d;
+        }
+        .text-3d span{
+            display:inline-block;
+            transform-origin:50% 50%;
+            transition:transform .2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="stage">
+        <div class="text-3d" id="text">敬请期待</div>
+    </div>
+
+    <script>
+        const text = document.getElementById('text');
+        text.innerHTML = text.textContent
+            .split('')
+            .map(c => `<span>${c}</span>`)
+            .join('');
+
+        const spans = text.querySelectorAll('span');
+        const stage = document.querySelector('.stage');
+
+        /* 灵敏度（0-1 之间，越小越柔和） */
+        const SENSITIVITY = 0.4;
+        /* 最大位移/旋转角度 */
+        const MAX_TILT = 20;
+        const MAX_OFFSET = 30;
+
+        function handleMove(e){
+            const {clientX, clientY} = (e.touches && e.touches[0]) || e;
+            const {innerWidth, innerHeight} = window;
+
+            /* 计算鼠标相对中心偏移量，范围 -1 ~ 1 */
+            const x = (clientX / innerWidth - 0.5) * 2;
+            const y = (clientY / innerHeight - 0.5) * 2;
+
+            /* 整体轻微旋转 */
+            const tiltX = y * MAX_TILT * SENSITIVITY;
+            const tiltY = x * MAX_TILT * SENSITIVITY;
+            stage.style.transform = `rotateX(${-tiltX}deg) rotateY(${tiltY}deg)`;
+
+            /* 单字轻微错位 */
+            spans.forEach((s,i)=>{
+                const offsetX = x * (i - 1.5) * MAX_OFFSET * SENSITIVITY;
+                const offsetY = y * (i - 1.5) * MAX_OFFSET * SENSITIVITY;
+                const offsetZ = (Math.abs(x) + Math.abs(y)) * MAX_OFFSET * SENSITIVITY;
+                s.style.transform = `translate3d(${offsetX}px,${offsetY}px,${offsetZ}px)`;
+            });
+        }
+
+        /* 鼠标离开时复位 */
+        function reset(){
+            stage.style.transform = 'rotateX(0) rotateY(0)';
+            spans.forEach(s=>s.style.transform = '');
+        }
+
+        document.addEventListener('mousemove',handleMove);
+        document.addEventListener('mouseleave',reset);
+        document.addEventListener('touchmove',handleMove,{passive:true});
+        document.addEventListener('touchend',reset);
+    </script>
+</body>
+</html>

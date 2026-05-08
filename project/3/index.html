@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>意魔极 - 终极版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #gameContainer {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 2px solid #333;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        #gameHeader {
+            background: linear-gradient(90deg, #2c1810, #4a2c2a);
+            padding: 10px;
+            border-bottom: 2px solid #8B4513;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #gameTitle {
+            font-size: 1.5em;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        #gameStats {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #gameWorld {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            grid-template-rows: repeat(12, 1fr);
+            gap: 1px;
+            background: #111;
+            padding: 5px;
+        }
+
+        .tile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .tile:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .player {
+            background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, transparent 70%);
+            animation: pulse 1.5s infinite;
+        }
+
+        .enemy {
+            animation: enemyMove 2s infinite;
+        }
+
+        .elite {
+            animation: eliteGlow 1s infinite;
+            border: 2px solid #ff4444;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 5px rgba(0,255,255,0.5); }
+            50% { box-shadow: 0 0 15px rgba(0,255,255,0.8); }
+            100% { box-shadow: 0 0 5px rgba(0,255,255,0.5); }
+        }
+
+        @keyframes enemyMove {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-2px); }
+        }
+
+        @keyframes eliteGlow {
+            0% { box-shadow: 0 0 5px #ff4444; }
+            50% { box-shadow: 0 0 15px #ff4444; }
+            100% { box-shadow: 0 0 5px #ff4444; }
+        }
+
+        .item {
+            animation: itemGlow 1.5s infinite alternate;
+        }
+
+        @keyframes itemGlow {
+            from { filter: brightness(1) drop-shadow(0 0 2px #ffff00); }
+            to { filter: brightness(1.3) drop-shadow(0 0 5px #ffff00); }
+        }
+
+        #gameControls {
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+            padding: 15px;
+            border-top: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            color: #ecf0f1;
+            border: 1px solid #555;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        button:hover {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+
+        button:active {
+            transform: translateY(0px);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #inventory {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .inventory-slot {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #666;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .inventory-slot:hover {
+            border-color: #ffd700;
+            transform: scale(1.1);
+        }
+
+        .inventory-slot.selected {
+            border-color: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .inventory-slot .count {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 10px;
+            background: #ff4444;
+            color: white;
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+
+        #messageBox {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: 1px solid #ffd700;
+            box-shadow: 0 0 15px rgba(255,215,0,0.5);
+            max-width: 300px;
+            text-align: center;
+        }
+
+        #messageBox.show {
+            opacity: 1;
+        }
+
+        #gameOver, #shopModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 30px rgba(255,215,0,0.5);
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 2em;
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        .modal-stats {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #ddd;
+            line-height: 1.6;
+        }
+
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .shop-item {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #666;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .shop-item:hover {
+            border-color: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255,215,0,0.3);
+        }
+
+        .shop-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .health-bar, .exp-bar {
+            width: 100px;
+            height: 15px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #666;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ff6666);
+            transition: width 0.3s ease;
+        }
+
+        .exp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4444ff, #6666ff);
+            transition: width 0.3s ease;
+        }
+
+        .level-indicator {
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 0 0 5px #ffd700;
+        }
+
+        .difficulty-selector {
+            margin-bottom: 20px;
+        }
+
+        .difficulty-btn {
+            margin: 5px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        .enemy-info {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        #miniMap {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 150px;
+            height: 90px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #666;
+            border-radius: 5px;
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            grid-template-rows: repeat(12, 1fr);
+            gap: 1px;
+            padding: 2px;
+            z-index: 100;
+        }
+
+        .mini-tile {
+            font-size: 4px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .boss-warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            color: #ff4444;
+            text-shadow: 0 0 20px #ff4444;
+            animation: bossWarning 2s ease-in-out;
+            z-index: 1500;
+            pointer-events: none;
+        }
+
+        @keyframes bossWarning {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="gameHeader">
+            <div id="gameTitle">🎮 意魔极 - 终极版 🎮</div>
+            <div id="gameStats">
+                <div class="stat">
+                    <span>❤️</span>
+                    <div class="health-bar">
+                        <div class="health-fill" id="healthBar" style="width: 100%"></div>
+                    </div>
+                    <span id="healthText">100/100</span>
+                </div>
+                <div class="stat">
+                    <span>⚔️</span>
+                    <span id="attackText">10</span>
+                </div>
+                <div class="stat">
+                    <span>🛡️</span>
+                    <span id="defenseText">5</span>
+                </div>
+                <div class="stat">
+                    <span>🪙</span>
+                    <span id="goldText">0</span>
+                </div>
+                <div class="stat level-indicator">
+                    <span>🏆</span>
+                    <span id="levelText">1</span>
+                </div>
+                <div class="stat">
+                    <span>🎯</span>
+                    <span id="difficultyText">普通</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="gameWorld"></div>
+        
+        <div id="gameControls">
+            <div class="control-group">
+                <button onclick="movePlayer('up')">↑ 上</button>
+                <button onclick="movePlayer('left')">← 左</button>
+                <button onclick="movePlayer('down')">↓ 下</button>
+                <button onclick="movePlayer('right')">→ 右</button>
+            </div>
+            
+            <div class="control-group">
+                <div id="inventory">
+                    <div class="inventory-slot" data-slot="0">❓</div>
+                    <div class="inventory-slot" data-slot="1">❓</div>
+                    <div class="inventory-slot" data-slot="2">❓</div>
+                    <div class="inventory-slot" data-slot="3">❓</div>
+                    <div class="inventory-slot" data-slot="4">❓</div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <button onclick="useItem()">🛡️ 使用道具</button>
+                <button onclick="openShop()">🏪 商店</button>
+                <button onclick="restartGame()">🔄 重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="miniMap"></div>
+    <div id="messageBox"></div>
+    
+    <div id="gameOver">
+        <div class="modal-content">
+            <div class="modal-title">💀 游戏结束 💀</div>
+            <div class="modal-stats">
+                <div>达到层数: <span id="finalLevel">1</span></div>
+                <div>击败敌人: <span id="finalKills">0</span></div>
+                <div>收集金币: <span id="finalGold">0</span></div>
+                <div>获得成就: <span id="finalAchievements">0</span></div>
+            </div>
+            <button onclick="restartGame()" style="font-size: 1.2em; padding: 15px 30px;">🔄 再来一局</button>
+        </div>
+    </div>
+
+    <div id="shopModal">
+        <div class="modal-content">
+            <div class="modal-title">🏪 神秘商店 🏪</div>
+            <div class="modal-stats">
+                当前金币: <span id="shopGold">0</span>
+            </div>
+            <div class="shop-items" id="shopItems"></div>
+            <button onclick="closeShop()" style="margin-top: 20px;">关闭商店</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            player: {
+                x: 10,
+                y: 6,
+                health: 100,
+                maxHealth: 100,
+                attack: 10,
+                defense: 5,
+                level: 1,
+                gold: 0,
+                exp: 0,
+                expToNext: 100
+            },
+            world: [],
+            enemies: [],
+            items: [],
+            inventory: [null, null, null, null, null],
+            selectedSlot: 0,
+            kills: 0,
+            goldCollected: 0,
+            achievements: 0,
+            difficulty: 1,
+            shopItems: [],
+            turnCount: 0,
+            bossFight: false,
+            gameRunning: true
+        };
+
+        // 怪物AI定时器
+        let enemyMoveInterval = 800; // 怪物移动间隔（毫秒）
+        let lastEnemyMove = 0;
+
+        // 难度配置
+        const DIFFICULTIES = {
+            1: { name: '简单', enemyHealth: 0.8, enemyDamage: 0.8, enemySpeed: 0.7, reward: 0.8 },
+            2: { name: '普通', enemyHealth: 1.0, enemyDamage: 1.0, enemySpeed: 1.0, reward: 1.0 },
+            3: { name: '困难', enemyHealth: 1.3, enemyDamage: 1.4, enemySpeed: 1.2, reward: 1.3 },
+            4: { name: '地狱', enemyHealth: 1.8, enemyDamage: 2.0, enemySpeed: 1.5, reward: 2.0 }
+        };
+
+        // 敌人类型
+        const ENEMY_TYPES = [
+            { emoji: '👹', name: '哥布林', baseHealth: 20, baseDamage: 5, baseDefense: 2, speed: 1, exp: 10, gold: 5 },
+            { emoji: '👺', name: '兽人', baseHealth: 35, baseDamage: 8, baseDefense: 4, speed: 1, exp: 15, gold: 8 },
+            { emoji: '👻', name: '幽灵', baseHealth: 25, baseDamage: 12, baseDefense: 0, speed: 2, exp: 20, gold: 10 },
+            { emoji: '🧟', name: '僵尸', baseHealth: 50, baseDamage: 7, baseDefense: 8, speed: 0.5, exp: 25, gold: 12 },
+            { emoji: '🐉', name: '幼龙', baseHealth: 80, baseDamage: 15, baseDefense: 10, speed: 1, exp: 50, gold: 25 },
+            { emoji: '👑', name: '哥布林首领', baseHealth: 150, baseDamage: 25, baseDefense: 15, speed: 1, exp: 100, gold: 50, isBoss: true }
+        ];
+
+        // 物品类型
+        const ITEM_TYPES = [
+            { emoji: '❤️', name: '生命药水', type: 'consumable', effect: 'heal', value: 30, cost: 20 },
+            { emoji: '⚔️', name: '力量药水', type: 'consumable', effect: 'buff', stat: 'attack', value: 5, duration: 10, cost: 30 },
+            { emoji: '🛡️', name: '防御药水', type: 'consumable', effect: 'buff', stat: 'defense', value: 3, duration: 10, cost: 25 },
+            { emoji: '💣', name: '炸弹', type: 'consumable', effect: 'bomb', value: 50, cost: 40 },
+            { emoji: '🗡️', name: '铁剑', type: 'weapon', attack: 8, cost: 100 },
+            { emoji: '⚔️', name: '钢剑', type: 'weapon', attack: 15, cost: 200 },
+            { emoji: '🔥', name: '火焰剑', type: 'weapon', attack: 25, fireDamage: 5, cost: 350 },
+            { emoji: '🛡️', name: '铁盾', type: 'armor', defense: 5, cost: 80 },
+            { emoji: '🏰', name: '钢盾', type: 'armor', defense: 10, cost: 150 },
+            { emoji: '💎', name: '钻石盾', type: 'armor', defense: 15, blockChance: 20, cost: 300 }
+        ];
+
+        // 游戏配置
+        const WORLD_WIDTH = 20;
+        const WORLD_HEIGHT = 12;
+        const TILE_TYPES = {
+            empty: { emoji: '⚫', passable: true },
+            wall: { emoji: '🧱', passable: false },
+            player: { emoji: '🧙‍♂️', passable: true },
+            stairs: { emoji: '🪜', passable: true }
+        };
+
+        // 初始化游戏世界
+        function initWorld() {
+            gameState.world = [];
+            for (let y = 0; y < WORLD_HEIGHT; y++) {
+                gameState.world[y] = [];
+                for (let x = 0; x < WORLD_WIDTH; x++) {
+                    if (x === 0 || x === WORLD_WIDTH - 1 || y === 0 || y === WORLD_HEIGHT - 1) {
+                        gameState.world[y][x] = 'wall';
+                    } else {
+                        const rand = Math.random();
+                        if (rand < 0.12 + gameState.difficulty * 0.03) {
+                            gameState.world[y][x] = 'wall';
+                        } else {
+                            gameState.world[y][x] = 'empty';
+                        }
+                    }
+                }
+            }
+            
+            // 确保玩家位置
+            gameState.world[gameState.player.y][gameState.player.x] = 'empty';
+            
+            // 生成敌人
+            gameState.enemies = [];
+            const enemyCount = 3 + gameState.player.level + gameState.difficulty;
+            const isBossLevel = gameState.player.level % 5 === 0;
+            
+            if (isBossLevel) {
+                spawnBoss();
+                showBossWarning();
+            } else {
+                for (let i = 0; i < enemyCount; i++) {
+                    spawnEnemy();
+                }
+            }
+            
+            // 生成物品和金币
+            gameState.items = [];
+            const itemCount = 2 + Math.floor(gameState.player.level / 2);
+            for (let i = 0; i < itemCount; i++) {
+                spawnItem();
+            }
+            
+            // 生成楼梯
+            spawnStairs();
+            
+            // 生成商店
+            if (gameState.player.level % 3 === 0) {
+                spawnShop();
+            }
+            
+            updateShopItems();
+            renderMiniMap();
+        }
+
+        function spawnEnemy() {
+            const enemyType = ENEMY_TYPES[Math.floor(Math.random() * (ENEMY_TYPES.length - 1))];
+            const difficulty = DIFFICULTIES[gameState.difficulty];
+            
+            let attempts = 0;
+            while (attempts < 50) {
+                let x = Math.floor(Math.random() * (WORLD_WIDTH - 2)) + 1;
+                let y = Math.floor(Math.random() * (WORLD_HEIGHT - 2)) + 1;
+                if (isValidSpawn(x, y)) {
+                    const health = Math.floor(enemyType.baseHealth * (1 + gameState.player.level * 0.2) * difficulty.enemyHealth);
+                    const damage = Math.floor(enemyType.baseDamage * (1 + gameState.player.level * 0.15) * difficulty.enemyDamage);
+                    const defense = Math.floor(enemyType.baseDefense * (1 + gameState.player.level * 0.1));
+                    
+                    gameState.enemies.push({
+                        ...enemyType,
+                        x, y,
+                        health,
+                        maxHealth: health,
+                        damage,
+                        defense,
+                        speed: enemyType.speed * difficulty.enemySpeed,
+                        lastMove: 0
+                    });
+                    break;
+                }
+                attempts++;
+            }
+        }
+
+        function spawnBoss() {
+            const bossType = ENEMY_TYPES.find(e => e.isBoss) || ENEMY_TYPES[ENEMY_TYPES.length - 1];
+            const difficulty = DIFFICULTIES[gameState.difficulty];
+            
+            let attempts = 0;
+            while (attempts < 50) {
+                let x = Math.floor(Math.random() * (WORLD_WIDTH - 4)) + 2;
+                let y = Math.floor(Math.random() * (WORLD_HEIGHT - 4)) + 2;
+                if (isValidSpawn(x, y)) {
+                    const health = Math.floor(bossType.baseHealth * (1 + gameState.player.level * 0.3) * difficulty.enemyHealth * 2);
+                    const damage = Math.floor(bossType.baseDamage * (1 + gameState.player.level * 0.2) * difficulty.enemyDamage * 1.5);
+                    const defense = Math.floor(bossType.baseDefense * (1 + gameState.player.level * 0.15));
+                    
+                    gameState.enemies.push({
+                        ...bossType,
+                        x, y,
+                        health,
+                        maxHealth: health,
+                        damage,
+                        defense,
+                        speed: bossType.speed * difficulty.enemySpeed,
+                        lastMove: 0,
+                        isBoss: true
+                    });
+                    gameState.bossFight = true;
+                    break;
+                }
+                attempts++;
+            }
+        }
+
+        function spawnItem() {
+            const itemType = ITEM_TYPES[Math.floor(Math.random() * 3)];
+            let attempts = 0;
+            while (attempts < 50) {
+                let x = Math.floor(Math.random() * (WORLD_WIDTH - 2)) + 1;
+                let y = Math.floor(Math.random() * (WORLD_HEIGHT - 2)) + 1;
+                if (isValidSpawn(x, y)) {
+                    gameState.items.push({ 
+                        x, y, 
+                        ...itemType, 
+                        id: Date.now() + Math.random() 
+                    });
+                    break;
+                }
+                attempts++;
+            }
+        }
+
+        function spawnStairs() {
+            let attempts = 0;
+            while (attempts < 50) {
+                let x = Math.floor(Math.random() * (WORLD_WIDTH - 2)) + 1;
+                let y = Math.floor(Math.random() * (WORLD_HEIGHT - 2)) + 1;
+                if (isValidSpawn(x, y) && 
+                    Math.abs(x - gameState.player.x) + Math.abs(y - gameState.player.y) > 5) {
+                    gameState.world[y][x] = 'stairs';
+                    break;
+                }
+                attempts++;
+            }
+        }
+
+        function spawnShop() {
+            let attempts = 0;
+            while (attempts < 50) {
+                let x = Math.floor(Math.random() * (WORLD_WIDTH - 2)) + 1;
+                let y = Math.floor(Math.random() * (WORLD_HEIGHT - 2)) + 1;
+                if (isValidSpawn(x, y)) {
+                    gameState.items.push({ 
+                        x, y, 
+                        emoji: '🏪', 
+                        name: '神秘商店', 
+                        type: 'shop',
+                        id: 'shop' + Date.now()
+                    });
+                    break;
+                }
+                attempts++;
+            }
+        }
+
+        function isValidSpawn(x, y) {
+            return gameState.world[y][x] === 'empty' && 
+                   !(x === gameState.player.x && y === gameState.player.y) &&
+                   !gameState.enemies.some(e => e.x === x && e.y === y) &&
+                   !gameState.items.some(i => i.x === x && i.y === y);
+        }
+
+        // 自由移动的怪物AI系统
+        function startEnemyAI() {
+            setInterval(() => {
+                if (gameState.gameRunning) {
+                    moveEnemiesFreely();
+                }
+            }, enemyMoveInterval);
+        }
+
+        function moveEnemiesFreely() {
+            gameState.enemies.forEach(enemy => {
+                const dx = gameState.player.x - enemy.x;
+                const dy = gameState.player.y - enemy.y;
+                const distance = Math.abs(dx) + Math.abs(dy);
+                
+                let newX = enemy.x;
+                let newY = enemy.y;
+                
+                if (distance <= 1) {
+                    // 直接攻击玩家
+                    enemyAttackPlayer(enemy);
+                    return;
+                }
+                
+                if (distance <= 4) {
+                    // 追踪玩家
+                    const possibleMoves = [];
+                    
+                    // 检查四个方向的移动可能性
+                    const directions = [[0,1], [0,-1], [1,0], [-1,0]];
+                    directions.forEach(([dx, dy]) => {
+                        const checkX = enemy.x + dx;
+                        const checkY = enemy.y + dy;
+                        if (isValidMove(checkX, checkY, enemy)) {
+                            // 计算移动后的新距离
+                            const newDist = Math.abs(gameState.player.x - checkX) + Math.abs(gameState.player.y - checkY);
+                            possibleMoves.push({ x: checkX, y: checkY, distance: newDist });
+                        }
+                    });
+                    
+                    // 选择最优移动
+                    if (possibleMoves.length > 0) {
+                        possibleMoves.sort((a, b) => a.distance - b.distance);
+                        const bestMove = possibleMoves[0];
+                        newX = bestMove.x;
+                        newY = bestMove.y;
+                    }
+                } else {
+                    // 随机巡逻
+                    const directions = [[0,1], [0,-1], [1,0], [-1,0]];
+                    const validMoves = directions.filter(([dx, dy]) => 
+                        isValidMove(enemy.x + dx, enemy.y + dy, enemy)
+                    );
+                    
+                    if (validMoves.length > 0) {
+                        const [dx, dy] = validMoves[Math.floor(Math.random() * validMoves.length)];
+                        newX = enemy.x + dx;
+                        newY = enemy.y + dy;
+                    }
+                }
+                
+                // 执行移动
+                if (newX !== enemy.x || newY !== enemy.y) {
+                    enemy.x = newX;
+                    enemy.y = newY;
+                }
+                
+                render();
+            });
+        }
+
+        function enemyAttackPlayer(enemy) {
+            if (!gameState.gameRunning) return;
+            
+            const enemyDamage = Math.max(1, enemy.damage - gameState.player.defense);
+            gameState.player.health -= enemyDamage;
+            
+            showMessage(`😵 ${enemy.name}攻击了你，造成 ${enemyDamage} 点伤害！`);
+            
+            // 检查血量边界
+            if (gameState.player.health <= 0) {
+                gameState.player.health = 0;
+                gameState.gameRunning = false;
+                setTimeout(() => gameOver(), 500);
+            }
+            
+            render();
+        }
+
+        function isValidMove(x, y, entity) {
+            return x >= 0 && x < WORLD_WIDTH && y >= 0 && y < WORLD_HEIGHT &&
+                   gameState.world[y][x] !== 'wall' &&
+                   !gameState.enemies.some(e => e !== entity && e.x === x && e.y === y);
+        }
+
+        // 渲染游戏
+        function render() {
+            const worldDiv = document.getElementById('gameWorld');
+            worldDiv.innerHTML = '';
+            
+            for (let y = 0; y < WORLD_HEIGHT; y++) {
+                for (let x = 0; x < WORLD_WIDTH; x++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    
+                    let emoji = TILE_TYPES[gameState.world[y][x]].emoji;
+                    
+                    // 敌人
+                    const enemy = gameState.enemies.find(e => e.x === x && e.y === y);
+                    if (enemy) {
+                        emoji = enemy.emoji;
+                        tile.classList.add('enemy');
+                        if (enemy.isBoss) tile.classList.add('elite');
+                    }
+                    
+                    // 物品
+                    const item = gameState.items.find(i => i.x === x && i.y === y);
+                    if (item) {
+                        emoji = item.emoji;
+                        tile.classList.add('item');
+                    }
+                    
+                    // 玩家
+                    if (x === gameState.player.x && y === gameState.player.y) {
+                        emoji = '🧙‍♂️';
+                        tile.classList.add('player');
+                    }
+                    
+                    tile.textContent = emoji;
+                    tile.onclick = () => handleTileClick(x, y);
+                    worldDiv.appendChild(tile);
+                }
+            }
+            
+            // 更新UI
+            document.getElementById('healthText').textContent = 
+                `${Math.max(0, gameState.player.health)}/${gameState.player.maxHealth}`;
+            document.getElementById('healthBar').style.width = 
+                `${Math.max(0, (gameState.player.health / gameState.player.maxHealth) * 100)}%`;
+            document.getElementById('attackText').textContent = gameState.player.attack;
+            document.getElementById('defenseText').textContent = gameState.player.defense;
+            document.getElementById('levelText').textContent = gameState.player.level;
+            document.getElementById('goldText').textContent = gameState.player.gold;
+            document.getElementById('difficultyText').textContent = DIFFICULTIES[gameState.difficulty].name;
+            
+            // 更新库存
+            gameState.inventory.forEach((item, index) => {
+                const slot = document.querySelector(`[data-slot="${index}"]`);
+                if (item) {
+                    slot.textContent = item.emoji;
+                    const existingCount = slot.querySelector('.count');
+                    if (existingCount) existingCount.remove();
+                    if (item.count > 1) {
+                        const countDiv = document.createElement('div');
+                        countDiv.className = 'count';
+                        countDiv.textContent = item.count;
+                        slot.appendChild(countDiv);
+                    }
+                } else {
+                    slot.textContent = '❓';
+                }
+                slot.classList.toggle('selected', index === gameState.selectedSlot);
+            });
+            
+            renderMiniMap();
+        }
+
+        function renderMiniMap() {
+            const miniMap = document.getElementById('miniMap');
+            miniMap.innerHTML = '';
+            
+            for (let y = 0; y < WORLD_HEIGHT; y++) {
+                for (let x = 0; x < WORLD_WIDTH; x++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'mini-tile';
+                    
+                    if (gameState.world[y][x] === 'wall') {
+                        tile.textContent = '■';
+                    } else if (gameState.enemies.some(e => e.x === x && e.y === y)) {
+                        tile.textContent = '●';
+                        tile.style.color = '#ff4444';
+                    } else if (gameState.items.some(i => i.x === x && i.y === y)) {
+                        tile.textContent = '★';
+                        tile.style.color = '#ffd700';
+                    } else if (gameState.world[y][x] === 'stairs') {
+                        tile.textContent = '▲';
+                        tile.style.color = '#00ff00';
+                    } else if (x === gameState.player.x && y === gameState.player.y) {
+                        tile.textContent = '◆';
+                        tile.style.color = '#00ffff';
+                    } else {
+                        tile.textContent = '·';
+                    }
+                    
+                    miniMap.appendChild(tile);
+                }
+            }
+        }
+
+        // 移动玩家
+        function movePlayer(direction) {
+            if (!gameState.gameRunning) return;
+            
+            let newX = gameState.player.x;
+            let newY = gameState.player.y;
+            
+            switch(direction) {
+                case 'up': newY--; break;
+                case 'down': newY++; break;
+                case 'left': newX--; break;
+                case 'right': newX++; break;
+            }
+            
+            if (newX < 0 || newX >= WORLD_WIDTH || newY < 0 || newY >= WORLD_HEIGHT) return;
+            if (!TILE_TYPES[gameState.world[newY][newX]].passable) return;
+            
+            // 检查敌人
+            const enemy = gameState.enemies.find(e => e.x === newX && e.y === newY);
+            if (enemy) {
+                combat(enemy);
+                return;
+            }
+            
+            // 检查物品
+            const item = gameState.items.find(i => i.x === newX && i.y === newY);
+            if (item) {
+                if (item.type === 'shop') {
+                    openShop();
+                    return;
+                } else {
+                    collectItem(item);
+                }
+            }
+            
+            // 检查楼梯
+            if (gameState.world[newY][newX] === 'stairs') {
+                nextLevel();
+                return;
+            }
+            
+            gameState.player.x = newX;
+            gameState.player.y = newY;
+            gameState.turnCount++;
+            
+            render();
+        }
+
+        // 战斗系统
+        function combat(enemy) {
+            if (!gameState.gameRunning) return;
+            
+            const difficulty = DIFFICULTIES[gameState.difficulty];
+            const playerDamage = Math.max(1, gameState.player.attack - enemy.defense);
+            const enemyDamage = Math.max(1, enemy.damage - gameState.player.defense);
+            
+            enemy.health -= playerDamage;
+            showMessage(`⚔️ 对${enemy.name}造成 ${playerDamage} 点伤害！`);
+            
+            if (enemy.health <= 0) {
+                gameState.enemies = gameState.enemies.filter(e => e !== enemy);
+                gameState.kills++;
+                
+                const goldGain = Math.floor(enemy.gold * difficulty.reward);
+                gameState.player.gold += goldGain;
+                gameState.goldCollected += goldGain;
+                
+                const expGain = Math.floor(enemy.exp * difficulty.reward);
+                gameState.player.exp += expGain;
+                
+                showMessage(`💀 ${enemy.name}被击败！获得${goldGain}💰和${expGain}EXP`);
+                
+                if (enemy.isBoss) {
+                    gameState.achievements++;
+                    showMessage('🏆 BOSS击败！获得额外奖励！');
+                    gameState.player.gold += 100;
+                }
+                
+                checkLevelUp();
+                
+                // 掉落物品
+                if (Math.random() < 0.3) {
+                    const dropType = ITEM_TYPES[Math.floor(Math.random() * 3)];
+                    gameState.items.push({ 
+                        x: enemy.x, 
+                        y: enemy.y, 
+                        ...dropType, 
+                        id: Date.now() + Math.random() 
+                    });
+                }
+            } else {
+                // 敌人反击
+                gameState.player.health -= enemyDamage;
+                showMessage(`😵 ${enemy.name}反击，对你造成 ${enemyDamage} 点伤害！`);
+                
+                // 检查血量边界
+                if (gameState.player.health <= 0) {
+                    gameState.player.health = 0;
+                    gameState.gameRunning = false;
+                    setTimeout(() => gameOver(), 500);
+                }
+            }
+            
+            render();
+        }
+
+        function checkLevelUp() {
+            if (gameState.player.exp >= gameState.player.expToNext) {
+                gameState.player.exp -= gameState.player.expToNext;
+                gameState.player.level++;
+                gameState.player.expToNext = Math.floor(gameState.player.expToNext * 1.5);
+                gameState.player.maxHealth += 20;
+                gameState.player.health = gameState.player.maxHealth;
+                gameState.player.attack += 3;
+                gameState.player.defense += 2;
+                
+                showMessage(`🎉 升级！等级${gameState.player.level}！属性全面提升！`);
+            }
+        }
+
+        // 收集物品
+        function collectItem(item) {
+            gameState.items = gameState.items.filter(i => i !== item);
+            
+            if (item.type === 'consumable') {
+                const existingItem = gameState.inventory.find(i => i && i.name === item.name);
+                if (existingItem) {
+                    existingItem.count = (existingItem.count || 1) + 1;
+                } else {
+                    const emptySlot = gameState.inventory.findIndex(i => !i);
+                    if (emptySlot !== -1) {
+                        gameState.inventory[emptySlot] = { ...item, count: 1 };
+                    } else {
+                        showMessage('❌ 背包已满！');
+                        return;
+                    }
+                }
+            } else if (item.type === 'weapon' || item.type === 'armor') {
+                const existingItem = gameState.inventory.find(i => i && i.type === item.type);
+                if (existingItem) {
+                    if (item.attack > existingItem.attack || item.defense > existingItem.defense) {
+                        gameState.inventory[gameState.inventory.findIndex(i => i === existingItem)] = item;
+                        showMessage(`🔄 已装备更好的${item.name}！`);
+                    } else {
+                        gameState.player.gold += Math.floor(item.cost * 0.5);
+                        showMessage(`💰 出售${item.name}获得${Math.floor(item.cost * 0.5)}金币！`);
+                    }
+                } else {
+                    const emptySlot = gameState.inventory.findIndex(i => !i);
+                    if (emptySlot !== -1) {
+                        gameState.inventory[emptySlot] = item;
+                        showMessage(`✅ 获得${item.name}！`);
+                    }
+                }
+            } else {
+                gameState.player.gold += 50;
+                showMessage('💎 发现宝藏！获得50金币！');
+            }
+        }
+
+        // 商店系统
+        function updateShopItems() {
+            gameState.shopItems = [];
+            const availableItems = ITEM_TYPES.filter(item => item.cost);
+            
+            for (let i = 0; i < 4; i++) {
+                const item = availableItems[Math.floor(Math.random() * availableItems.length)];
+                gameState.shopItems.push({ ...item, id: 'shop' + i + Date.now() });
+            }
+        }
+
+        function openShop() {
+            document.getElementById('shopGold').textContent = gameState.player.gold;
+            const shopItemsDiv = document.getElementById('shopItems');
+            shopItemsDiv.innerHTML = '';
+            
+            gameState.shopItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'shop-item';
+                if (gameState.player.gold < item.cost) {
+                    itemDiv.classList.add('disabled');
+                }
+                
+                itemDiv.innerHTML = `
+                    <div style="font-size: 2em;">${item.emoji}</div>
+                    <div>${item.name}</div>
+                    <div>💰 ${item.cost}</div>
+                    <div style="font-size: 0.8em; color: #aaa;">
+                        ${item.type === 'weapon' ? `攻击+${item.attack}` : ''}
+                        ${item.type === 'armor' ? `防御+${item.defense}` : ''}
+                        ${item.type === 'consumable' ? `恢复${item.value}` : ''}
+                    </div>
+                `;
+                
+                itemDiv.onclick = () => buyItem(item);
+                shopItemsDiv.appendChild(itemDiv);
+            });
+            
+            document.getElementById('shopModal').style.display = 'flex';
+        }
+
+        function closeShop() {
+            document.getElementById('shopModal').style.display = 'none';
+        }
+
+        function buyItem(item) {
+            if (gameState.player.gold >= item.cost) {
+                gameState.player.gold -= item.cost;
+                
+                if (item.type === 'consumable') {
+                    const existingItem = gameState.inventory.find(i => i && i.name === item.name);
+                    if (existingItem) {
+                        existingItem.count = (existingItem.count || 1) + 1;
+                    } else {
+                        const emptySlot = gameState.inventory.findIndex(i => !i);
+                        if (emptySlot !== -1) {
+                            gameState.inventory[emptySlot] = { ...item, count: 1 };
+                        }
+                    }
+                } else {
+                    const emptySlot = gameState.inventory.findIndex(i => !i);
+                    if (emptySlot !== -1) {
+                        gameState.inventory[emptySlot] = item;
+                    }
+                }
+                
+                showMessage(`✅ 购买${item.name}成功！`);
+                document.getElementById('shopGold').textContent = gameState.player.gold;
+                openShop();
+                render();
+            } else {
+                showMessage('❌ 金币不足！');
+            }
+        }
+
+        // 使用道具
+        function useItem() {
+            const item = gameState.inventory[gameState.selectedSlot];
+            if (!item) {
+                showMessage('❌ 没有道具！');
+                return;
+            }
+            
+            if (item.type === 'consumable') {
+                switch(item.effect) {
+                    case 'heal':
+                        gameState.player.health = Math.min(gameState.player.maxHealth, 
+                            gameState.player.health + item.value);
+                        showMessage(`❤️ 恢复了 ${item.value} 点生命值！`);
+                        break;
+                        
+                    case 'buff':
+                        showMessage(`${item.emoji} ${item.name}效果已激活！`);
+                        break;
+                        
+                    case 'bomb':
+                        const nearbyEnemies = gameState.enemies.filter(e => 
+                            Math.abs(e.x - gameState.player.x) <= 2 && 
+                            Math.abs(e.y - gameState.player.y) <= 2
+                        );
+                        nearbyEnemies.forEach(enemy => {
+                            enemy.health -= item.value;
+                            if (enemy.health <= 0) {
+                                gameState.enemies = gameState.enemies.filter(e => e !== enemy);
+                                gameState.kills++;
+                                gameState.player.gold += enemy.gold;
+                            }
+                        });
+                        showMessage(`💣 炸弹伤害了 ${nearbyEnemies.length} 个敌人！`);
+                        break;
+                }
+                
+                if (item.count > 1) {
+                    item.count--;
+                } else {
+                    gameState.inventory[gameState.selectedSlot] = null;
+                }
+                
+                gameState.turnCount++;
+            } else if (item.type === 'weapon') {
+                gameState.player.attack = 10 + item.attack;
+                showMessage(`⚔️ 已装备${item.name}，攻击力${gameState.player.attack}！`);
+            } else if (item.type === 'armor') {
+                gameState.player.defense = 5 + item.defense;
+                showMessage(`🛡️ 已装备${item.name}，防御力${gameState.player.defense}！`);
+            }
+            
+            render();
+        }
+
+        // 下一层
+        function nextLevel() {
+            gameState.player.level++;
+            gameState.bossFight = false;
+            
+            // 重置玩家位置
+            gameState.player.x = 10;
+            gameState.player.y = 6;
+            
+            // 恢复部分生命
+            gameState.player.health = Math.min(gameState.player.maxHealth, 
+                gameState.player.health + Math.floor(gameState.player.maxHealth * 0.3));
+            
+            initWorld();
+            showMessage(`🏆 进入第 ${gameState.player.level} 层！难度逐渐提升！`);
+            render();
+        }
+
+        // 游戏结束
+        function gameOver() {
+            document.getElementById('finalLevel').textContent = gameState.player.level;
+            document.getElementById('finalKills').textContent = gameState.kills;
+            document.getElementById('finalGold').textContent = gameState.goldCollected;
+            document.getElementById('finalAchievements').textContent = gameState.achievements;
+            document.getElementById('gameOver').style.display = 'flex';
+        }
+
+        // 重新开始
+        function restartGame() {
+            const difficultyHtml = `
+                <div class="difficulty-selector">
+                    <h3>选择难度</h3>
+                    <button class="difficulty-btn" onclick="startGame(1)">😊 简单</button>
+                    <button class="difficulty-btn" onclick="startGame(2)" style="background: #3498db;">😐 普通</button>
+                    <button class="difficulty-btn" onclick="startGame(3)" style="background: #e74c3c;">😰 困难</button>
+                    <button class="difficulty-btn" onclick="startGame(4)" style="background: #8e44ad;">😈 地狱</button>
+                </div>
+            `;
+            
+            document.getElementById('gameOver').innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-title">💀 游戏结束 💀</div>
+                    <div class="modal-stats">
+                        <div>达到层数: ${gameState.player.level}</div>
+                        <div>击败敌人: ${gameState.kills}</div>
+                        <div>收集金币: ${gameState.goldCollected}</div>
+                        <div>击败BOSS: ${gameState.achievements}</div>
+                    </div>
+                    ${difficultyHtml}
+                </div>
+            `;
+        }
+
+        function startGame(difficulty) {
+            gameState = {
+                player: {
+                    x: 10,
+                    y: 6,
+                    health: 100,
+                    maxHealth: 100,
+                    attack: 10,
+                    defense: 5,
+                    level: 1,
+                    gold: 50,
+                    exp: 0,
+                    expToNext: 100
+                },
+                world: [],
+                enemies: [],
+                items: [],
+                inventory: [null, null, null, null, null],
+                selectedSlot: 0,
+                kills: 0,
+                goldCollected: 0,
+                achievements: 0,
+                difficulty: difficulty,
+                shopItems: [],
+                turnCount: 0,
+                bossFight: false,
+                gameRunning: true
+            };
+            
+            document.getElementById('gameOver').style.display = 'none';
+            initWorld();
+            render();
+            showMessage(`🎮 开始新游戏！难度: ${DIFFICULTIES[difficulty].name}`);
+        }
+
+        // 显示BOSS警告
+        function showBossWarning() {
+            const warning = document.createElement('div');
+            warning.className = 'boss-warning';
+            warning.textContent = '⚠️ BOSS来袭！⚠️';
+            document.body.appendChild(warning);
+            
+            setTimeout(() => {
+                warning.remove();
+            }, 2000);
+        }
+
+        // 显示消息
+        function showMessage(text) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = text;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 2000);
+        }
+
+        // 处理点击
+        function handleTileClick(x, y) {
+            const dx = x - gameState.player.x;
+            const dy = y - gameState.player.y;
+            
+            if (Math.abs(dx) + Math.abs(dy) === 1) {
+                if (dx === 1) movePlayer('right');
+                else if (dx === -1) movePlayer('left');
+                else if (dy === 1) movePlayer('down');
+                else if (dy === -1) movePlayer('up');
+            }
+        }
+
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': movePlayer('up'); break;
+                case 'ArrowDown': movePlayer('down'); break;
+                case 'ArrowLeft': movePlayer('left'); break;
+                case 'ArrowRight': movePlayer('right'); break;
+                case '1': case '2': case '3': case '4': case '5':
+                    gameState.selectedSlot = parseInt(e.key) - 1;
+                    render();
+                    break;
+                case ' ': useItem(); break;
+                case 'b': case 'B': openShop(); break;
+            }
+        });
+
+        // 库存槽点击
+        document.querySelectorAll('.inventory-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                gameState.selectedSlot = parseInt(slot.dataset.slot);
+                render();
+            });
+        });
+
+        // 初始化游戏
+        startGame(2);
+        startEnemyAI(); // 启动怪物自由移动
+    </script>
+</body>
+</html>

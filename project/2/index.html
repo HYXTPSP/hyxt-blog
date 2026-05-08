@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYXT - DeepSeek-V3</title>
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --primary: #6e48aa;
+            --secondary: #9d50bb;
+            --accent: #4776e6;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --info: #4895ef;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(30, 27, 75, 0.9), rgba(30, 27, 75, 0.9)), url('bk.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 1.5s ease-out;
+        }
+
+        .splash-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-title {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #f72585, #7209b7, #3a0ca3, #4361ee, #4cc9f0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 400% 400%;
+            animation: gradient 8s ease infinite;
+            text-shadow: 0 0 20px rgba(114, 9, 183, 0.5);
+            margin-bottom: 1rem;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .splash-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            opacity: 0;
+            animation: fadeIn 2s ease 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .container.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 25px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Chat Container */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 65vh;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-controls button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            padding: 5px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .chat-controls button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-user {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .message-ai {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .user-content {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-top-right-radius: 5px;
+        }
+
+        .ai-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-top-left-radius: 5px;
+        }
+
+        .message-meta {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message-meta .time {
+            margin-right: 0;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .message-action {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-secondary);
+            padding: 2px 6px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s ease;
+        }
+
+        .message-action:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        .typing-indicator {
+            display: flex;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            width: fit-content;
+            margin-bottom: 20px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 1rem;
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .message-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 72, 170, 0.4);
+        }
+
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        /* Parameters Panel */
+        .parameters-panel {
+            margin-top: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .parameters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .parameters-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .collapse-button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .parameters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .parameter-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .parameter-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .parameter-value {
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .parameter-slider {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .parameter-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .parameter-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.3);
+        }
+
+        .parameter-input {
+            width: 60px;
+            padding: 5px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+
+            .splash-title {
+                font-size: 2.5rem;
+            }
+
+            .parameters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+
+            .chat-container {
+                height: 60vh;
+            }
+
+            .message-actions {
+                flex-direction: column;
+                gap: 3px;
+            }
+        }
+
+        /* Code Highlighting */
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: #f8f8f2;
+        }
+
+        .copy-code {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-secondary);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-code:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 8px 25px rgba(110, 72, 170, 0.5);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <h1 class="splash-title">幻影星途</h1>
+        <p class="splash-subtitle">探索AI的无限可能</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="mainContainer">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <h1>HYXT</h1>
+                <p>DeepSeek-V3</p>
+            </div>
+            <div class="mode-toggle">
+                <span class="toggle-label">代码模式</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="codeModeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">AI对话</div>
+                <div class="chat-controls">
+                    <button id="clearChat">清空对话</button>
+                    <button id="saveChat">保存对话</button>
+                    <button id="loadChat">加载对话</button>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be inserted here -->
+            </div>
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea class="message-input" id="messageInput" placeholder="输入您的消息..." rows="1"></textarea>
+                    <button class="send-button" id="sendButton">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parameters Panel -->
+        <div class="parameters-panel">
+            <div class="parameters-header">
+                <div class="parameters-title">模型参数</div>
+                <button class="collapse-button" id="collapseParams">隐藏</button>
+            </div>
+            <div class="parameters-content" id="parametersContent">
+                <div class="parameters-grid">
+                    <div class="parameter-item">
+                        <div class="parameter-label">
+                            <span>Max Tokens</span>
+                            <span class="parameter-value" id="maxTokensValue">2000</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="100" max="4000" value="2000" class="parameter-slider" id="maxTokensSlider">
+                            <input type="number" min="100" max="4000" value="2000" class="parameter-input" id="maxTokensInput">
+                        </div>
+                    </div>
+                    <div class="parameter-item">
+                        <div class="parameter-label">
+                            <span>Temperature</span>
+                            <span class="parameter-value" id="temperatureValue">0.7</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="2" step="0.1" value="0.7" class="parameter-slider" id="temperatureSlider">
+                            <input type="number" min="0" max="2" step="0.1" value="0.7" class="parameter-input" id="temperatureInput">
+                        </div>
+                    </div>
+                    <div class="parameter-item">
+                        <div class="parameter-label">
+                            <span>Top-P</span>
+                            <span class="parameter-value" id="topPValue">0.9</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="1" step="0.05" value="0.9" class="parameter-slider" id="topPSlider">
+                            <input type="number" min="0" max="1" step="0.05" value="0.9" class="parameter-input" id="topPInput">
+                        </div>
+                    </div>
+                    <div class="parameter-item">
+                        <div class="parameter-label">
+                            <span>Top-K</span>
+                            <span class="parameter-value" id="topKValue">50</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="100" value="50" class="parameter-slider" id="topKSlider">
+                            <input type="number" min="0" max="100" value="50" class="parameter-input" id="topKInput">
+                        </div>
+                    </div>
+                    <div class="parameter-item">
+                        <div class="parameter-label">
+                            <span>Frequency Penalty</span>
+                            <span class="parameter-value" id="freqPenaltyValue">0</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="2" step="0.1" value="0" class="parameter-slider" id="freqPenaltySlider">
+                            <input type="number" min="0" max="2" step="0.1" value="0" class="parameter-input" id="freqPenaltyInput">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <div class="fab tooltip" id="exportCodeFab" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="tooltiptext">导出代码</span>
+        </div>
+    </div>
+
+    <script>
+        // Splash Screen Animation
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splashScreen').classList.add('fade-out');
+                setTimeout(() => {
+                    document.getElementById('mainContainer').classList.add('show');
+                }, 1500);
+            }, 3000);
+        });
+
+        // Chat Application
+        class ChatApp {
+            constructor() {
+                this.chatMessages = document.getElementById('chatMessages');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.clearChatButton = document.getElementById('clearChat');
+                this.saveChatButton = document.getElementById('saveChat');
+                this.loadChatButton = document.getElementById('loadChat');
+                this.codeModeToggle = document.getElementById('codeModeToggle');
+                this.collapseParamsButton = document.getElementById('collapseParams');
+                this.parametersContent = document.getElementById('parametersContent');
+                this.exportCodeFab = document.getElementById('exportCodeFab');
+                
+                // Parameters
+                this.maxTokensSlider = document.getElementById('maxTokensSlider');
+                this.maxTokensInput = document.getElementById('maxTokensInput');
+                this.maxTokensValue = document.getElementById('maxTokensValue');
+                
+                this.temperatureSlider = document.getElementById('temperatureSlider');
+                this.temperatureInput = document.getElementById('temperatureInput');
+                this.temperatureValue = document.getElementById('temperatureValue');
+                
+                this.topPSlider = document.getElementById('topPSlider');
+                this.topPInput = document.getElementById('topPInput');
+                this.topPValue = document.getElementById('topPValue');
+                
+                this.topKSlider = document.getElementById('topKSlider');
+                this.topKInput = document.getElementById('topKInput');
+                this.topKValue = document.getElementById('topKValue');
+                
+                this.freqPenaltySlider = document.getElementById('freqPenaltySlider');
+                this.freqPenaltyInput = document.getElementById('freqPenaltyInput');
+                this.freqPenaltyValue = document.getElementById('freqPenaltyValue');
+                
+                this.isCodeMode = false;
+                this.messages = [];
+                this.isWaitingForResponse = false;
+                this.currentStreamingMessageId = null;
+                this.controller = null; // For aborting fetch requests
+                
+                this.initEventListeners();
+                this.loadParameters();
+                this.checkForSavedChat();
+            }
+            
+            initEventListeners() {
+                // Send message on button click or Enter key
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+                
+                // Auto-resize textarea
+                this.messageInput.addEventListener('input', () => {
+                    this.messageInput.style.height = 'auto';
+                    this.messageInput.style.height = (this.messageInput.scrollHeight) + 'px';
+                });
+                
+                // Chat controls
+                this.clearChatButton.addEventListener('click', () => this.clearChat());
+                this.saveChatButton.addEventListener('click', () => this.saveChat());
+                this.loadChatButton.addEventListener('click', () => this.loadChat());
+                
+                // Code mode toggle
+                this.codeModeToggle.addEventListener('change', () => {
+                    this.isCodeMode = this.codeModeToggle.checked;
+                    if (this.isCodeMode) {
+                        this.addMessage('system', '已切换到代码模式，我将只生成代码。');
+                        this.exportCodeFab.style.display = 'flex';
+                    } else {
+                        this.addMessage('system', '已退出代码模式。');
+                        this.exportCodeFab.style.display = 'none';
+                    }
+                });
+                
+                // Parameters collapse
+                this.collapseParamsButton.addEventListener('click', () => {
+                    const isHidden = this.parametersContent.style.display === 'none';
+                    this.parametersContent.style.display = isHidden ? 'block' : 'none';
+                    this.collapseParamsButton.textContent = isHidden ? '隐藏' : '显示';
+                });
+                
+                // Export code FAB
+                this.exportCodeFab.addEventListener('click', () => this.exportLastCode());
+                
+                // Parameter sliders and inputs synchronization
+                this.maxTokensSlider.addEventListener('input', () => {
+                    this.maxTokensInput.value = this.maxTokensSlider.value;
+                    this.maxTokensValue.textContent = this.maxTokensSlider.value;
+                    this.saveParameters();
+                });
+                
+                this.maxTokensInput.addEventListener('change', () => {
+                    let value = Math.min(Math.max(parseInt(this.maxTokensInput.value), 4000), 100);
+                    this.maxTokensSlider.value = value;
+                    this.maxTokensInput.value = value;
+                    this.maxTokensValue.textContent = value;
+                    this.saveParameters();
+                });
+                
+                this.temperatureSlider.addEventListener('input', () => {
+                    this.temperatureInput.value = this.temperatureSlider.value;
+                    this.temperatureValue.textContent = this.temperatureSlider.value;
+                    this.saveParameters();
+                });
+                
+                this.temperatureInput.addEventListener('change', () => {
+                    let value = Math.min(Math.max(parseFloat(this.temperatureInput.value), 2), 0);
+                    this.temperatureSlider.value = value;
+                    this.temperatureInput.value = value;
+                    this.temperatureValue.textContent = value;
+                    this.saveParameters();
+                });
+                
+                this.topPSlider.addEventListener('input', () => {
+                    this.topPInput.value = this.topPSlider.value;
+                    this.topPValue.textContent = this.topPSlider.value;
+                    this.saveParameters();
+                });
+                
+                this.topPInput.addEventListener('change', () => {
+                    let value = Math.min(Math.max(parseFloat(this.topPInput.value), 1), 0);
+                    this.topPSlider.value = value;
+                    this.topPInput.value = value;
+                    this.topPValue.textContent = value;
+                    this.saveParameters();
+                });
+                
+                this.topKSlider.addEventListener('input', () => {
+                    this.topKInput.value = this.topKSlider.value;
+                    this.topKValue.textContent = this.topKSlider.value;
+                    this.saveParameters();
+                });
+                
+                this.topKInput.addEventListener('change', () => {
+                    let value = Math.min(Math.max(parseInt(this.topKInput.value), 100), 0);
+                    this.topKSlider.value = value;
+                    this.topKInput.value = value;
+                    this.topKValue.textContent = value;
+                    this.saveParameters();
+                });
+                
+                this.freqPenaltySlider.addEventListener('input', () => {
+                    this.freqPenaltyInput.value = this.freqPenaltySlider.value;
+                    this.freqPenaltyValue.textContent = this.freqPenaltySlider.value;
+                    this.saveParameters();
+                });
+                
+                this.freqPenaltyInput.addEventListener('change', () => {
+                    let value = Math.min(Math.max(parseFloat(this.freqPenaltyInput.value), 2), 0);
+                    this.freqPenaltySlider.value = value;
+                    this.freqPenaltyInput.value = value;
+                    this.freqPenaltyValue.textContent = value;
+                    this.saveParameters();
+                });
+            }
+            
+            sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message || this.isWaitingForResponse) return;
+                
+                this.addMessage('user', message);
+                this.messageInput.value = '';
+                this.messageInput.style.height = 'auto';
+                
+                this.isWaitingForResponse = true;
+                this.showTypingIndicator();
+                
+                const parameters = {
+                    max_tokens: parseInt(this.maxTokensSlider.value),
+                    temperature: parseFloat(this.temperatureSlider.value),
+                    top_p: parseFloat(this.topPSlider.value),
+                    top_k: parseInt(this.topKSlider.value),
+                    frequency_penalty: parseFloat(this.freqPenaltySlider.value)
+                };
+                
+                const messagesForAPI = [...this.messages];
+                
+                if (this.isCodeMode) {
+                    // In code mode, we add a system message to instruct the AI to only generate code
+                    messagesForAPI.unshift({
+                        role: 'system',
+                        content: '你是一个专业的代码生成助手。用户会描述他们需要的功能或代码，你只需要生成相应的代码，不需要任何解释或额外的文本。直接输出代码，不要包含任何markdown标记或代码块标识。'
+                    });
+                }
+                
+                // Create a new AbortController for this request
+                this.controller = new AbortController();
+                
+                this.callAIAPIStream(messagesForAPI, parameters)
+                    .then(() => {
+                        this.isWaitingForResponse = false;
+                        this.currentStreamingMessageId = null;
+                        
+                        // Auto-scroll to bottom
+                        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                    })
+                    .catch(error => {
+                        if (error.name !== 'AbortError') {
+                            this.hideTypingIndicator();
+                            this.addMessage('ai', `抱歉，发生错误: ${error.message}`);
+                            this.isWaitingForResponse = false;
+                            this.currentStreamingMessageId = null;
+                            console.error('API Error:', error);
+                        }
+                    });
+            }
+            
+            async callAIAPIStream(messages, parameters) {
+                const apiUrl = 'https://api.siliconflow.cn/v1/chat/completions';
+                const model = 'deepseek-ai/DeepSeek-V3';
+                const apiKey = 'sk-tivvdrpgrjvzhgjzwdmkzpotoclqfaitnnupzmqsyecgpfij';
+                
+                const requestBody = {
+                    model: model,
+                    messages: messages,
+                    max_tokens: parameters.max_tokens,
+                    temperature: parameters.temperature,
+                    top_p: parameters.top_p,
+                    top_k: parameters.top_k,
+                    frequency_penalty: parameters.frequency_penalty,
+                    stream: true
+                };
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(requestBody),
+                    signal: this.controller.signal
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || '未知错误');
+                }
+                
+                // Create a new message element for streaming
+                const timestamp = new Date().toLocaleTimeString();
+                const messageId = 'msg-' + Date.now();
+                this.currentStreamingMessageId = messageId;
+                
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-ai';
+                messageElement.id = messageId;
+                messageElement.innerHTML = `
+                    <div class="message-ai">
+                        <div class="message-content ai-content">
+                            <span id="${messageId}-content"></span>
+                            <div class="message-meta">
+                                <span class="time">${timestamp}</span>
+                                <div class="message-actions">
+                                    <button class="message-action regenerate-btn" data-message-id="${messageId}">重新生成</button>
+                                    <button class="message-action continue-btn" data-message-id="${messageId}">继续生成</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                this.chatMessages.appendChild(messageElement);
+                
+                // Add event listeners for the new buttons
+                messageElement.querySelector('.regenerate-btn').addEventListener('click', (e) => {
+                    this.regenerateMessage(e.target.dataset.messageId);
+                });
+                
+                messageElement.querySelector('.continue-btn').addEventListener('click', (e) => {
+                    this.continueMessage(e.target.dataset.messageId);
+                });
+                
+                // Process the stream
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let content = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n').filter(line => line.trim() !== '');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data:') && !line.includes('[DONE]')) {
+                            try {
+                                const data = JSON.parse(line.substring(5));
+                                if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
+                                    content += data.choices[0].delta.content;
+                                    document.getElementById(`${messageId}-content`).innerHTML = this.formatContent(content);
+                                    
+                                    // Auto-scroll to bottom
+                                    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                                }
+                            } catch (e) {
+                                console.error('Error parsing stream data:', e);
+                            }
+                        }
+                    }
+                }
+                
+                // Add the completed message to the messages array
+                this.messages.push({
+                    role: 'ai',
+                    content: content,
+                    timestamp: timestamp,
+                    id: messageId
+                });
+                
+                this.hideTypingIndicator();
+                
+                // Highlight any code blocks in the final content
+                this.highlightCodeBlocks();
+            }
+            
+            regenerateMessage(messageId) {
+                if (this.isWaitingForResponse) {
+                    // If there's a request in progress, abort it
+                    if (this.controller) {
+                        this.controller.abort();
+                    }
+                    this.isWaitingForResponse = false;
+                    this.hideTypingIndicator();
+                }
+                
+                // Find the message to regenerate
+                const messageIndex = this.messages.findIndex(msg => msg.id === messageId);
+                if (messageIndex === -1) return;
+                
+                // Remove the AI response and any subsequent messages
+                this.messages = this.messages.slice(0, messageIndex);
+                
+                // Remove the message element from DOM
+                const messageElement = document.getElementById(messageId);
+                if (messageElement) {
+                    messageElement.remove();
+                }
+                
+                // Resend the last user message
+                const lastUserMessage = this.messages[this.messages.length - 1];
+                if (lastUserMessage && lastUserMessage.role === 'user') {
+                    this.isWaitingForResponse = true;
+                    this.showTypingIndicator();
+                    
+                    const parameters = {
+                        max_tokens: parseInt(this.maxTokensSlider.value),
+                        temperature: parseFloat(this.temperatureSlider.value),
+                        top_p: parseFloat(this.topPSlider.value),
+                        top_k: parseInt(this.topKSlider.value),
+                        frequency_penalty: parseFloat(this.freqPenaltySlider.value)
+                    };
+                    
+                    const messagesForAPI = [...this.messages];
+                    
+                    if (this.isCodeMode) {
+                        messagesForAPI.unshift({
+                            role: 'system',
+                            content: '你是一个专业的代码生成助手。用户会描述他们需要的功能或代码，你只需要生成相应的代码，不需要任何解释或额外的文本。直接输出代码，不要包含任何markdown标记或代码块标识。'
+                        });
+                    }
+                    
+                    // Create a new AbortController for this request
+                    this.controller = new AbortController();
+                    
+                    this.callAIAPIStream(messagesForAPI, parameters)
+                        .then(() => {
+                            this.isWaitingForResponse = false;
+                            this.currentStreamingMessageId = null;
+                            
+                            // Auto-scroll to bottom
+                            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                        })
+                        .catch(error => {
+                            if (error.name !== 'AbortError') {
+                                this.hideTypingIndicator();
+                                this.addMessage('ai', `抱歉，发生错误: ${error.message}`);
+                                this.isWaitingForResponse = false;
+                                this.currentStreamingMessageId = null;
+                                console.error('API Error:', error);
+                            }
+                        });
+                }
+            }
+            
+            continueMessage(messageId) {
+                if (this.isWaitingForResponse) {
+                    // If there's a request in progress, abort it
+                    if (this.controller) {
+                        this.controller.abort();
+                    }
+                    this.isWaitingForResponse = false;
+                    this.hideTypingIndicator();
+                }
+                
+                // Find the message to continue
+                const messageIndex = this.messages.findIndex(msg => msg.id === messageId);
+                if (messageIndex === -1) return;
+                
+                const messageToContinue = this.messages[messageIndex];
+                
+                this.isWaitingForResponse = true;
+                this.showTypingIndicator();
+                
+                const parameters = {
+                    max_tokens: parseInt(this.maxTokensSlider.value),
+                    temperature: parseFloat(this.temperatureSlider.value),
+                    top_p: parseFloat(this.topPSlider.value),
+                    top_k: parseInt(this.topKSlider.value),
+                    frequency_penalty: parseFloat(this.freqPenaltySlider.value)
+                };
+                
+                // Create a new message history that includes the partial message
+                const messagesForAPI = [...this.messages.slice(0, messageIndex)];
+                messagesForAPI.push({
+                    role: 'user',
+                    content: '请继续完成你之前的回答。'
+                });
+                
+                if (this.isCodeMode) {
+                    messagesForAPI.unshift({
+                        role: 'system',
+                        content: '你是一个专业的代码生成助手。用户会描述他们需要的功能或代码，你只需要生成相应的代码，不需要任何解释或额外的文本。直接输出代码，不要包含任何markdown标记或代码块标识。'
+                    });
+                }
+                
+                // Create a new AbortController for this request
+                this.controller = new AbortController();
+                
+                this.callAIAPIStream(messagesForAPI, parameters)
+                    .then(() => {
+                        this.isWaitingForResponse = false;
+                        this.currentStreamingMessageId = null;
+                        
+                        // Auto-scroll to bottom
+                        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                    })
+                    .catch(error => {
+                        if (error.name !== 'AbortError') {
+                            this.hideTypingIndicator();
+                            this.addMessage('ai', `抱歉，发生错误: ${error.message}`);
+                            this.isWaitingForResponse = false;
+                            this.currentStreamingMessageId = null;
+                            console.error('API Error:', error);
+                        }
+                    });
+            }
+            
+            addMessage(role, content, id = null) {
+                const timestamp = new Date().toLocaleTimeString();
+                const messageId = id || 'msg-' + Date.now();
+                const message = { role, content, timestamp, id: messageId };
+                
+                if (id) {
+                    // Update existing message
+                    const index = this.messages.findIndex(msg => msg.id === id);
+                    if (index !== -1) {
+                        this.messages[index] = message;
+                    } else {
+                        this.messages.push(message);
+                    }
+                } else {
+                    // Add new message
+                    this.messages.push(message);
+                }
+                
+                let messageElement = document.getElementById(messageId);
+                
+                if (!messageElement) {
+                    messageElement = document.createElement('div');
+                    messageElement.className = `message message-${role}`;
+                    messageElement.id = messageId;
+                    this.chatMessages.appendChild(messageElement);
+                }
+                
+                if (role === 'user') {
+                    messageElement.innerHTML = `
+                        <div class="message-user">
+                            <div class="message-content user-content">
+                                ${this.formatContent(content)}
+                                <div class="message-meta">
+                                    <span class="time">${timestamp}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (role === 'ai') {
+                    messageElement.innerHTML = `
+                        <div class="message-ai">
+                            <div class="message-content ai-content">
+                                ${this.formatContent(content)}
+                                <div class="message-meta">
+                                    <span class="time">${timestamp}</span>
+                                    <div class="message-actions">
+                                        <button class="message-action regenerate-btn" data-message-id="${messageId}">重新生成</button>
+                                        <button class="message-action continue-btn" data-message-id="${messageId}">继续生成</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add event listeners for the new buttons
+                    messageElement.querySelector('.regenerate-btn').addEventListener('click', (e) => {
+                        this.regenerateMessage(e.target.dataset.messageId);
+                    });
+                    
+                    messageElement.querySelector('.continue-btn').addEventListener('click', (e) => {
+                        this.continueMessage(e.target.dataset.messageId);
+                    });
+                } else if (role === 'system') {
+                    messageElement.innerHTML = `
+                        <div class="message-ai">
+                            <div class="message-content ai-content" style="background: rgba(74, 144, 226, 0.2);">
+                                ${this.formatContent(content)}
+                                <div class="message-meta">
+                                    <span class="time">${timestamp}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Auto-scroll to bottom
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                
+                // Highlight code blocks
+                this.highlightCodeBlocks();
+            }
+            
+            formatContent(content) {
+                // Replace newlines with <br> tags
+                let formattedContent = content.replace(/\n/g, '<br>');
+                
+                // If in code mode, wrap content in a code block
+                if (this.isCodeMode) {
+                    formattedContent = `<pre><code>${formattedContent}</code></pre>`;
+                }
+                
+                return formattedContent;
+            }
+            
+            highlightCodeBlocks() {
+                // This is a simple code highlighting implementation
+                // For more comprehensive highlighting, consider using a library like Prism.js or Highlight.js
+                const codeBlocks = document.querySelectorAll('pre code');
+                
+                codeBlocks.forEach(block => {
+                    // Add copy button
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-code';
+                    copyButton.textContent = '复制';
+                    copyButton.addEventListener('click', () => {
+                        navigator.clipboard.writeText(block.textContent)
+                            .then(() => {
+                                copyButton.textContent = '已复制!';
+                                setTimeout(() => {
+                                    copyButton.textContent = '复制';
+                                }, 2000);
+                            });
+                    });
+                    
+                    // Insert copy button
+                    if (!block.parentElement.querySelector('.copy-code')) {
+                        block.parentElement.insertBefore(copyButton, block);
+                    }
+                    
+                    // Simple syntax highlighting (basic example)
+                    const code = block.innerHTML;
+                    const highlightedCode = code
+                        .replace(/(\bfunction\b|\bvar\b|\blet\b|\bconst\b|\breturn\b|\bif\b|\belse\b|\bfor\b|\bwhile\b|\bclass\b|\bnew\b|\bthis\b)/g, '<span style="color: #f72585;">$1</span>')
+                        .replace(/(["'].*?["'])/g, '<span style="color: #4cc9f0;">$1</span>')
+                        .replace(/(\/\/.*?<br>|\/\*[\s\S]*?\*\/)/g, '<span style="color: #6a9955;">$1</span>')
+                        .replace(/(\b\d+\b)/g, '<span style="color: #b5cea8;">$1</span>');
+                    
+                    block.innerHTML = highlightedCode;
+                });
+            }
+            
+            showTypingIndicator() {
+                const typingElement = document.createElement('div');
+                typingElement.className = 'message message-ai';
+                typingElement.id = 'typingIndicator';
+                typingElement.innerHTML = `
+                    <div class="message-ai">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                this.chatMessages.appendChild(typingElement);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+            
+            hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            clearChat() {
+                if (confirm('确定要清空当前对话吗？')) {
+                    // Abort any ongoing request
+                    if (this.controller) {
+                        this.controller.abort();
+                    }
+                    
+                    this.messages = [];
+                    this.chatMessages.innerHTML = '';
+                    this.isWaitingForResponse = false;
+                    this.currentStreamingMessageId = null;
+                    
+                    // Add a welcome message
+                    this.addMessage('system', '欢迎使用幻影星途AI助手！您可以开始与我对话了。');
+                    
+                    // Reset code mode
+                    this.codeModeToggle.checked = false;
+                    this.isCodeMode = false;
+                    this.exportCodeFab.style.display = 'none';
+                }
+            }
+            
+            saveChat() {
+                if (this.messages.length === 0) {
+                    alert('没有对话内容可保存！');
+                    return;
+                }
+                
+                const chatData = {
+                    messages: this.messages,
+                    parameters: {
+                        maxTokens: this.maxTokensSlider.value,
+                        temperature: this.temperatureSlider.value,
+                        topP: this.topPSlider.value,
+                        topK: this.topKSlider.value,
+                        frequencyPenalty: this.freqPenaltySlider.value,
+                        codeMode: this.isCodeMode
+                    },
+                    timestamp: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `hyxt-chat-${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.addMessage('system', '对话已保存到本地。');
+            }
+            
+            loadChat() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        try {
+                            const chatData = JSON.parse(event.target.result);
+                            
+                            // Clear current chat
+                            this.messages = [];
+                            this.chatMessages.innerHTML = '';
+                            
+                            // Restore messages
+                            chatData.messages.forEach(msg => {
+                                this.addMessage(msg.role, msg.content, msg.id);
+                            });
+                            
+                            // Restore parameters
+                            if (chatData.parameters) {
+                                this.maxTokensSlider.value = chatData.parameters.maxTokens || 2000;
+                                this.maxTokensInput.value = chatData.parameters.maxTokens || 2000;
+                                this.maxTokensValue.textContent = chatData.parameters.maxTokens || 2000;
+                                
+                                this.temperatureSlider.value = chatData.parameters.temperature || 0.7;
+                                this.temperatureInput.value = chatData.parameters.temperature || 0.7;
+                                this.temperatureValue.textContent = chatData.parameters.temperature || 0.7;
+                                
+                                this.topPSlider.value = chatData.parameters.topP || 0.9;
+                                this.topPInput.value = chatData.parameters.topP || 0.9;
+                                this.topPValue.textContent = chatData.parameters.topP || 0.9;
+                                
+                                this.topKSlider.value = chatData.parameters.topK || 50;
+                                this.topKInput.value = chatData.parameters.topK || 50;
+                                this.topKValue.textContent = chatData.parameters.topK || 50;
+                                
+                                this.freqPenaltySlider.value = chatData.parameters.frequencyPenalty || 0;
+                                this.freqPenaltyInput.value = chatData.parameters.frequencyPenalty || 0;
+                                this.freqPenaltyValue.textContent = chatData.parameters.frequencyPenalty || 0;
+                                
+                                this.codeModeToggle.checked = chatData.parameters.codeMode || false;
+                                this.isCodeMode = chatData.parameters.codeMode || false;
+                                this.exportCodeFab.style.display = this.isCodeMode ? 'flex' : 'none';
+                            }
+                            
+                            this.addMessage('system', '对话已从文件加载。');
+                            this.saveParameters();
+                        } catch (error) {
+                            alert('加载对话失败: 文件格式不正确');
+                            console.error('Error loading chat:', error);
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                
+                input.click();
+            }
+            
+            saveParameters() {
+                const parameters = {
+                    maxTokens: this.maxTokensSlider.value,
+                    temperature: this.temperatureSlider.value,
+                    topP: this.topPSlider.value,
+                    topK: this.topKSlider.value,
+                    frequencyPenalty: this.freqPenaltySlider.value,
+                    codeMode: this.isCodeMode
+                };
+                
+                localStorage.setItem('hyxtParameters', JSON.stringify(parameters));
+            }
+            
+            loadParameters() {
+                const savedParams = localStorage.getItem('hyxtParameters');
+                if (savedParams) {
+                    try {
+                        const parameters = JSON.parse(savedParams);
+                        
+                        this.maxTokensSlider.value = parameters.maxTokens || 2000;
+                        this.maxTokensInput.value = parameters.maxTokens || 2000;
+                        this.maxTokensValue.textContent = parameters.maxTokens || 2000;
+                        
+                        this.temperatureSlider.value = parameters.temperature || 0.7;
+                        this.temperatureInput.value = parameters.temperature || 0.7;
+                        this.temperatureValue.textContent = parameters.temperature || 0.7;
+                        
+                        this.topPSlider.value = parameters.topP || 0.9;
+                        this.topPInput.value = parameters.topP || 0.9;
+                        this.topPValue.textContent = parameters.topP || 0.9;
+                        
+                        this.topKSlider.value = parameters.topK || 50;
+                        this.topKInput.value = parameters.topK || 50;
+                        this.topKValue.textContent = parameters.topK || 50;
+                        
+                        this.freqPenaltySlider.value = parameters.frequencyPenalty || 0;
+                        this.freqPenaltyInput.value = parameters.frequencyPenalty || 0;
+                        this.freqPenaltyValue.textContent = parameters.frequencyPenalty || 0;
+                        
+                        this.codeModeToggle.checked = parameters.codeMode || false;
+                        this.isCodeMode = parameters.codeMode || false;
+                        this.exportCodeFab.style.display = this.isCodeMode ? 'flex' : 'none';
+                    } catch (error) {
+                        console.error('Error loading parameters:', error);
+                    }
+                }
+            }
+            
+            checkForSavedChat() {
+                // Add a welcome message if no messages exist
+                if (this.messages.length === 0) {
+                    this.addMessage('system', '欢迎使用幻影星途AI助手！您可以开始与我对话了。');
+                }
+            }
+            
+            exportLastCode() {
+                if (this.messages.length === 0) {
+                    alert('没有可导出的代码！');
+                    return;
+                }
+                
+                // Find the last AI message in code mode
+                let lastCodeMessage = null;
+                for (let i = this.messages.length - 1; i >= 0; i--) {
+                    if (this.messages[i].role === 'ai') {
+                        lastCodeMessage = this.messages[i].content;
+                        break;
+                    }
+                }
+                
+                if (!lastCodeMessage) {
+                    alert('没有找到可导出的代码！');
+                    return;
+                }
+                
+                // Detect language (very basic detection)
+                let language = 'txt';
+                const code = lastCodeMessage.trim();
+                
+                if (code.includes('function') || code.includes('const') || code.includes('let') || code.includes('=>')) {
+                    language = 'js';
+                } else if (code.includes('def ') || code.includes('import ') || code.includes('print(')) {
+                    language = 'py';
+                } else if (code.includes('<?php') || code.includes('echo ') || code.includes('$')) {
+                    language = 'php';
+                } else if (code.includes('#include') || code.includes('int main(') || code.includes('cout ')) {
+                    language = 'cpp';
+                } else if (code.includes('public class') || code.includes('System.out.println')) {
+                    language = 'java';
+                } else if (code.includes('<html') || code.includes('<!DOCTYPE html>')) {
+                    language = 'html';
+                } else if (code.includes('SELECT') || code.includes('INSERT') || code.includes('CREATE TABLE')) {
+                    language = 'sql';
+                }
+                
+                const blob = new Blob([code], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `hyxt-code-${new Date().toISOString().slice(0, 10)}.${language}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.addMessage('system', `代码已导出为 ${language} 文件。`);
+            }
+        }
+        
+        // Initialize the chat application
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChatApp();
+        });
+    </script>
+</body>
+</html>

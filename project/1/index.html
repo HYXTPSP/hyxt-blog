@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYXT6.0 - 幻影星途 | 智能对话新纪元</title>
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6e48aa;
+            --secondary: #9d50bb;
+            --accent: #4776e6;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --light: #e2e2e2;
+            --lighter: #f8f9fa;
+            --code-bg: #2d2d44;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+            background-image: url('bj.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+        
+        /* 开屏动画 */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            animation: fadeOut 2s ease-in-out 3s forwards;
+        }
+        
+        .splash-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            background: linear-gradient(to right, #ff8a00, #e52e71, #6e48aa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(110, 72, 170, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(255, 138, 0, 0.5), 0 0 20px rgba(229, 46, 113, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(255, 138, 0, 0.8), 0 0 30px rgba(229, 46, 113, 0.8), 0 0 40px rgba(110, 72, 170, 0.8);
+            }
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+        
+        /* 主容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1s ease-out 3.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 标题区域 */
+        .hero {
+            position: relative;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem 1rem;
+            border-radius: 20px;
+            background: rgba(26, 26, 46, 0.7);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4rem); /* 响应式字体大小 */
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 3vw, 1.5rem); /* 响应式字体大小 */
+            color: var(--light);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .hero-bg img {
+            position: absolute;
+            max-width: 160%;
+            max-height: 160%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-bg img.active {
+            opacity: 1;
+        }
+        
+        /* 按钮容器 */
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* 下载按钮 */
+        .download-btn {
+            display: inline-block;
+            padding: 0.9rem 2rem;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(110, 72, 170, 0.4);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            width: 100%;
+            max-width: 250px;
+            text-align: center;
+        }
+        
+        /* 免费密钥按钮 */
+        .key-btn {
+            display: inline-block;
+            padding: 0.9rem 2rem;
+            background: linear-gradient(45deg, #e52e71, #9d50bb);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(157, 80, 187, 0.4);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            width: 100%;
+            max-width: 250px;
+            text-align: center;
+        }
+        
+        .download-btn:hover, .key-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(110, 72, 170, 0.6);
+        }
+        
+        .download-btn:active, .key-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .download-btn::before, .key-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .download-btn:hover::before, .key-btn:hover::before {
+            left: 100%;
+        }
+        
+        /* 功能展示区 */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(22, 33, 62, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(110, 72, 170, 0.3);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(110, 72, 170, 0.6);
+        }
+        
+        .feature-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
+            color: var(--secondary);
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--light);
+        }
+        
+        .feature-desc {
+            color: var(--light);
+            opacity: 0.8;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        /* 角色扮演部分 */
+        .roleplay-section {
+            background: rgba(22, 33, 62, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(110, 72, 170, 0.3);
+        }
+        
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            margin-bottom: 1.2rem;
+            color: var(--light);
+            text-align: center;
+        }
+        
+        .roleplay-desc {
+            margin-bottom: 1.2rem;
+            line-height: 1.6;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        
+        .role-card-btn {
+            display: block;
+            width: fit-content;
+            margin: 0 auto;
+            padding: 0.7rem 1.3rem;
+            background: linear-gradient(45deg, #e52e71, #9d50bb);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(157, 80, 187, 0.4);
+            font-size: 0.95rem;
+        }
+        
+        .role-card-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(157, 80, 187, 0.6);
+        }
+        
+        /* 参数调节部分 */
+        .params-section {
+            background: rgba(22, 33, 62, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(110, 72, 170, 0.3);
+        }
+        
+        .params-desc {
+            line-height: 1.8;
+            margin-bottom: 1.2rem;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        
+        .params-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1.2rem;
+        }
+        
+        .param-item {
+            background: rgba(71, 118, 230, 0.1);
+            padding: 0.9rem;
+            border-radius: 10px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .param-name {
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+            font-size: 0.95rem;
+        }
+        
+        .param-desc {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        /* 图片展示部分 */
+        .screenshot-section {
+            background: rgba(22, 33, 62, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .screenshot-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.3rem, 3.5vw, 1.5rem);
+            margin-bottom: 1.2rem;
+            color: var(--light);
+        }
+        
+        .screenshot-img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .screenshot-img:hover {
+            transform: scale(1.02);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--light);
+            opacity: 0.7;
+            font-size: 0.85rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .hero {
+                padding: 1.5rem 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .hero-bg img {
+                max-width: 200%;
+                max-height: 200%;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .feature-card {
+                padding: 1.2rem;
+            }
+            
+            .params-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                gap: 0.8rem;
+            }
+            
+            .download-btn, .key-btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .splash-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .hero-bg img {
+                max-width: 250%;
+                max-height: 250%;
+            }
+        }
+        
+        /* 特殊效果 */
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(110, 72, 170, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(110, 72, 170, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(110, 72, 170, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 开屏动画 -->
+    <div class="splash-screen">
+        <h1 class="splash-title">幻影星途</h1>
+    </div>
+    
+    <!-- 主内容 -->
+    <div class="container">
+        <!-- 标题区域 -->
+        <section class="hero">
+            <div class="hero-bg">
+                <img src="jt1.jpg" class="active" alt="HYXT6.0 截图1">
+                <img src="jt2.jpg" alt="HYXT6.0 截图2">
+                <img src="jt3.jpg" alt="HYXT6.0 截图3">
+            </div>
+            <h1 class="hero-title">HYXT6.0</h1>
+            <p class="hero-subtitle">下一代智能对话引擎 · 开启AI交互新纪元</p>
+            <div class="button-group">
+                <a href="https://pan.baidu.com/s/1986NxVxiJy5aHL-KJPcBRg?pwd=hyxt" class="download-btn pulse">立即下载</a>
+                <a href="https://cloud.siliconflow.cn/i/0aPNMKxx" class="key-btn">获取免费的密钥</a>
+            </div>
+        </section>
+        
+        <!-- 功能展示区 -->
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3 class="feature-title">智能对话</h3>
+                <p class="feature-desc">HYXT6.0拥有先进的自然语言理解能力，可以进行流畅、深入的对话交流。无论是日常聊天、专业咨询还是创意写作，都能提供令人惊艳的交互体验。</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">👨‍💻</div>
+                <h3 class="feature-title">代码生成</h3>
+                <p class="feature-desc">支持多种编程语言的代码生成、补全和解释功能。从简单的脚本到复杂的算法，HYXT6.0都能帮助开发者提高效率，减少重复劳动。</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3 class="feature-title">API兼容</h3>
+                <p class="feature-desc">无缝兼容多种API接口，轻松集成到您的工作流程中。支持OpenAI、Claude、Gemini等多种主流AI服务，一站式管理所有AI资源。</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎛️</div>
+                <h3 class="feature-title">模型选择</h3>
+                <p class="feature-desc">自由选择最适合您需求的AI模型。从轻量级到超大规模模型，根据任务需求灵活切换，平衡速度与质量。</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💾</div>
+                <h3 class="feature-title">记录保存</h3>
+                <p class="feature-desc">一键保存完整聊天记录，支持多种导出格式。随时回顾历史对话，建立知识库，让有价值的交流永不丢失。</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🌙</div>
+                <h3 class="feature-title">护眼设计</h3>
+                <p class="feature-desc">精心设计的暗色调界面，减少长时间使用的视觉疲劳。可调节的亮度和对比度，满足不同环境下的使用需求。</p>
+            </div>
+        </section>
+        
+        <!-- 角色扮演部分 -->
+        <section class="roleplay-section">
+            <h2 class="section-title">沉浸式角色扮演</h2>
+            <p class="roleplay-desc">HYXT6.0完美兼容SillyTavern角色卡系统，让您体验前所未有的角色扮演乐趣。从丰富的角色库中选择您喜爱的角色，开始一段奇妙的对话旅程。</p>
+            <a href="https://tieba.baidu.com/p/8711318791" class="role-card-btn">获取角色卡</a>
+        </section>
+        
+        <!-- 参数调节部分 -->
+        <section class="params-section">
+            <h2 class="section-title">精细参数控制</h2>
+            <p class="params-desc">
+                HYXT6.0提供了全面的参数调节功能，让您精确控制AI的响应行为。通过调整Max Tokens、Temperature、Top-P等参数，
+                您可以微调AI的创造力、响应长度和多样性，获得最符合您需求的输出结果。
+            </p>
+            <div class="params-list">
+                <div class="param-item">
+                    <div class="param-name">Max Tokens</div>
+                    <div class="param-desc">控制生成响应的最大长度，平衡详细程度与响应速度。</div>
+                </div>
+                <div class="param-item">
+                    <div class="param-name">Temperature</div>
+                    <div class="param-desc">调节输出的随机性，值越高结果越有创意，值越低结果越确定。</div>
+                </div>
+                <div class="param-item">
+                    <div class="param-name">Top-P</div>
+                    <div class="param-desc">核采样参数，控制生成时考虑的词汇范围，影响输出的多样性。</div>
+                </div>
+                <div class="param-item">
+                    <div class="param-name">Top-K</div>
+                    <div class="param-desc">限制每一步只考虑概率最高的K个词，平衡质量与多样性。</div>
+                </div>
+                <div class="param-item">
+                    <div class="param-name">Frequency Penalty</div>
+                    <div class="param-desc">降低重复词汇的概率，使输出更加多样化。</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 图片展示部分 -->
+        <section class="screenshot-section">
+            <h2 class="screenshot-title">HYXT6.0 界面预览</h2>
+            <img src="jt3.jpg" alt="HYXT6.0 界面截图" class="screenshot-img">
+        </section>
+    </div>
+    
+    <footer>
+        <p>© 2025 HYXT6.0 - 幻影星途 | 自研AI对话引擎</p>
+    </footer>
+    
+    <script>
+        // 开屏动画结束后显示主内容
+        document.addEventListener('DOMContentLoaded', function() {
+            // 背景图片轮换
+            const bgImages = document.querySelectorAll('.hero-bg img');
+            let currentIndex = 0;
+            
+            function rotateImages() {
+                bgImages[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % bgImages.length;
+                bgImages[currentIndex].classList.add('active');
+            }
+            
+            // 设置6秒切换一次图片，过渡时间延长到1.5秒
+            setInterval(rotateImages, 6000);
+            
+            // 添加浮动动画到部分元素
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('floating');
+            });
+        });
+    </script>
+</body>
+</html>
