@@ -5,638 +5,739 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HYXT6.0 - 幻影星途 | 智能对话新纪元</title>
     <link rel="icon" href="icon.ico" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6e48aa;
-            --secondary: #9d50bb;
-            --accent: #4776e6;
-            --dark: #1a1a2e;
-            --darker: #16213e;
-            --light: #e2e2e2;
-            --lighter: #f8f9fa;
-            --code-bg: #2d2d44;
-            --success: #4CAF50;
-            --warning: #FFC107;
-            --danger: #F44336;
+            --bg: #faf9f7;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --text-secondary: #6b6b6b;
+            --accent: #d97757;
+            --accent-dark: #c2574a;
+            --border: #e5e5e5;
+            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --shadow-hover: 0 8px 40px rgba(0,0,0,0.12);
+            --gradient: linear-gradient(135deg, #d97757 0%, #c2574a 50%, #a84832 100%);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: 'Exo 2', sans-serif;
-            background-color: var(--dark);
-            color: var(--light);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             overflow-x: hidden;
-            background-image: url('bj.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
+            line-height: 1.6;
         }
-        
-        /* 开屏动画 */
-        .splash-screen {
+
+        /* ========== CURSOR FOLLOWER ========== */
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease-out;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor-ring {
+            position: fixed;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid rgba(217,119,87,0.3);
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.2s ease-out;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ========== SCROLL PROGRESS ========== */
+        .scroll-progress {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            height: 3px;
+            background: var(--gradient);
             z-index: 9999;
-            animation: fadeOut 2s ease-in-out 3s forwards;
+            transition: width 0.1s linear;
         }
-        
-        .splash-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 5rem;
-            background: linear-gradient(to right, #ff8a00, #e52e71, #6e48aa);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 20px rgba(110, 72, 170, 0.5);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-        
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 10px rgba(255, 138, 0, 0.5), 0 0 20px rgba(229, 46, 113, 0.5);
-            }
-            to {
-                text-shadow: 0 0 20px rgba(255, 138, 0, 0.8), 0 0 30px rgba(229, 46, 113, 0.8), 0 0 40px rgba(110, 72, 170, 0.8);
-            }
-        }
-        
-        @keyframes fadeOut {
-            to {
-                opacity: 0;
-                visibility: hidden;
-            }
-        }
-        
-        /* 主容器 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.5rem;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 1s ease-out 3.5s forwards;
-        }
-        
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* 标题区域 */
-        .hero {
-            position: relative;
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 2rem 1rem;
-            border-radius: 20px;
-            background: rgba(26, 26, 46, 0.7);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-        
-        .hero-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(2.5rem, 6vw, 4rem); /* 响应式字体大小 */
-            margin-bottom: 1rem;
-            background: linear-gradient(to right, var(--accent), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .hero-subtitle {
-            font-size: clamp(1.1rem, 3vw, 1.5rem); /* 响应式字体大小 */
-            color: var(--light);
-            margin-bottom: 1.5rem;
-            font-weight: 300;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .hero-bg {
-            position: absolute;
+
+        /* ========== NAV ========== */
+        .nav {
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            padding: 16px 40px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            opacity: 0.3;
-            z-index: 1;
+            z-index: 100;
+            background: rgba(250,249,247,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: var(--transition);
         }
-        
-        .hero-bg img {
-            position: absolute;
-            max-width: 160%;
-            max-height: 160%;
-            object-fit: contain;
-            opacity: 0;
-            transition: opacity 1.5s ease-in-out;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+
+        .nav.scrolled { border-bottom-color: var(--border); }
+
+        .nav-logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
         }
-        
-        .hero-bg img.active {
-            opacity: 1;
+
+        .nav-back {
+            padding: 8px 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text);
+            text-decoration: none;
+            transition: var(--transition);
         }
-        
-        /* 按钮容器 */
-        .button-group {
+
+        .nav-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1rem;
-            margin-top: 1.5rem;
-            position: relative;
-            z-index: 2;
-        }
-        
-        /* 下载按钮 */
-        .download-btn {
-            display: inline-block;
-            padding: 0.9rem 2rem;
-            background: linear-gradient(45deg, var(--primary), var(--accent));
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(110, 72, 170, 0.4);
+            justify-content: center;
+            padding: 120px 40px 80px;
             position: relative;
             overflow: hidden;
-            text-decoration: none;
-            width: 100%;
-            max-width: 250px;
-            text-align: center;
         }
-        
-        /* 免费密钥按钮 */
-        .key-btn {
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(217,119,87,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(194,87,74,0.08) 0%, transparent 50%);
+            animation: meshFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes meshFloat {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(2%, -3%); }
+            50% { transform: translate(-2%, 2%); }
+            75% { transform: translate(3%, 1%); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .hero-badge {
             display: inline-block;
-            padding: 0.9rem 2rem;
-            background: linear-gradient(45deg, #e52e71, #9d50bb);
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: none;
+            padding: 8px 20px;
+            background: var(--accent);
+            color: #fff;
             border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(157, 80, 187, 0.4);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -3px;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease 0.4s forwards;
+            opacity: 0;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.6s forwards;
+            opacity: 0;
+        }
+
+        .btn {
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
-            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 20px rgba(217,119,87,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 35px rgba(217,119,87,0.45);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: #fff;
+            transform: translateY(-4px);
+        }
+
+        /* Hero screenshots carousel */
+        .hero-screenshots {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .hero-screenshots img {
+            position: absolute;
             width: 100%;
-            max-width: 250px;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .hero-screenshots img.active { opacity: 0.08; }
+
+        /* ========== SECTIONS ========== */
+        .section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 40px;
+        }
+
+        .section-header {
             text-align: center;
+            margin-bottom: 60px;
         }
-        
-        .download-btn:hover, .key-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(110, 72, 170, 0.6);
+
+        .section-header h2 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
         }
-        
-        .download-btn:active, .key-btn:active {
-            transform: translateY(1px);
+
+        .section-header h2.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        
-        .download-btn::before, .key-btn::before {
+
+        .section-header p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease 0.15s;
+        }
+
+        .section-header p.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========== FEATURES ========== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(40px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: 0.5s;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transition: transform 0.6s ease;
         }
-        
-        .download-btn:hover::before, .key-btn:hover::before {
-            left: 100%;
-        }
-        
-        /* 功能展示区 */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .feature-card {
-            background: rgba(22, 33, 62, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(110, 72, 170, 0.3);
-        }
-        
+
+        .feature-card:hover::before { transform: scaleX(1); }
+
         .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(110, 72, 170, 0.6);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
         }
-        
+
         .feature-icon {
-            font-size: 2.2rem;
-            margin-bottom: 0.8rem;
-            color: var(--secondary);
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            display: inline-block;
+            animation: iconBounce 2s ease-in-out infinite;
         }
-        
-        .feature-title {
+
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .feature-card:nth-child(2) .feature-icon { animation-delay: -0.3s; }
+        .feature-card:nth-child(3) .feature-icon { animation-delay: -0.6s; }
+        .feature-card:nth-child(4) .feature-icon { animation-delay: -0.9s; }
+        .feature-card:nth-child(5) .feature-icon { animation-delay: -1.2s; }
+        .feature-card:nth-child(6) .feature-icon { animation-delay: -1.5s; }
+
+        .feature-card h3 {
             font-size: 1.3rem;
-            margin-bottom: 0.8rem;
-            color: var(--light);
+            font-weight: 700;
+            margin-bottom: 12px;
         }
-        
-        .feature-desc {
-            color: var(--light);
-            opacity: 0.8;
-            line-height: 1.6;
+
+        .feature-card:hover h3 { color: var(--accent); }
+
+        .feature-card p {
+            color: var(--text-secondary);
             font-size: 0.95rem;
+            line-height: 1.7;
         }
-        
-        /* 角色扮演部分 */
-        .roleplay-section {
-            background: rgba(22, 33, 62, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(110, 72, 170, 0.3);
-        }
-        
-        .section-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1.5rem, 4vw, 2rem);
-            margin-bottom: 1.2rem;
-            color: var(--light);
+
+        /* ========== ROLEPLAY ========== */
+        .roleplay-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 48px;
             text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .roleplay-desc {
-            margin-bottom: 1.2rem;
-            line-height: 1.6;
-            text-align: center;
-            font-size: 0.95rem;
+
+        .roleplay-card.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        
-        .role-card-btn {
-            display: block;
-            width: fit-content;
-            margin: 0 auto;
-            padding: 0.7rem 1.3rem;
-            background: linear-gradient(45deg, #e52e71, #9d50bb);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(157, 80, 187, 0.4);
-            font-size: 0.95rem;
+
+        .roleplay-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(217,119,87,0.06) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        
-        .role-card-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(157, 80, 187, 0.6);
+
+        .roleplay-card:hover::after { opacity: 1; }
+
+        .roleplay-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
         }
-        
-        /* 参数调节部分 */
-        .params-section {
-            background: rgba(22, 33, 62, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(110, 72, 170, 0.3);
+
+        .roleplay-card p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 28px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        
-        .params-desc {
-            line-height: 1.8;
-            margin-bottom: 1.2rem;
-            text-align: center;
-            font-size: 0.95rem;
-        }
-        
-        .params-list {
+
+        /* ========== PARAMS ========== */
+        .params-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-            margin-top: 1.2rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
         }
-        
+
         .param-item {
-            background: rgba(71, 118, 230, 0.1);
-            padding: 0.9rem;
-            border-radius: 10px;
-            border-left: 3px solid var(--accent);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            border-left: 4px solid var(--accent);
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.6s ease;
         }
-        
+
+        .param-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .param-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
         .param-name {
-            font-weight: bold;
+            font-weight: 700;
             color: var(--accent);
-            margin-bottom: 0.4rem;
-            font-size: 0.95rem;
+            margin-bottom: 6px;
+            font-size: 1rem;
         }
-        
+
         .param-desc {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            line-height: 1.5;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
         }
-        
-        /* 图片展示部分 */
-        .screenshot-section {
-            background: rgba(22, 33, 62, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+        /* ========== SCREENSHOT ========== */
+        .screenshot-wrapper {
             text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
         }
-        
-        .screenshot-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1.3rem, 3.5vw, 1.5rem);
-            margin-bottom: 1.2rem;
-            color: var(--light);
+
+        .screenshot-wrapper.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        
-        .screenshot-img {
+
+        .screenshot-wrapper img {
             max-width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
         }
-        
-        .screenshot-img:hover {
+
+        .screenshot-wrapper img:hover {
             transform: scale(1.02);
+            box-shadow: var(--shadow-hover);
         }
-        
-        /* 页脚 */
+
+        /* ========== FOOTER ========== */
         footer {
             text-align: center;
-            padding: 1.5rem 0;
-            color: var(--light);
-            opacity: 0.7;
-            font-size: 0.85rem;
+            padding: 40px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
         }
-        
-        /* 响应式设计 */
+
+        /* ========== BACK TO TOP ========== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .back-to-top.show { opacity: 1; transform: translateY(0); }
+
+        .back-to-top:hover {
+            transform: translateY(-4px) scale(1.1);
+        }
+
+        /* ========== FLOATING SHAPES ========== */
+        .floating-shape {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(217,119,87,0.06);
+            pointer-events: none;
+            z-index: 0;
+            animation: shapeDrift 20s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) { width: 300px; height: 300px; top: 20%; left: -5%; }
+        .floating-shape:nth-child(2) { width: 200px; height: 200px; top: 60%; right: -3%; animation-delay: -7s; }
+        .floating-shape:nth-child(3) { width: 150px; height: 150px; bottom: 10%; left: 30%; animation-delay: -14s; }
+
+        @keyframes shapeDrift {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(30px, -40px); }
+            50% { transform: translate(-20px, 20px); }
+            75% { transform: translate(40px, 30px); }
+        }
+
+        /* ========== STAGGER ========== */
+        .stagger-1 { transition-delay: 0.05s !important; }
+        .stagger-2 { transition-delay: 0.1s !important; }
+        .stagger-3 { transition-delay: 0.15s !important; }
+        .stagger-4 { transition-delay: 0.2s !important; }
+        .stagger-5 { transition-delay: 0.25s !important; }
+        .stagger-6 { transition-delay: 0.3s !important; }
+
+        /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .hero {
-                padding: 1.5rem 1rem;
-                margin-bottom: 1.5rem;
-            }
-            
-            .hero-bg img {
-                max-width: 200%;
-                max-height: 200%;
-            }
-            
-            .features {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .feature-card {
-                padding: 1.2rem;
-            }
-            
-            .params-list {
-                grid-template-columns: 1fr;
-            }
-            
-            .button-group {
-                gap: 0.8rem;
-            }
-            
-            .download-btn, .key-btn {
-                padding: 0.8rem 1.5rem;
-                font-size: 1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .splash-title {
-                font-size: 2.5rem;
-            }
-            
-            .hero-title {
-                font-size: 2.2rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-            
-            .section-title {
-                font-size: 1.3rem;
-            }
-            
-            .hero-bg img {
-                max-width: 250%;
-                max-height: 250%;
-            }
-        }
-        
-        /* 特殊效果 */
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
-        
-        @keyframes floating {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(110, 72, 170, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 15px rgba(110, 72, 170, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(110, 72, 170, 0);
-            }
+            .nav { padding: 12px 20px; }
+            .hero { padding: 100px 20px 60px; }
+            .section { padding: 60px 20px; }
+            .section-header h2 { font-size: 2rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .params-grid { grid-template-columns: 1fr; }
+            .hero-buttons { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
 <body>
-    <!-- 开屏动画 -->
-    <div class="splash-screen">
-        <h1 class="splash-title">幻影星途</h1>
-    </div>
-    
-    <!-- 主内容 -->
-    <div class="container">
-        <!-- 标题区域 -->
-        <section class="hero">
-            <div class="hero-bg">
-                <img src="jt1.jpg" class="active" alt="HYXT6.0 截图1">
-                <img src="jt2.jpg" alt="HYXT6.0 截图2">
-                <img src="jt3.jpg" alt="HYXT6.0 截图3">
-            </div>
-            <h1 class="hero-title">HYXT6.0</h1>
+    <!-- Cursors -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Floating Shapes -->
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+
+    <!-- Nav -->
+    <nav class="nav" id="nav">
+        <a href="#" class="nav-logo">HYXT6.0</a>
+        <a href="../index.html" class="nav-back">← 返回主页</a>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-screenshots">
+            <img src="jt1.jpg" alt="截图1" class="active" id="heroImg1">
+            <img src="jt2.jpg" alt="截图2" id="heroImg2">
+            <img src="jt3.jpg" alt="截图3" id="heroImg3">
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">🚀 全新发布</div>
+            <h1>HYXT 6.0</h1>
             <p class="hero-subtitle">下一代智能对话引擎 · 开启AI交互新纪元</p>
-            <div class="button-group">
-                <a href="https://pan.baidu.com/s/1986NxVxiJy5aHL-KJPcBRg?pwd=hyxt" class="download-btn pulse">立即下载</a>
-                <a href="https://cloud.siliconflow.cn/i/0aPNMKxx" class="key-btn">获取免费的密钥</a>
+            <div class="hero-buttons">
+                <a href="https://pan.baidu.com/s/1986NxVxiJy5aHL-KJPcBRg?pwd=hyxt" class="btn btn-primary">📥 立即下载</a>
+                <a href="https://cloud.siliconflow.cn/i/0aPNMKxx" class="btn btn-secondary">🔑 获取免费密钥</a>
             </div>
-        </section>
-        
-        <!-- 功能展示区 -->
-        <section class="features">
-            <div class="feature-card">
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section">
+        <div class="section-header">
+            <h2 data-animate>核心功能</h2>
+            <p data-animate>六大特性，重新定义AI对话体验</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card stagger-1" data-animate>
                 <div class="feature-icon">💬</div>
-                <h3 class="feature-title">智能对话</h3>
-                <p class="feature-desc">HYXT6.0拥有先进的自然语言理解能力，可以进行流畅、深入的对话交流。无论是日常聊天、专业咨询还是创意写作，都能提供令人惊艳的交互体验。</p>
+                <h3>智能对话</h3>
+                <p>先进的自然语言理解能力，流畅、深入的对话交流。日常聊天、专业咨询、创意写作，都能提供令人惊艳的交互体验。</p>
             </div>
-            
-            <div class="feature-card">
+            <div class="feature-card stagger-2" data-animate>
                 <div class="feature-icon">👨‍💻</div>
-                <h3 class="feature-title">代码生成</h3>
-                <p class="feature-desc">支持多种编程语言的代码生成、补全和解释功能。从简单的脚本到复杂的算法，HYXT6.0都能帮助开发者提高效率，减少重复劳动。</p>
+                <h3>代码生成</h3>
+                <p>支持多种编程语言的代码生成、补全和解释。从简单脚本到复杂算法，帮助开发者提高效率。</p>
             </div>
-            
-            <div class="feature-card">
+            <div class="feature-card stagger-3" data-animate>
                 <div class="feature-icon">🔄</div>
-                <h3 class="feature-title">API兼容</h3>
-                <p class="feature-desc">无缝兼容多种API接口，轻松集成到您的工作流程中。支持OpenAI、Claude、Gemini等多种主流AI服务，一站式管理所有AI资源。</p>
+                <h3>API兼容</h3>
+                <p>无缝兼容OpenAI、Claude、Gemini等多种主流AI服务，一站式管理所有AI资源。</p>
             </div>
-            
-            <div class="feature-card">
+            <div class="feature-card stagger-4" data-animate>
                 <div class="feature-icon">🎛️</div>
-                <h3 class="feature-title">模型选择</h3>
-                <p class="feature-desc">自由选择最适合您需求的AI模型。从轻量级到超大规模模型，根据任务需求灵活切换，平衡速度与质量。</p>
+                <h3>模型选择</h3>
+                <p>自由选择最适合需求的AI模型，从轻量级到超大规模，灵活切换。</p>
             </div>
-            
-            <div class="feature-card">
+            <div class="feature-card stagger-5" data-animate>
                 <div class="feature-icon">💾</div>
-                <h3 class="feature-title">记录保存</h3>
-                <p class="feature-desc">一键保存完整聊天记录，支持多种导出格式。随时回顾历史对话，建立知识库，让有价值的交流永不丢失。</p>
+                <h3>记录保存</h3>
+                <p>一键保存完整聊天记录，支持多种导出格式，随时回顾历史对话。</p>
             </div>
-            
-            <div class="feature-card">
+            <div class="feature-card stagger-6" data-animate>
                 <div class="feature-icon">🌙</div>
-                <h3 class="feature-title">护眼设计</h3>
-                <p class="feature-desc">精心设计的暗色调界面，减少长时间使用的视觉疲劳。可调节的亮度和对比度，满足不同环境下的使用需求。</p>
+                <h3>护眼设计</h3>
+                <p>精心设计的暗色调界面，减少长时间使用的视觉疲劳。</p>
             </div>
-        </section>
-        
-        <!-- 角色扮演部分 -->
-        <section class="roleplay-section">
-            <h2 class="section-title">沉浸式角色扮演</h2>
-            <p class="roleplay-desc">HYXT6.0完美兼容SillyTavern角色卡系统，让您体验前所未有的角色扮演乐趣。从丰富的角色库中选择您喜爱的角色，开始一段奇妙的对话旅程。</p>
-            <a href="https://tieba.baidu.com/p/8711318791" class="role-card-btn">获取角色卡</a>
-        </section>
-        
-        <!-- 参数调节部分 -->
-        <section class="params-section">
-            <h2 class="section-title">精细参数控制</h2>
-            <p class="params-desc">
-                HYXT6.0提供了全面的参数调节功能，让您精确控制AI的响应行为。通过调整Max Tokens、Temperature、Top-P等参数，
-                您可以微调AI的创造力、响应长度和多样性，获得最符合您需求的输出结果。
-            </p>
-            <div class="params-list">
-                <div class="param-item">
-                    <div class="param-name">Max Tokens</div>
-                    <div class="param-desc">控制生成响应的最大长度，平衡详细程度与响应速度。</div>
-                </div>
-                <div class="param-item">
-                    <div class="param-name">Temperature</div>
-                    <div class="param-desc">调节输出的随机性，值越高结果越有创意，值越低结果越确定。</div>
-                </div>
-                <div class="param-item">
-                    <div class="param-name">Top-P</div>
-                    <div class="param-desc">核采样参数，控制生成时考虑的词汇范围，影响输出的多样性。</div>
-                </div>
-                <div class="param-item">
-                    <div class="param-name">Top-K</div>
-                    <div class="param-desc">限制每一步只考虑概率最高的K个词，平衡质量与多样性。</div>
-                </div>
-                <div class="param-item">
-                    <div class="param-name">Frequency Penalty</div>
-                    <div class="param-desc">降低重复词汇的概率，使输出更加多样化。</div>
-                </div>
+        </div>
+    </section>
+
+    <!-- Roleplay -->
+    <section class="section">
+        <div class="roleplay-card" data-animate>
+            <h3>🎭 沉浸式角色扮演</h3>
+            <p>完美兼容SillyTavern角色卡系统，从丰富的角色库中选择您喜爱的角色，开始一段奇妙的对话旅程。</p>
+            <a href="https://tieba.baidu.com/p/8711318791" class="btn btn-primary">获取角色卡</a>
+        </div>
+    </section>
+
+    <!-- Parameters -->
+    <section class="section">
+        <div class="section-header">
+            <h2 data-animate>精细参数控制</h2>
+            <p data-animate>精确控制AI的响应行为，获得最符合需求的输出</p>
+        </div>
+        <div class="params-grid">
+            <div class="param-item stagger-1" data-animate>
+                <div class="param-name">Max Tokens</div>
+                <div class="param-desc">控制生成响应的最大长度</div>
             </div>
-        </section>
-        
-        <!-- 图片展示部分 -->
-        <section class="screenshot-section">
-            <h2 class="screenshot-title">HYXT6.0 界面预览</h2>
-            <img src="jt3.jpg" alt="HYXT6.0 界面截图" class="screenshot-img">
-        </section>
-    </div>
-    
+            <div class="param-item stagger-2" data-animate>
+                <div class="param-name">Temperature</div>
+                <div class="param-desc">调节输出的随机性与创意度</div>
+            </div>
+            <div class="param-item stagger-3" data-animate>
+                <div class="param-name">Top-P</div>
+                <div class="param-desc">核采样参数，控制多样性</div>
+            </div>
+            <div class="param-item stagger-4" data-animate>
+                <div class="param-name">Top-K</div>
+                <div class="param-desc">限制考虑的词汇范围</div>
+            </div>
+            <div class="param-item stagger-5" data-animate>
+                <div class="param-name">Frequency Penalty</div>
+                <div class="param-desc">降低重复词汇的概率</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshot -->
+    <section class="section">
+        <div class="section-header">
+            <h2 data-animate>界面预览</h2>
+        </div>
+        <div class="screenshot-wrapper" data-animate>
+            <img src="jt3.jpg" alt="HYXT6.0 界面截图">
+        </div>
+    </section>
+
+    <!-- Footer -->
     <footer>
         <p>© 2025 HYXT6.0 - 幻影星途 | 自研AI对话引擎</p>
     </footer>
-    
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
     <script>
-        // 开屏动画结束后显示主内容
-        document.addEventListener('DOMContentLoaded', function() {
-            // 背景图片轮换
-            const bgImages = document.querySelectorAll('.hero-bg img');
-            let currentIndex = 0;
-            
-            function rotateImages() {
-                bgImages[currentIndex].classList.remove('active');
-                currentIndex = (currentIndex + 1) % bgImages.length;
-                bgImages[currentIndex].classList.add('active');
-            }
-            
-            // 设置6秒切换一次图片，过渡时间延长到1.5秒
-            setInterval(rotateImages, 6000);
-            
-            // 添加浮动动画到部分元素
-            const featureCards = document.querySelectorAll('.feature-card');
-            featureCards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-                card.classList.add('floating');
-            });
+        // ========== CURSOR ==========
+        const dot = document.getElementById('cursorDot');
+        const ring = document.getElementById('cursorRing');
+        let mx = 0, my = 0, rx = 0, ry = 0;
+
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+        function updateCursors() {
+            dot.style.left = mx + 'px';
+            dot.style.top = my + 'px';
+            rx += (mx - rx) * 0.15;
+            ry += (my - ry) * 0.15;
+            ring.style.left = rx + 'px';
+            ring.style.top = ry + 'px';
+            requestAnimationFrame(updateCursors);
+        }
+        updateCursors();
+
+        // ========== SCROLL ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('scrollProgress').style.width = (scrollTop / docHeight * 100) + '%';
+
+            document.getElementById('backToTop').classList.toggle('show', scrollTop > 500);
+            document.getElementById('nav').classList.toggle('scrolled', scrollTop > 50);
+        });
+
+        // ========== ANIMATE ==========
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+
+        // ========== HERO CAROUSEL ==========
+        const imgs = document.querySelectorAll('.hero-screenshots img');
+        let imgIdx = 0;
+        setInterval(() => {
+            imgs[imgIdx].classList.remove('active');
+            imgIdx = (imgIdx + 1) % imgs.length;
+            imgs[imgIdx].classList.add('active');
+        }, 5000);
+
+        // ========== ROLEPLAY MOUSE GLOW ==========
+        document.querySelector('.roleplay-card')?.addEventListener('mousemove', e => {
+            const r = e.currentTarget.getBoundingClientRect();
+            e.currentTarget.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+            e.currentTarget.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
         });
     </script>
 </body>

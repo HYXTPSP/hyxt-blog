@@ -5,75 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>敬请期待</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        html,body{height:100%}
-        body{
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            background:#1a1a40;
-            background-image:radial-gradient(circle,#a855f7 1px,transparent 1px);
-            background-size:30px 30px;
-            font-family:"Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB",sans-serif;
-            overflow:hidden;
-            perspective:1000px;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #faf9f7;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
         }
-        .stage{
-            transform-style:preserve-3d;
-            transition:transform .2s ease;
+
+        /* Animated background mesh */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(217,119,87,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(217,119,87,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(194,87,74,0.04) 0%, transparent 50%);
+            animation: meshMove 15s ease-in-out infinite;
+            z-index: 0;
         }
-        .text-3d{
-            position:relative;
-            font-size:clamp(36px,10vw,80px);
-            font-weight:900;
-            color:#38bdf8;
-            user-select:none;
-            cursor:default;
-            transform-style:preserve-3d;
+
+        @keyframes meshMove {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(2%, -2%); }
+            50% { transform: translate(-1%, 1%); }
+            75% { transform: translate(1%, 2%); }
         }
-        .text-3d span{
-            display:inline-block;
-            transform-origin:50% 50%;
-            transition:transform .2s ease;
+
+        .stage {
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .text-3d {
+            position: relative;
+            font-size: clamp(48px, 12vw, 100px);
+            font-weight: 900;
+            color: #d97757;
+            user-select: none;
+            cursor: default;
+            transform-style: preserve-3d;
+            letter-spacing: 4px;
+        }
+
+        .text-3d span {
+            display: inline-block;
+            transform-origin: 50% 50%;
+            transition: transform 0.2s ease;
+            text-shadow: 0 4px 30px rgba(217,119,87,0.3);
+        }
+
+        .text-3d span:hover {
+            color: #c2574a;
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(217,119,87,0.15);
+            animation: floatUp linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        }
+
+        /* Back button */
+        .back-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            padding: 12px 28px;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border-color: #d97757;
+            color: #d97757;
         }
     </style>
 </head>
 <body>
+    <a href="../index.html" class="back-btn">← 返回主页</a>
+
     <div class="stage">
         <div class="text-3d" id="text">敬请期待</div>
     </div>
 
     <script>
+        // 3D text effect
         const text = document.getElementById('text');
-        text.innerHTML = text.textContent
-            .split('')
-            .map(c => `<span>${c}</span>`)
-            .join('');
-
+        text.innerHTML = text.textContent.split('').map(c => `<span>${c}</span>`).join('');
         const spans = text.querySelectorAll('span');
         const stage = document.querySelector('.stage');
 
-        /* 灵敏度（0-1 之间，越小越柔和） */
         const SENSITIVITY = 0.4;
-        /* 最大位移/旋转角度 */
         const MAX_TILT = 20;
         const MAX_OFFSET = 30;
 
-        function handleMove(e){
-            const {clientX, clientY} = (e.touches && e.touches[0]) || e;
-            const {innerWidth, innerHeight} = window;
-
-            /* 计算鼠标相对中心偏移量，范围 -1 ~ 1 */
+        function handleMove(e) {
+            const { clientX, clientY } = (e.touches && e.touches[0]) || e;
+            const { innerWidth, innerHeight } = window;
             const x = (clientX / innerWidth - 0.5) * 2;
             const y = (clientY / innerHeight - 0.5) * 2;
 
-            /* 整体轻微旋转 */
-            const tiltX = y * MAX_TILT * SENSITIVITY;
-            const tiltY = x * MAX_TILT * SENSITIVITY;
-            stage.style.transform = `rotateX(${-tiltX}deg) rotateY(${tiltY}deg)`;
+            stage.style.transform = `rotateX(${-y * MAX_TILT * SENSITIVITY}deg) rotateY(${x * MAX_TILT * SENSITIVITY}deg)`;
 
-            /* 单字轻微错位 */
-            spans.forEach((s,i)=>{
+            spans.forEach((s, i) => {
                 const offsetX = x * (i - 1.5) * MAX_OFFSET * SENSITIVITY;
                 const offsetY = y * (i - 1.5) * MAX_OFFSET * SENSITIVITY;
                 const offsetZ = (Math.abs(x) + Math.abs(y)) * MAX_OFFSET * SENSITIVITY;
@@ -81,16 +143,29 @@
             });
         }
 
-        /* 鼠标离开时复位 */
-        function reset(){
+        function reset() {
             stage.style.transform = 'rotateX(0) rotateY(0)';
-            spans.forEach(s=>s.style.transform = '');
+            spans.forEach(s => s.style.transform = '');
         }
 
-        document.addEventListener('mousemove',handleMove);
-        document.addEventListener('mouseleave',reset);
-        document.addEventListener('touchmove',handleMove,{passive:true});
-        document.addEventListener('touchend',reset);
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('mouseleave', reset);
+        document.addEventListener('touchmove', handleMove, { passive: true });
+        document.addEventListener('touchend', reset);
+
+        // Floating particles
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 12 + 4;
+            p.style.cssText = `
+                width: ${size}px; height: ${size}px;
+                left: ${Math.random() * 100}%;
+                animation-duration: ${Math.random() * 8 + 8}s;
+                animation-delay: ${Math.random() * -15}s;
+            `;
+            document.body.appendChild(p);
+        }
     </script>
 </body>
 </html>
