@@ -45,25 +45,7 @@
             line-height: 1.6;
         }
 
-        /* ========== CURSOR FOLLOWER ========== */
-        .cursor-follower {
-            position: fixed;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--claude-accent);
-            opacity: 0.3;
-            pointer-events: none;
-            z-index: 9999;
-            transition: transform 0.15s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
-            mix-blend-mode: difference;
-            transform: translate(-50%, -50%);
-        }
-        .cursor-follower.hover {
-            width: 60px;
-            height: 60px;
-            opacity: 0.15;
-        }
+        .cursor-follower { display: none; }
 
         /* ========== HERO SECTION ========== */
         .hero {
@@ -504,13 +486,14 @@
             width: 100%;
             height: 300px;
             border-radius: var(--radius);
-            overflow: hidden;
+            overflow: visible;
             margin-bottom: 60px;
             border: 1px solid var(--claude-border);
             box-shadow: var(--claude-shadow);
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s;
+            position: relative;
         }
 
         .cube-container.visible {
@@ -795,7 +778,7 @@
         .back-to-top {
             position: fixed;
             bottom: 90px;
-            right: 30px;
+            left: 30px;
             width: 50px;
             height: 50px;
             background: var(--claude-gradient);
@@ -994,14 +977,83 @@
             margin-bottom: 8px;
         }
 
+        /* ========== SATELLITE CUBES ========== */
+        .satellite-cubes {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            transform-style: preserve-3d;
+            perspective: 800px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .satellite {
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+        .sat-1 { animation: orbit1 12s linear infinite; }
+        .sat-2 { animation: orbit2 15s linear infinite reverse; }
+        .sat-3 { animation: orbit3 18s linear infinite; }
+        .sat-4 { animation: orbit4 20s linear infinite reverse; }
+        @keyframes orbit1 {
+            from { transform: rotateY(0deg) translateX(120px) rotateY(0deg); }
+            to { transform: rotateY(360deg) translateX(120px) rotateY(-360deg); }
+        }
+        @keyframes orbit2 {
+            from { transform: rotateY(0deg) rotateX(60deg) translateX(150px) rotateY(0deg); }
+            to { transform: rotateY(360deg) rotateX(60deg) translateX(150px) rotateY(-360deg); }
+        }
+        @keyframes orbit3 {
+            from { transform: rotateY(0deg) rotateX(-45deg) rotateZ(30deg) translateX(170px) rotateY(0deg); }
+            to { transform: rotateY(360deg) rotateX(-45deg) rotateZ(30deg) translateX(170px) rotateY(-360deg); }
+        }
+        @keyframes orbit4 {
+            from { transform: rotateY(0deg) rotateZ(-60deg) translateX(140px) rotateY(0deg); }
+            to { transform: rotateY(360deg) rotateZ(-60deg) translateX(140px) rotateY(-360deg); }
+        }
+        .sat-cube {
+            width: 36px;
+            height: 36px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: cubeSpin 4s linear infinite;
+        }
+        .sat-2 .sat-cube { animation-duration: 5s; animation-direction: reverse; }
+        .sat-3 .sat-cube { animation-duration: 6s; }
+        .sat-4 .sat-cube { animation-duration: 7s; animation-direction: reverse; }
+        @keyframes cubeSpin {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+        .sat-cube .face {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            backface-visibility: visible;
+        }
+        .sat-cube .front  { transform: translateZ(18px); background: rgba(217,119,87,0.9); }
+        .sat-cube .back   { transform: rotateY(180deg) translateZ(18px); background: rgba(194,87,74,0.9); }
+        .sat-cube .right  { transform: rotateY(90deg) translateZ(18px); background: rgba(168,72,50,0.9); }
+        .sat-cube .left   { transform: rotateY(-90deg) translateZ(18px); background: rgba(217,119,87,0.85); }
+        .sat-cube .top    { transform: rotateX(90deg) translateZ(18px); background: rgba(194,87,74,0.85); }
+        .sat-cube .bottom { transform: rotateX(-90deg) translateZ(18px); background: rgba(168,72,50,0.85); }
+
     </style>
 </head>
 <body>
     <!-- Firework Canvas -->
     <canvas id="fireworkCanvas"></canvas>
 
-    <!-- Cursor Follower -->
-    <div class="cursor-follower" id="cursor"></div>
+    <!-- cursor follower removed -->
 
     <!-- Scroll Progress -->
     <div class="scroll-progress" id="scrollProgress"></div>
@@ -1025,21 +1077,24 @@
 
             <div class="contact-row">
                 <button class="contact-btn" onclick="showQR('qq')">
-                    <img src="qq.jpg" alt="QQ">
+                    <img src="https://im.qq.com/favicon.ico" alt="QQ" style="width:28px;height:28px;border-radius:4px;">
                     <span>QQ</span>
                 </button>
                 <button class="contact-btn" onclick="showQR('wx')">
-                    <img src="wx.jpg" alt="微信">
+                    <img src="https://res.wx.qq.com/a/wx_fed/assets/res/NTI4MWU5.ico" alt="微信" style="width:28px;height:28px;border-radius:4px;">
                     <span>微信</span>
                 </button>
                 <button class="contact-btn" onclick="showQR('sponsor')">
-                    <span>💝 赞助支持</span>
+                    <span style="font-size:1.2rem;font-weight:700;color:var(--claude-accent)">$</span><span>赞助支持</span>
                 </button>
             </div>
 
             <div class="social-links">
                 <a href="https://space.bilibili.com/1045428546" target="_blank" class="social-link" title="B站">
                     <img src="https://www.bilibili.com/favicon.ico" alt="B站">
+                </a>
+                <a href="https://github.com/BBGGX" target="_blank" class="social-link" title="GitHub">
+                    <img src="https://github.com/favicon.ico" alt="GitHub">
                 </a>
             </div>
         </div>
@@ -1064,32 +1119,38 @@
         <h2 class="section-title" data-animate>个人标签</h2>
         <p class="section-subtitle" data-animate>热爱技术与生活的多元探索者</p>
         <div class="tags-grid">
-            <div class="tag stagger-1" data-animate><span>🎮 网瘾</span></div>
-            <div class="tag stagger-2" data-animate><span>⛏️ Minecraft</span></div>
-            <div class="tag stagger-3" data-animate><span>⚔️ 原神</span></div>
-            <div class="tag stagger-4" data-animate><span>💻 C++</span></div>
-            <div class="tag stagger-5" data-animate><span>🐍 Python</span></div>
-            <div class="tag stagger-6" data-animate><span>🏃 跑步</span></div>
-            <div class="tag stagger-7" data-animate><span>📖 漫画</span></div>
-            <div class="tag stagger-8" data-animate><span>🎬 番剧</span></div>
-            <div class="tag stagger-9" data-animate><span>🤖 AI</span></div>
-            <div class="tag stagger-10" data-animate><span>🚴 骑行</span></div>
+            <div class="tag stagger-1" data-animate><span>网瘾</span></div>
+            <div class="tag stagger-2" data-animate><span>Minecraft</span></div>
+            <div class="tag stagger-3" data-animate><span>原神</span></div>
+            <div class="tag stagger-4" data-animate><span>C++</span></div>
+            <div class="tag stagger-5" data-animate><span>Python</span></div>
+            <div class="tag stagger-6" data-animate><span>跑步</span></div>
+            <div class="tag stagger-7" data-animate><span>漫画</span></div>
+            <div class="tag stagger-8" data-animate><span>番剧</span></div>
+            <div class="tag stagger-9" data-animate><span>AI</span></div>
+            <div class="tag stagger-10" data-animate><span>骑行</span></div>
         </div>
 
         <div class="cube-container" data-animate>
             <iframe src="biaoqian.html"></iframe>
+            <div class="satellite-cubes">
+                <div class="satellite sat-1"><div class="sat-cube"><div class="face front">富强</div><div class="face back">民主</div><div class="face right">文明</div><div class="face left">和谐</div><div class="face top">自由</div><div class="face bottom">平等</div></div></div>
+                <div class="satellite sat-2"><div class="sat-cube"><div class="face front">公正</div><div class="face back">法治</div><div class="face right">爱国</div><div class="face left">敬业</div><div class="face top">诚信</div><div class="face bottom">友善</div></div></div>
+                <div class="satellite sat-3"><div class="sat-cube"><div class="face front">繁荣</div><div class="face back">发展</div><div class="face right">进步</div><div class="face left">创新</div><div class="face top">团结</div><div class="face bottom">互助</div></div></div>
+                <div class="satellite sat-4"><div class="sat-cube"><div class="face front">公平</div><div class="face back">正义</div><div class="face right">和平</div><div class="face left">友爱</div><div class="face top">责任</div><div class="face bottom">贡献</div></div></div>
+            </div>
         </div>
     </section>
 
     <!-- Articles Section -->
     <section class="section">
-        <h2 class="section-title" data-animate>📝 我的文章</h2>
+        <h2 class="section-title" data-animate>我的文章</h2>
         <p class="section-subtitle" data-animate>记录学习与思考的点滴</p>
         <div class="articles-grid">
             <div class="article-card stagger-1" data-animate>
                 <h3>我的第一篇博客文章</h3>
                 <div class="article-meta">
-                    <span class="article-date">📅 2025-01-15</span>
+                    <span class="article-date">2025-01-15</span>
                     <span class="article-tag">#博客</span>
                 </div>
                 <p>记录博客搭建的心路历程</p>
@@ -1098,7 +1159,7 @@
             <div class="article-card stagger-2" data-animate>
                 <h3>AI 工具使用心得</h3>
                 <div class="article-meta">
-                    <span class="article-date">📅 2025-03-20</span>
+                    <span class="article-date">2025-03-20</span>
                     <span class="article-tag">#AI</span>
                 </div>
                 <p>分享日常使用的 AI 工具和技巧</p>
@@ -1107,7 +1168,7 @@
             <div class="article-card stagger-3" data-animate>
                 <h3>更多文章敬请期待...</h3>
                 <div class="article-meta">
-                    <span class="article-date">📅 即将发布</span>
+                    <span class="article-date">即将发布</span>
                     <span class="article-tag">#预告</span>
                 </div>
                 <p>持续更新中...</p>
@@ -1162,27 +1223,11 @@
         </div>
     </section>
 
-    <!-- Video Section -->
-    <section class="section">
-        <h2 class="section-title" data-animate>随机二次元混剪</h2>
-        <p class="section-subtitle" data-animate>每次刷新都有惊喜</p>
-        <div class="video-wrapper" data-animate>
-            <div class="video-header">
-                <h3>🎬 随机播放</h3>
-                <div class="video-btns">
-                    <button class="video-btn" onclick="refreshVideo()">🔄 刷新</button>
-                    <button class="video-btn" onclick="fullscreenVideo()">⛶ 全屏</button>
-                </div>
-            </div>
-            <video id="acgVideo" controls>
-                <source src="https://t.alcy.cc/acg" type="video/mp4">
-            </video>
-        </div>
-    </section>
+    <!-- Video Section Removed -->
 
     <!-- Comments Section -->
     <section class="comments-section">
-        <h2 class="section-title">💬 留言评论</h2>
+        <h2 class="section-title">留言评论</h2>
         <p class="section-subtitle">欢迎留下你的想法</p>
         <div id="giscus-container">
             <script src="https://giscus.app/client.js"
@@ -1195,7 +1240,7 @@
                 data-reactions-enabled="1"
                 data-emit-metadata="0"
                 data-input-position="top"
-                data-theme="preferred_color_scheme"
+                data-theme="light"
                 data-lang="zh-CN"
                 crossorigin="anonymous"
                 async>
@@ -1205,47 +1250,28 @@
 
     <!-- Sponsor Section -->
     <section class="section sponsor-section">
-        <button class="sponsor-btn" onclick="showQR('sponsor')">💝 请我喝杯咖啡</button>
+        <button class="sponsor-btn" onclick="showQR('sponsor')">$ 请我喝杯咖啡</button>
     </section>
 
     <!-- Footer -->
     <footer>
         <p id="siteRunningTime">本站已运行 0 天 0 小时 0 分钟 0 秒</p>
         <p>© 2025 幻影星途(HYXT) - Phantom Star Path</p>
-        <p>📧 <a href="mailto:2070108194@qq.com">2070108194@qq.com</a></p>
+        <p><a href="mailto:2070108194@qq.com">2070108194@qq.com</a></p>
     </footer>
 
     <!-- Back to Top -->
     <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
     <script>
-        // ========== CURSOR FOLLOWER ==========
-        const cursor = document.getElementById('cursor');
-        let mouseX = 0, mouseY = 0;
-
-        document.addEventListener('mousemove', e => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-
-        function updateCursor() {
-            cursor.style.left = mouseX + 'px';
-            cursor.style.top = mouseY + 'px';
-            requestAnimationFrame(updateCursor);
-        }
-        updateCursor();
-
-        document.querySelectorAll('a, button, .tag, .project-card, .fav-card, .social-link, .contact-btn').forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-        });
+        // ========== CURSOR FOLLOWER REMOVED ==========
 
         // ========== TYPING EFFECT ==========
         const phrases = [
-            'Phantom Star Path ✨',
-            '热爱技术与生活 🚀',
-            '探索AI的无限可能 🤖',
-            '代码改变世界 💻'
+            'Phantom Star Path',
+            '热爱技术与生活',
+            '探索AI的无限可能',
+            '代码改变世界'
         ];
         let phraseIndex = 0, charIndex = 0, isDeleting = false;
         const typingEl = document.getElementById('typingText');
