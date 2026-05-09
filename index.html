@@ -491,10 +491,9 @@
             border: 1px solid var(--claude-border);
             box-shadow: var(--claude-shadow);
             opacity: 0;
-            transform: translateY(30px) perspective(1200px) translateZ(0);
+            transform: translateY(30px);
             transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s;
             position: relative;
-            transform-style: preserve-3d;
         }
 
         .cube-container.visible {
@@ -978,74 +977,6 @@
             margin-bottom: 8px;
         }
 
-        /* ========== SATELLITE CUBES ========== */
-        .satellite-cubes {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            transform-style: preserve-3d;
-            pointer-events: none;
-        }
-        .satellite {
-            position: absolute;
-            transform-style: preserve-3d;
-            width: 0;
-            height: 0;
-        }
-        /* Single shared orbit: all satellites rotateY on the same plane */
-        .sat-orbit {
-            position: absolute;
-            transform-style: preserve-3d;
-            animation: satOrbit 16s linear infinite;
-        }
-        /* Each satellite starts at a different angle via animation-delay */
-        .sat-1 .sat-orbit { animation-delay: 0s; }
-        .sat-2 .sat-orbit { animation-delay: -4s; }
-        .sat-3 .sat-orbit { animation-delay: -8s; }
-        .sat-4 .sat-orbit { animation-delay: -12s; }
-        @keyframes satOrbit {
-            from { transform: rotateY(0deg); }
-            to   { transform: rotateY(360deg); }
-        }
-        /* Cube placed at fixed radius on +X axis; orbit ring spins it around center */
-        .sat-cube-anchor {
-            position: absolute;
-            transform-style: preserve-3d;
-            transform: translateX(290px);
-        }
-        /* Self-spin for 3D depth */
-        .sat-cube {
-            width: 34px;
-            height: 34px;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: cubeSpin 5s linear infinite;
-        }
-        @keyframes cubeSpin {
-            from { transform: rotateX(0deg) rotateY(0deg); }
-            to   { transform: rotateX(360deg) rotateY(360deg); }
-        }
-        .sat-cube .face {
-            position: absolute;
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.55rem;
-            font-weight: 700;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            backface-visibility: visible;
-        }
-        .sat-cube .front  { transform: translateZ(17px); background: rgba(217,119,87,0.92); }
-        .sat-cube .back   { transform: rotateY(180deg) translateZ(17px); background: rgba(194,87,74,0.92); }
-        .sat-cube .right  { transform: rotateY(90deg) translateZ(17px); background: rgba(168,72,50,0.92); }
-        .sat-cube .left   { transform: rotateY(-90deg) translateZ(17px); background: rgba(217,119,87,0.88); }
-        .sat-cube .top    { transform: rotateX(90deg) translateZ(17px); background: rgba(194,87,74,0.88); }
-        .sat-cube .bottom { transform: rotateX(-90deg) translateZ(17px); background: rgba(168,72,50,0.88); }
 
     </style>
 </head>
@@ -1133,12 +1064,7 @@
 
         <div class="cube-container" data-animate>
             <iframe src="biaoqian.html"></iframe>
-            <div class="satellite-cubes">
-                <div class="satellite sat-1"><div class="sat-orbit"><div class="sat-cube-anchor"><div class="sat-cube"><div class="face front">富强</div><div class="face back">民主</div><div class="face right">文明</div><div class="face left">和谐</div><div class="face top">自由</div><div class="face bottom">平等</div></div></div></div></div>
-                <div class="satellite sat-2"><div class="sat-orbit"><div class="sat-cube-anchor"><div class="sat-cube"><div class="face front">公正</div><div class="face back">法治</div><div class="face right">爱国</div><div class="face left">敬业</div><div class="face top">诚信</div><div class="face bottom">友善</div></div></div></div></div>
-                <div class="satellite sat-3"><div class="sat-orbit"><div class="sat-cube-anchor"><div class="sat-cube"><div class="face front">繁荣</div><div class="face back">发展</div><div class="face right">进步</div><div class="face left">创新</div><div class="face top">团结</div><div class="face bottom">互助</div></div></div></div></div>
-                <div class="satellite sat-4"><div class="sat-orbit"><div class="sat-cube-anchor"><div class="sat-cube"><div class="face front">公平</div><div class="face back">正义</div><div class="face right">和平</div><div class="face left">友爱</div><div class="face top">责任</div><div class="face bottom">贡献</div></div></div></div></div>
-            </div>
+
         </div>
     </section>
 
