@@ -11,7 +11,7 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-1ZXGPYP5DE'); ← 替换为你的 Google Analytics 跟踪 ID
+      gtag('config', 'G-1ZXGPYP5DE');
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -1352,6 +1352,7 @@
                 const speed = (i + 1) * 0.03;
                 shape.style.transform = `translateY(${scrollY * speed}px)`;
         });
+        });
 
         // ========== FIREWORK EFFECT ==========
         const fireworkCanvas = document.getElementById('fireworkCanvas');
@@ -1427,14 +1428,28 @@
 
     </script>
     <!-- Live2D Widget -->
-    <script src="https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/load.js"></script>
     <script>
-        L2Dwidget.init({
-            "model": { "jsonPath": "https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/waifu-tips.json" },
-            "display": { "position": "right", "width": 150, "height": 200, "bottom": 0 },
-            "mobile": { "show": false },
-            "log": false
-        });
+        // Load Live2D widget asynchronously
+        (function() {
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/L2Dwidget.min.js';
+            script.onload = function() {
+                try {
+                    L2Dwidget.init({
+                        "model": { "jsonPath": "https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget-model-wanko@latest/wanko.model.json" },
+                        "display": { "position": "right", "width": 150, "height": 200, "bottom": 0 },
+                        "mobile": { "show": false },
+                        "log": false
+                    });
+                } catch(e) {
+                    console.log('Live2D widget failed to load:', e);
+                }
+            };
+            script.onerror = function() {
+                console.log('Failed to load Live2D widget script');
+            };
+            document.body.appendChild(script);
+        })();
     </script>
 </body>
 </html>
