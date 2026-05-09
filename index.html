@@ -1186,17 +1186,17 @@
         <p class="section-subtitle">欢迎留下你的想法</p>
         <div id="giscus-container">
             <script src="https://giscus.app/client.js"
-                repo="BBGGX/hyxt-blog"
-                repo-id="R_kgDOSX_5mg"
-                category="Announcements"
-                category-id="DIC_kwDOSX_5ms4C8pxN"
-                mapping="pathname"
-                strict="0"
-                reactions-enabled="1"
-                emit-metadata="0"
-                input-position="top"
-                theme="preferred_color_scheme"
-                lang="zh-CN"
+                data-repo="BBGGX/hyxt-blog"
+                data-repo-id="R_kgDOSX_5mg"
+                data-category="Announcements"
+                data-category-id="DIC_kwDOSX_5ms4C8pxN"
+                data-mapping="pathname"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="top"
+                data-theme="preferred_color_scheme"
+                data-lang="zh-CN"
                 crossorigin="anonymous"
                 async>
             </script>
@@ -1428,28 +1428,14 @@
 
     </script>
     <!-- Live2D Widget -->
+    <script src="https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/L2Dwidget.min.js"></script>
     <script>
-        // Load Live2D widget asynchronously
-        (function() {
-            var script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/L2Dwidget.min.js';
-            script.onload = function() {
-                try {
-                    L2Dwidget.init({
-                        "model": { "jsonPath": "https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget-model-wanko@latest/wanko.model.json" },
-                        "display": { "position": "right", "width": 150, "height": 200, "bottom": 0 },
-                        "mobile": { "show": false },
-                        "log": false
-                    });
-                } catch(e) {
-                    console.log('Live2D widget failed to load:', e);
-                }
-            };
-            script.onerror = function() {
-                console.log('Failed to load Live2D widget script');
-            };
-            document.body.appendChild(script);
-        })();
+        L2Dwidget.init({
+            "model": { "jsonPath": "https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget-model-shizuku@latest/shizuku.model.json" },
+            "display": { "position": "right", "width": 150, "height": 200, "bottom": 0 },
+            "mobile": { "show": false },
+            "log": false
+        });
     </script>
 </body>
 </html>
