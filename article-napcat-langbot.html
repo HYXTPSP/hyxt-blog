@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随身WiFi部署LangBot - 幻影星途(HYXT)</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --claude-accent: #d97757;
+            --claude-accent-dark: #c24a4a;
+            --claude-accent-light: rgba(217,119,87,0.1);
+            --claude-gradient: linear-gradient(135deg, #d97757, #c24a4a);
+            --claude-bg: #faf9f7;
+            --claude-surface: #ffffff;
+            --claude-text: #1a1a1a;
+            --claude-text-secondary: #6b6b6b;
+            --claude-border: #e8e5e1;
+            --radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--claude-bg);
+            color: var(--claude-text);
+            line-height: 1.8;
+        }
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: var(--claude-surface);
+            border-bottom: 1px solid var(--claude-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .top-bar a {
+            color: var(--claude-accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .top-bar a:hover { opacity: 0.8; }
+        .top-bar-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--claude-text);
+        }
+        .article-container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 60px 24px 100px;
+        }
+        .article-header {
+            margin-bottom: 48px;
+        }
+        .article-header h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.3;
+            margin-bottom: 16px;
+            background: var(--claude-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .article-info {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            color: var(--claude-text-secondary);
+            font-size: 0.9rem;
+        }
+        .article-info .tag {
+            background: var(--claude-accent-light);
+            color: var(--claude-accent);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-weight: 500;
+        }
+        /* Article body */
+        .article-body h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 48px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--claude-accent-light);
+            color: var(--claude-text);
+        }
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 32px 0 12px;
+            color: var(--claude-accent-dark);
+        }
+        .article-body h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 24px 0 8px;
+            color: var(--claude-text);
+        }
+        .article-body p {
+            margin-bottom: 16px;
+            color: var(--claude-text-secondary);
+            font-size: 1rem;
+        }
+        .article-body ul, .article-body ol {
+            margin: 0 0 16px 24px;
+            color: var(--claude-text-secondary);
+        }
+        .article-body li { margin-bottom: 8px; font-size: 0.98rem; }
+        .article-body code {
+            background: rgba(217,119,87,0.08);
+            color: var(--claude-accent-dark);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+            font-size: 0.88rem;
+        }
+        .article-body pre {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            padding: 20px 24px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 16px 0 24px;
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            position: relative;
+        }
+        .article-body pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            font-size: inherit;
+        }
+        .article-body .cmd-label {
+            display: inline-block;
+            background: var(--claude-accent);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .article-body .tip-box {
+            background: var(--claude-accent-light);
+            border-left: 4px solid var(--claude-accent);
+            padding: 16px 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 16px 0 24px;
+            font-size: 0.95rem;
+            color: var(--claude-text);
+        }
+        .article-body .tip-box strong { color: var(--claude-accent-dark); }
+        .article-body .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--claude-gradient);
+            color: #fff;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .article-body .step-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .article-body .step-row p { margin: 0; }
+        .article-body img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 16px 0;
+            border: 1px solid var(--claude-border);
+        }
+        .article-body .img-caption {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--claude-text-secondary);
+            margin-top: -8px;
+            margin-bottom: 24px;
+        }
+        .article-body .warn-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 16px 0 24px;
+            font-size: 0.95rem;
+        }
+        .article-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 24px;
+            font-size: 0.95rem;
+        }
+        .article-body th, .article-body td {
+            padding: 12px 16px;
+            border: 1px solid var(--claude-border);
+            text-align: left;
+        }
+        .article-body th {
+            background: var(--claude-accent-light);
+            font-weight: 600;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--claude-text-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--claude-border);
+        }
+        footer a { color: var(--claude-accent); text-decoration: none; }
+        @media (max-width: 768px) {
+            .article-header h1 { font-size: 1.6rem; }
+            .article-body h2 { font-size: 1.3rem; }
+            .article-container { padding: 32px 16px 60px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <a href="index.html">← 返回主页</a>
+    <span class="top-bar-title">幻影星途 (HYXT)</span>
+    <span></span>
+</div>
+
+<div class="article-container">
+    <div class="article-header">
+        <h1>在随身WiFi上使用NapCat部署LangBot</h1>
+        <div class="article-info">
+            <span>幻影星途 (HYXT)</span>
+            <span>2025-06-01</span>
+            <span class="tag">#教程</span>
+            <span class="tag">#NapCat</span>
+            <span class="tag">#LangBot</span>
+            <span class="tag">#QQ机器人</span>
+        </div>
+    </div>
+
+    <div class="article-body">
+        <p>本文将手把手教你如何在一台随身WiFi设备上，通过NapCat和LangBot搭建一个属于自己的QQ AI聊天机器人。整个过程涵盖环境准备、服务部署、面板配置和网络调试，适合零基础用户。</p>
+
+        <!-- ==================== 一 ==================== -->
+        <h2>一、下载与安装</h2>
+
+        <h3>1. 安装 NapCat</h3>
+        <p>NapCat 是一个基于 NTQQ 的无头 QQ 协议实现，可以在无图形界面的服务器上运行 QQ。</p>
+        <span class="cmd-label">终端命令</span>
+        <pre><code>curl -o napcat.sh https://nclatest.znin.net/NapNeko/NapCat-Installer/main/script/install.sh && sudo bash napcat.sh --docker n --cli n</code></pre>
+        <div class="tip-box">
+            <strong>Tip：</strong>安装期间可以同步上传 LangBot 文件到服务器根目录 <code>/</code>，节省时间。
+        </div>
+        <div class="warn-box">
+            如果下载速度太慢或无法下载，请修改 DNS。打开 <code>/etc/resolv.conf</code>，将第一个 nameserver 后面的内容改为：
+            <br><code>8.8.8.8</code> 或 <code>8.8.4.4</code> 或 <code>114.114.114.114</code>
+        </div>
+
+        <h3>2. 安装 Python</h3>
+        <p>LangBot 需要 Python 3.10.1 及以上版本（不包括 3.10.0）。如果系统自带版本满足要求可跳过此步。</p>
+        <span class="cmd-label">添加华为云源并安装</span>
+        <pre><code>echo "deb https://repo.huaweicloud.com/debian bookworm main" | sudo tee -a /etc/apt/sources.list
+apt update
+apt install -y python3.11 python3.11-venv python3-pip</code></pre>
+
+        <span class="cmd-label">创建虚拟环境</span>
+        <pre><code>cd /你的langbot路径
+python3.11 -m venv python3.11.2</code></pre>
+
+        <h3>3. pip 换源</h3>
+        <p>国内环境建议换成中科大镜像源，下载速度更快。</p>
+        <pre><code>pip config set global.index-url https://pypi.mirrors.ustc.edu.cn/simple</code></pre>
+
+        <h3>4. 安装 Python 依赖</h3>
+        <pre><code>cd /你的langbot路径
+./python3.11.2/bin/python3 -m pip install -r requirements.txt</code></pre>
+        <div class="tip-box">
+            <strong>Note：</strong>最新版本的 LangBot 已内置依赖，可跳过此步。
+        </div>
+
+        <h3>清理存储空间</h3>
+        <p>随身WiFi存储空间有限，安装完成后及时清理缓存：</p>
+        <pre><code>sudo apt autoremove    # 删除不再需要的依赖包
+sudo apt clean         # 删除所有已下载的 .deb 包缓存</code></pre>
+
+        <!-- ==================== 二 ==================== -->
+        <h2>二、启动服务</h2>
+        <p>以下两种方式任选其一。</p>
+
+        <h3>方案 A：使用 screen 管理（手动启动）</h3>
+        <p>每次重启设备后需要手动开启，适合调试阶段。</p>
+
+        <h4>启动 LangBot</h4>
+        <pre><code># 新建 screen 窗口
+screen -S langbot
+
+# 进入目录并启动
+cd /你的langbot路径
+./python3.11.2/bin/python3 main.py
+# 新版本需要运行两次：第一次初始化，第二次正式启动
+
+# 后台运行：按 Ctrl+A 然后按 D
+# 重新进入：screen -r langbot</code></pre>
+
+        <h4>启动 NapCat</h4>
+        <pre><code># 新建 screen 窗口
+screen -S napcat
+
+# 启动（将 QQ号码 替换为你的QQ小号）
+xvfb-run -a qq --no-sandbox -q QQ号码
+
+# 后台运行：按 Ctrl+A 然后按 D
+# 重新进入：screen -r napcat</code></pre>
+
+        <h3>方案 B：使用 systemd 服务（开机自启）</h3>
+        <p>推荐正式使用时选择此方案，重启后自动拉起服务。</p>
+
+        <h4>配置步骤</h4>
+        <ol>
+            <li>编辑 <code>napcat.service</code>，找到 <code>ExecStart</code> 行，将其中的 QQ 号码替换为你的小号</li>
+            <li>上传 <code>napcat.service</code> 和 <code>langbot.service</code> 到 <code>/etc/systemd/system/</code></li>
+            <li>重载并设置开机启动：</li>
+        </ol>
+        <pre><code>systemctl daemon-reload
+systemctl enable napcat
+systemctl enable langbot</code></pre>
+
+        <h4>常用管理命令</h4>
+        <table>
+            <tr><th>操作</th><th>命令</th></tr>
+            <tr><td>停止服务</td><td><code>systemctl stop napcat</code></td></tr>
+            <tr><td>重启服务</td><td><code>systemctl restart napcat</code></td></tr>
+            <tr><td>查看状态</td><td><code>systemctl status napcat</code></td></tr>
+            <tr><td>查看日志</td><td><code>journalctl -u napcat -f</code></td></tr>
+        </table>
+
+        <!-- ==================== 三 ==================== -->
+        <h2>三、访问管理面板</h2>
+
+        <h3>1. LangBot 面板</h3>
+        <p>在浏览器地址栏输入：</p>
+        <pre><code>http://服务器IP:5300</code></pre>
+        <p>例如：<code>http://192.168.68.1:5300</code></p>
+
+        <h3>2. NapCat WebUI 面板</h3>
+        <p>首先找到最新的日志文件，通常位于：</p>
+        <pre><code>/opt/QQ/resources/app/app_launcher/napcat/logs/</code></pre>
+        <p>在日志中找到类似以下内容：</p>
+        <pre><code>[NapCat] [WebUi] WebUi Local Panel Url: http://127.0.0.1:6099/webui?token=napcat</code></pre>
+        <p>复制冒号后面的部分，即 <code>6099/webui?token=napcat</code>，然后在浏览器中访问：</p>
+        <pre><code>http://服务器IP:6099/webui?token=napcat</code></pre>
+        <p>例如：<code>http://192.168.68.1:6099/webui?token=napcat</code></p>
+
+        <img src="qr-napcat.png" alt="NapCat 二维码示例">
+        <p class="img-caption">NapCat 首次启动时需要扫码登录QQ</p>
+
+        <!-- ==================== 四 ==================== -->
+        <h2>四、网络配置</h2>
+        <p>NapCat 需要通过 WebSocket 连接 LangBot，配置如下：</p>
+        <ol>
+            <li>在 WebUI 左侧导航栏找到 <strong>网络配置</strong></li>
+            <li>点击 <strong>新建 → WebSocket 客户端</strong>，打开左上角的 <strong>启用</strong> 开关</li>
+            <li><strong>名称</strong> 随意填写</li>
+            <li>将 <strong>URL</strong> 一栏修改为：<code>ws://127.0.0.1:2280/ws</code></li>
+            <li>点击 <strong>保存</strong></li>
+        </ol>
+
+        <!-- ==================== 五 ==================== -->
+        <h2>五、配置 AI 模型</h2>
+        <p>此处以硅基流动（SiliconFlow）API 为例，配置 LLM 接入。</p>
+        <div class="tip-box">
+            <strong>Tip：</strong>新版本 LangBot 可以直接在 WebUI 中编辑配置，无需手动修改文件。
+        </div>
+
+        <h3>修改模型名称</h3>
+        <p>打开 LangBot 安装目录下的配置文件：</p>
+        <pre><code>/langbot/data/metadata/llm-models.json</code></pre>
+        <p>找到 <code>"gpt-4o-11-20"</code>，替换为你想使用的模型，例如：</p>
+        <pre><code>"deepseek-ai/DeepSeek-V2.5"</code></pre>
+
+        <h3>填写 API Key</h3>
+        <ol>
+            <li>打开 LangBot 面板，点击左侧 <strong>设置</strong></li>
+            <li>找到 <code>provider.json</code>，点击 <code>{...}</code> 切换到编辑模式</li>
+            <li>将 <code>"sk-1234567890"</code> 替换为你的 API 密钥</li>
+            <li>将 <code>"model": "gpt-4o"</code> 替换为你的模型名</li>
+            <li>点击右上角 <strong>应用</strong> 保存</li>
+        </ol>
+
+        <!-- ==================== 六 ==================== -->
+        <h2>六、重启服务</h2>
+
+        <h3>方案 A（screen 用户）</h3>
+        <pre><code># 重启 LangBot
+screen -r langbot
+# 按 Ctrl+C 结束进程，然后重新运行
+./python3.11.2/bin/python3 main.py
+
+# 重启 NapCat
+screen -r napcat
+# 按 Ctrl+C 结束进程，然后重新运行
+xvfb-run -a qq --no-sandbox -q QQ号码</code></pre>
+
+        <h3>方案 B（systemd 用户）</h3>
+        <pre><code>systemctl restart napcat
+systemctl restart langbot
+
+# 可选：查看运行状态
+systemctl status napcat
+systemctl status langbot</code></pre>
+
+        <!-- ==================== 七 ==================== -->
+        <h2>七、常见问题排查</h2>
+        <p>如果确保以上步骤完全正确，但 QQ 对话无响应，请检查网络连通性：</p>
+        <pre><code>ping www.baidu.com</code></pre>
+        <p>如果没有反馈或直接失败，修改 DNS：</p>
+        <pre><code># 打开 /etc/resolv.conf
+# 将第一个 nameserver 后面的内容改为以下之一：
+8.8.8.8
+8.8.4.4
+114.114.114.114</code></pre>
+        <p>修改后再次 <code>ping www.baidu.com</code>，确认网络通畅后重试 QQ 对话。</p>
+
+        <div class="tip-box">
+            <strong>恭喜！</strong>至此你已经成功在随身WiFi上部署了 LangBot + NapCat QQ 机器人。享受你的私人 AI 助手吧！
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2025 幻影星途(HYXT) - Phantom Star Path</p>
+    <p><a href="index.html">返回主页</a></p>
+</footer>
+
+</body>
+</html>
