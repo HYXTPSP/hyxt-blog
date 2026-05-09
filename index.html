@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>幻影星途(HYXT)的个人博客</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX'); ← 替换为你的 Google Analytics 跟踪 ID
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -786,7 +794,7 @@
         /* ========== BACK TO TOP ========== */
         .back-to-top {
             position: fixed;
-            bottom: 30px;
+            bottom: 90px;
             right: 30px;
             width: 50px;
             height: 50px;
@@ -842,9 +850,156 @@
             .hero { padding: 60px 20px; }
             .contact-btn { padding: 12px 20px; font-size: 0.9rem; }
         }
+
+        /* ========== FIREWORK CANVAS ========== */
+        #fireworkCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* ========== ARTICLES SECTION ========== */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .article-card {
+            background: var(--claude-card);
+            border: 1px solid var(--claude-border);
+            border-radius: var(--radius);
+            padding: 32px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .article-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--claude-gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .article-card:hover::before { transform: scaleX(1); }
+
+        .article-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--claude-shadow-hover);
+            border-color: var(--claude-accent);
+        }
+
+        .article-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--claude-text);
+            transition: color 0.3s;
+        }
+
+        .article-card:hover h3 { color: var(--claude-accent); }
+
+        .article-card p {
+            font-size: 1rem;
+            color: var(--claude-text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .article-date {
+            font-size: 0.85rem;
+            color: var(--claude-text-secondary);
+            background: var(--claude-accent-light);
+            padding: 4px 12px;
+            border-radius: 50px;
+        }
+
+        .article-tag {
+            font-size: 0.85rem;
+            color: var(--claude-accent);
+            background: var(--claude-accent-light);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-weight: 500;
+        }
+
+        .article-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: var(--claude-gradient);
+            color: #fff;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(217,119,87,0.35);
+        }
+
+        /* ========== COMMENTS SECTION ========== */
+        .comments-section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 40px;
+        }
+
+        .comments-section .section-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .comments-section .section-subtitle {
+            font-size: 1.15rem;
+            color: var(--claude-text-secondary);
+            margin-bottom: 50px;
+        }
+
+        /* ========== SITE RUNNING TIME ========== */
+        #siteRunningTime {
+            font-size: 0.85rem;
+            color: var(--claude-accent);
+            margin-bottom: 8px;
+        }
+
     </style>
 </head>
 <body>
+    <!-- Firework Canvas -->
+    <canvas id="fireworkCanvas"></canvas>
+
     <!-- Cursor Follower -->
     <div class="cursor-follower" id="cursor"></div>
 
@@ -926,6 +1081,41 @@
         </div>
     </section>
 
+    <!-- Articles Section -->
+    <section class="section">
+        <h2 class="section-title" data-animate>📝 我的文章</h2>
+        <p class="section-subtitle" data-animate>记录学习与思考的点滴</p>
+        <div class="articles-grid">
+            <div class="article-card stagger-1" data-animate>
+                <h3>我的第一篇博客文章</h3>
+                <div class="article-meta">
+                    <span class="article-date">📅 2025-01-15</span>
+                    <span class="article-tag">#博客</span>
+                </div>
+                <p>记录博客搭建的心路历程</p>
+                <a href="#" class="article-link">阅读全文 →</a>
+            </div>
+            <div class="article-card stagger-2" data-animate>
+                <h3>AI 工具使用心得</h3>
+                <div class="article-meta">
+                    <span class="article-date">📅 2025-03-20</span>
+                    <span class="article-tag">#AI</span>
+                </div>
+                <p>分享日常使用的 AI 工具和技巧</p>
+                <a href="#" class="article-link">阅读全文 →</a>
+            </div>
+            <div class="article-card stagger-3" data-animate>
+                <h3>更多文章敬请期待...</h3>
+                <div class="article-meta">
+                    <span class="article-date">📅 即将发布</span>
+                    <span class="article-tag">#预告</span>
+                </div>
+                <p>持续更新中...</p>
+                <a href="#" class="article-link">阅读全文 →</a>
+            </div>
+        </div>
+    </section>
+
     <!-- Projects Section -->
     <section class="section">
         <h2 class="section-title" data-animate>我的项目</h2>
@@ -990,6 +1180,29 @@
         </div>
     </section>
 
+    <!-- Comments Section -->
+    <section class="comments-section">
+        <h2 class="section-title">💬 留言评论</h2>
+        <p class="section-subtitle">欢迎留下你的想法</p>
+        <div id="giscus-container">
+            <script src="https://giscus.app/client.js"
+                repo="BBGGX/hyxt-blog"
+                repo-id="REPO_ID_PLACEHOLDER"
+                category="Announcements"
+                category-id="CATEGORY_ID_PLACEHOLDER"
+                mapping="pathname"
+                strict="0"
+                reactions-enabled="1"
+                emit-metadata="0"
+                input-position="top"
+                theme="preferred_color_scheme"
+                lang="zh-CN"
+                crossorigin="anonymous"
+                async>
+            </script>
+        </div>
+    </section>
+
     <!-- Sponsor Section -->
     <section class="section sponsor-section">
         <button class="sponsor-btn" onclick="showQR('sponsor')">💝 请我喝杯咖啡</button>
@@ -997,6 +1210,7 @@
 
     <!-- Footer -->
     <footer>
+        <p id="siteRunningTime">本站已运行 0 天 0 小时 0 分钟 0 秒</p>
         <p>© 2025 幻影星途(HYXT) - Phantom Star Path</p>
         <p>📧 <a href="mailto:2070108194@qq.com">2070108194@qq.com</a></p>
     </footer>
@@ -1137,7 +1351,89 @@
             document.querySelectorAll('.shape').forEach((shape, i) => {
                 const speed = (i + 1) * 0.03;
                 shape.style.transform = `translateY(${scrollY * speed}px)`;
-            });
+        });
+
+        // ========== FIREWORK EFFECT ==========
+        const fireworkCanvas = document.getElementById('fireworkCanvas');
+        const fwCtx = fireworkCanvas.getContext('2d');
+        let fwParticles = [];
+
+        function resizeFireworkCanvas() {
+            fireworkCanvas.width = window.innerWidth;
+            fireworkCanvas.height = window.innerHeight;
+        }
+        resizeFireworkCanvas();
+        window.addEventListener('resize', resizeFireworkCanvas);
+
+        document.addEventListener('click', function(e) {
+            const colors = ['#d97757', '#c2574a', '#a84832', '#e8956f', '#ff6b4a', '#f0a070'];
+            const count = 30 + Math.floor(Math.random() * 20);
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 * i) / count;
+                const speed = 2 + Math.random() * 5;
+                fwParticles.push({
+                    x: e.clientX,
+                    y: e.clientY,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    alpha: 1,
+                    radius: 2 + Math.random() * 3,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    gravity: 0.08 + Math.random() * 0.05,
+                    decay: 0.015 + Math.random() * 0.01
+                });
+            }
+        });
+
+        function animateFireworks() {
+            fwCtx.clearRect(0, 0, fireworkCanvas.width, fireworkCanvas.height);
+            for (let i = fwParticles.length - 1; i >= 0; i--) {
+                const p = fwParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                p.vx *= 0.98;
+                p.alpha -= p.decay;
+                if (p.alpha <= 0) {
+                    fwParticles.splice(i, 1);
+                    continue;
+                }
+                fwCtx.save();
+                fwCtx.globalAlpha = p.alpha;
+                fwCtx.fillStyle = p.color;
+                fwCtx.beginPath();
+                fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                fwCtx.fill();
+                fwCtx.restore();
+            }
+            requestAnimationFrame(animateFireworks);
+        }
+        animateFireworks();
+
+        // ========== SITE RUNNING TIME ==========
+        function updateRunningTime() {
+            const startDate = new Date('2025-01-01T00:00:00');
+            const now = new Date();
+            const diff = now - startDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById('siteRunningTime').textContent =
+                '本站已运行 ' + days + ' 天 ' + hours + ' 小时 ' + minutes + ' 分钟 ' + seconds + ' 秒';
+        }
+        updateRunningTime();
+        setInterval(updateRunningTime, 1000);
+
+    </script>
+    <!-- Live2D Widget -->
+    <script src="https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/load.js"></script>
+    <script>
+        L2Dwidget.init({
+            "model": { "jsonPath": "https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/waifu-tips.json" },
+            "display": { "position": "right", "width": 150, "height": 200, "bottom": 0 },
+            "mobile": { "show": false },
+            "log": false
         });
     </script>
 </body>
