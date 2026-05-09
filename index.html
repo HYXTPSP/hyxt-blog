@@ -491,9 +491,10 @@
             border: 1px solid var(--claude-border);
             box-shadow: var(--claude-shadow);
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(30px) perspective(1200px) translateZ(0);
             transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s;
             position: relative;
+            transform-style: preserve-3d;
         }
 
         .cube-container.visible {
@@ -985,8 +986,6 @@
             width: 0;
             height: 0;
             transform-style: preserve-3d;
-            perspective: 800px;
-            z-index: 10;
             pointer-events: none;
         }
         .satellite {
@@ -1014,7 +1013,7 @@
         .sat-cube-anchor {
             position: absolute;
             transform-style: preserve-3d;
-            transform: translateX(145px);
+            transform: translateX(290px);
         }
         /* Self-spin for 3D depth */
         .sat-cube {
