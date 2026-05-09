@@ -979,6 +979,124 @@
         }
 
 
+
+        /* ========== MC SERVER POPUP ========== */
+        .mc-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .mc-popup.show { display: flex; }
+        .mc-popup-content {
+            background: var(--claude-surface);
+            border-radius: 20px;
+            max-width: 460px;
+            width: 100%;
+            padding: 32px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .mc-popup-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--claude-text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .mc-popup-close:hover { background: var(--claude-accent-light); color: var(--claude-accent); }
+        .mc-popup-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .mc-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            border: 2px solid var(--claude-border);
+        }
+        .mc-popup-header h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin: 0;
+            color: var(--claude-text);
+        }
+        .mc-subtitle {
+            font-size: 0.85rem;
+            color: var(--claude-text-secondary);
+            margin: 4px 0 0;
+        }
+        .mc-rules {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .mc-rule {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.92rem;
+            color: var(--claude-text-secondary);
+            line-height: 1.6;
+        }
+        .mc-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            background: var(--claude-gradient);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .mc-rule code {
+            background: rgba(217,119,87,0.1);
+            color: var(--claude-accent-dark);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 0.85rem;
+        }
+        .mc-qr-section {
+            text-align: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--claude-border);
+        }
+        .mc-qr-label {
+            font-size: 0.9rem;
+            color: var(--claude-text-secondary);
+            margin-bottom: 12px;
+        }
+        .mc-qr-img {
+            width: 180px;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid var(--claude-border);
+        }
+
     </style>
 </head>
 <body>
@@ -1027,6 +1145,9 @@
                 </a>
                 <a href="https://github.com/BBGGX" target="_blank" class="social-link" title="GitHub">
                     <img src="https://github.com/favicon.ico" alt="GitHub">
+                </a>
+                <a href="javascript:void(0)" class="social-link" title="HYXT原版生存服" onclick="showMCInfo()">
+                    <img src="mc-icon.png" alt="MC">
                 </a>
             </div>
         </div>
@@ -1171,6 +1292,32 @@
         <p><a href="mailto:2070108194@qq.com">2070108194@qq.com</a></p>
     </footer>
 
+    <!-- MC Server Info Popup -->
+    <div class="mc-popup" id="mcPopup" onclick="closeMCInfo(event)">
+        <div class="mc-popup-content" onclick="event.stopPropagation()">
+            <button class="mc-popup-close" onclick="closeMCInfo(event, true)">&times;</button>
+            <div class="mc-popup-header">
+                <img src="mc-icon.png" alt="MC" class="mc-logo">
+                <div>
+                    <h3>HYXT原版生存服</h3>
+                    <p class="mc-subtitle">Java & 基岩互通 · 死亡不掉落</p>
+                </div>
+            </div>
+            <div class="mc-rules">
+                <div class="mc-rule"><span class="mc-num">1</span><span>服务器死亡不掉落</span></div>
+                <div class="mc-rule"><span class="mc-num">2</span><span>本服为Java & 基岩互通服</span></div>
+                <div class="mc-rule"><span class="mc-num">3</span><span>第一次进服输入 <code>/register 密码 重复密码</code> 进行注册</span></div>
+                <div class="mc-rule"><span class="mc-num">4</span><span>可以使用 <code>/back</code> 返回死亡地点</span></div>
+                <div class="mc-rule"><span class="mc-num">5</span><span>使用 <code>/tpa 玩家名</code> 可以申请传送</span></div>
+                <div class="mc-rule"><span class="mc-num">6</span><span>使用 <code>/sethome 名字</code> 设置家，<code>/home 名字</code> 传送</span></div>
+            </div>
+            <div class="mc-qr-section">
+                <p class="mc-qr-label">扫码加入QQ群</p>
+                <img src="mc-qq.jpg" alt="QQ群二维码" class="mc-qr-img">
+            </div>
+        </div>
+    </div>
+
     <!-- Back to Top -->
     <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
@@ -1269,6 +1416,17 @@
             const video = document.getElementById('acgVideo');
             if (video.requestFullscreen) video.requestFullscreen();
             else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+        }
+
+
+        // ========== MC SERVER INFO ==========
+        function showMCInfo() {
+            document.getElementById('mcPopup').classList.add('show');
+        }
+        function closeMCInfo(e, force) {
+            if (force || e.target === document.getElementById('mcPopup')) {
+                document.getElementById('mcPopup').classList.remove('show');
+            }
         }
 
         // ========== FAV CARD MOUSE GLOW ==========
