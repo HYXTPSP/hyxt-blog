@@ -19,10 +19,12 @@
         :root {
             --claude-bg: #faf9f7;
             --claude-card: #ffffff;
+            --claude-surface: #ffffff;
             --claude-text: #1a1a1a;
             --claude-text-secondary: #6b6b6b;
             --claude-accent: #d97757;
             --claude-accent-light: #f0e6e0;
+            --claude-accent-dark: #c2574a;
             --claude-border: #e5e5e5;
             --claude-shadow: 0 2px 20px rgba(0,0,0,0.06);
             --claude-shadow-hover: 0 8px 40px rgba(0,0,0,0.12);
@@ -1010,14 +1012,20 @@
         .mc-popup.show { display: flex; }
         .mc-popup-content {
             background: var(--claude-surface);
+            border: 1px solid var(--claude-border);
             border-radius: 20px;
             max-width: 460px;
             width: 100%;
             padding: 32px;
             position: relative;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(217,119,87,0.1);
             max-height: 90vh;
             overflow-y: auto;
+            animation: mcSlideIn 0.3s ease;
+        }
+        @keyframes mcSlideIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .mc-popup-close {
             position: absolute;
@@ -1538,6 +1546,17 @@
         updateRunningTime();
         setInterval(updateRunningTime, 1000);
 
+    </script>
+
+    <!-- Live2D Widget -->
+    <script src="https://cdn.jsdelivr.net/npm/live2d-widget@3.1.4/lib/L2Dwidget.min.js"></script>
+    <script>
+        L2Dwidget.init({
+            "model": { "jsonPath": "https://cdn.jsdelivr.net/npm/live2d-widget-model-shizuku@1.0.5/assets/shizuku.model.json" },
+            "display": { "position": "right", "width": 150, "height": 300, "bottom": 0 },
+            "mobile": { "show": false },
+            "log": false
+        });
     </script>
 
 </body>
