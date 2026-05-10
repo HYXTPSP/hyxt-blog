@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tavernng - 幻影星途 | AI角色扮演聊天前端</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #faf9f7;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --text-secondary: #6b6b6b;
+            --accent: #d97757;
+            --accent-dark: #c2574a;
+            --border: #e5e5e5;
+            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --shadow-hover: 0 8px 40px rgba(0,0,0,0.12);
+            --gradient: linear-gradient(135deg, #d97757 0%, #c2574a 50%, #a84832 100%);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ========== SCROLL PROGRESS ========== */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--gradient);
+            z-index: 9999;
+            transition: width 0.1s linear;
+        }
+
+        /* ========== NAV ========== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(250,249,247,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        .nav.scrolled { border-bottom-color: var(--border); }
+
+        .nav-logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .nav-back {
+            padding: 8px 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .nav-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 40px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(217,119,87,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(194,87,74,0.08) 0%, transparent 50%);
+            animation: meshFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes meshFloat {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(2%, -3%); }
+            50% { transform: translate(-2%, 2%); }
+            75% { transform: translate(3%, 1%); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -3px;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease 0.4s forwards;
+            opacity: 0;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.6s forwards;
+            opacity: 0;
+        }
+
+        .btn {
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 20px rgba(217,119,87,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 35px rgba(217,119,87,0.45);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: #fff;
+            transform: translateY(-4px);
+        }
+
+        /* ========== SECTIONS ========== */
+        .section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 40px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .section-header h2.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease 0.15s;
+        }
+
+        .section-header p.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========== FEATURES ========== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(40px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transition: transform 0.6s ease;
+        }
+
+        .feature-card:hover::before { transform: scaleX(1); }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-card:hover h3 { color: var(--accent); }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* ========== INFO CARD ========== */
+        .info-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 48px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .info-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .info-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 28px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ========== TECH STACK ========== */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            border-left: 4px solid var(--accent);
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.6s ease;
+        }
+
+        .tech-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tech-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .tech-name {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .tech-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        /* ========== BACK TO TOP ========== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .back-to-top.show { opacity: 1; transform: translateY(0); }
+
+        .back-to-top:hover {
+            transform: translateY(-4px) scale(1.1);
+        }
+
+        /* ========== FLOATING SHAPES ========== */
+        .floating-shape {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(217,119,87,0.06);
+            pointer-events: none;
+            z-index: 0;
+            animation: shapeDrift 20s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) { width: 300px; height: 300px; top: 20%; left: -5%; }
+        .floating-shape:nth-child(2) { width: 200px; height: 200px; top: 60%; right: -3%; animation-delay: -7s; }
+        .floating-shape:nth-child(3) { width: 150px; height: 150px; bottom: 10%; left: 30%; animation-delay: -14s; }
+
+        @keyframes shapeDrift {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(30px, -40px); }
+            50% { transform: translate(-20px, 20px); }
+            75% { transform: translate(40px, 30px); }
+        }
+
+        /* ========== STAGGER ========== */
+        .stagger-1 { transition-delay: 0.05s !important; }
+        .stagger-2 { transition-delay: 0.1s !important; }
+        .stagger-3 { transition-delay: 0.15s !important; }
+        .stagger-4 { transition-delay: 0.2s !important; }
+        .stagger-5 { transition-delay: 0.25s !important; }
+        .stagger-6 { transition-delay: 0.3s !important; }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .nav { padding: 12px 20px; }
+            .hero { padding: 100px 20px 60px; }
+            .section { padding: 60px 20px; }
+            .section-header h2 { font-size: 2rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .tech-grid { grid-template-columns: 1fr; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Shapes -->
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Nav -->
+    <nav class="nav" id="nav">
+        <a href="#" class="nav-logo">Tavernng</a>
+        <a href="../../index.html" class="nav-back">← 返回主页</a>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">🎭 开源项目</div>
+            <h1>Tavernng</h1>
+            <p class="hero-subtitle">SillyTavern 兼容的 AI 角色扮演聊天前端</p>
+            <div class="hero-buttons">
+                <a href="https://github.com/BBGGX/tavernng" target="_blank" class="btn btn-primary">⭐ GitHub 仓库</a>
+                <a href="../../index.html" class="btn btn-secondary">← 返回主页</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section">
+        <div class="section-header">
+            <h2 data-animate>核心特性</h2>
+            <p data-animate>基于 TypeScript 构建，兼容 SillyTavern 生态</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card stagger-1" data-animate>
+                <div class="feature-icon">🎭</div>
+                <h3>角色扮演</h3>
+                <p>完美兼容 SillyTavern 角色卡系统，支持丰富的角色库，让你沉浸在各种故事场景中。</p>
+            </div>
+            <div class="feature-card stagger-2" data-animate>
+                <div class="feature-icon">💬</div>
+                <h3>多模型支持</h3>
+                <p>支持接入多种 AI 大语言模型后端，灵活切换，找到最适合你的对话体验。</p>
+            </div>
+            <div class="feature-card stagger-3" data-animate>
+                <div class="feature-icon">⚡</div>
+                <h3>TypeScript 驱动</h3>
+                <p>使用 TypeScript 开发，类型安全，代码清晰，易于维护和扩展。</p>
+            </div>
+            <div class="feature-card stagger-4" data-animate>
+                <div class="feature-icon">🎨</div>
+                <h3>现代化界面</h3>
+                <p>简洁直观的聊天界面设计，注重用户体验，让你专注于对话本身。</p>
+            </div>
+            <div class="feature-card stagger-5" data-animate>
+                <div class="feature-icon">🔌</div>
+                <h3>SillyTavern 兼容</h3>
+                <p>兼容 SillyTavern 的角色卡、预设和扩展系统，无缝迁移你的数据。</p>
+            </div>
+            <div class="feature-card stagger-6" data-animate>
+                <div class="feature-icon">📖</div>
+                <h3>开源免费</h3>
+                <p>完全开源，社区驱动，欢迎贡献代码和提出建议。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="section">
+        <div class="section-header">
+            <h2 data-animate>技术栈</h2>
+            <p data-animate>现代化的前端技术选型</p>
+        </div>
+        <div class="tech-grid">
+            <div class="tech-item stagger-1" data-animate>
+                <div class="tech-name">TypeScript</div>
+                <div class="tech-desc">类型安全的 JavaScript 超集</div>
+            </div>
+            <div class="tech-item stagger-2" data-animate>
+                <div class="tech-name">SillyTavern 生态</div>
+                <div class="tech-desc">兼容角色卡、预设和扩展</div>
+            </div>
+            <div class="tech-item stagger-3" data-animate>
+                <div class="tech-name">多 LLM 后端</div>
+                <div class="tech-desc">灵活接入各种 AI 模型</div>
+            </div>
+            <div class="tech-item stagger-4" data-animate>
+                <div class="tech-name">开源社区</div>
+                <div class="tech-desc">GitHub 托管，欢迎 PR</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+        <div class="info-card" data-animate>
+            <h3>🚀 立即体验</h3>
+            <p>前往 GitHub 仓库查看源码、下载部署，或提交 Issue 和 Pull Request。</p>
+            <a href="https://github.com/BBGGX/tavernng" target="_blank" class="btn btn-primary">访问 GitHub →</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Tavernng - 幻影星途 | AI角色扮演聊天前端</p>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+    <script>
+        // ========== SCROLL ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('scrollProgress').style.width = (scrollTop / docHeight * 100) + '%';
+
+            document.getElementById('backToTop').classList.toggle('show', scrollTop > 500);
+            document.getElementById('nav').classList.toggle('scrolled', scrollTop > 50);
+        });
+
+        // ========== ANIMATE ==========
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
