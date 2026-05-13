@@ -3,169 +3,832 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>敬请期待</title>
+    <title>幻想星域 v2 - 二次元聚集地</title>
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; }
+        :root {
+            --primary: #8a2be2;
+            --secondary: #9370db;
+            --accent: #ba55d3;
+            --text: #f8f8ff;
+            --bg: #1a1a2e;
+            --card: rgba(30,30,46,0.8);
+            --hover: #9932cc;
+            --shadow: rgba(138,43,226,0.3);
+            --glass: rgba(30,30,46,0.6);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #faf9f7;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            perspective: 1000px;
+            font-family: 'Segoe UI','PingFang SC',sans-serif;
+            background: var(--bg) url('https://t.alcy.cc/fj') center/cover fixed;
+            color: var(--text);
+            min-height: 100vh;
         }
-
-        /* Animated background mesh */
         body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(ellipse at 20% 50%, rgba(217,119,87,0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(217,119,87,0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(194,87,74,0.04) 0%, transparent 50%);
-            animation: meshMove 15s ease-in-out infinite;
-            z-index: 0;
+            content:''; position:fixed; inset:0;
+            background: rgba(26,26,46,0.88);
+            z-index: -1;
         }
 
-        @keyframes meshMove {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(2%, -2%); }
-            50% { transform: translate(-1%, 1%); }
-            75% { transform: translate(1%, 2%); }
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 1.5rem; text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px var(--shadow);
+            margin-bottom: 1.5rem;
+            position: relative; overflow: hidden;
+        }
+        header::after {
+            content:''; position:absolute; inset:0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px);
+            pointer-events: none;
+        }
+        header h1 { font-size:2.2rem; letter-spacing:3px; text-shadow:0 2px 8px rgba(0,0,0,0.4); }
+        header .subtitle { font-size:0.95rem; opacity:0.9; margin-top:4px; }
+
+        .container { max-width:1400px; margin:0 auto; padding:0 1rem; }
+
+        /* Controls */
+        .controls {
+            background: var(--card); border-radius:15px;
+            padding:1.2rem; margin-bottom:1.5rem;
+            box-shadow: 0 4px 15px var(--shadow);
+            backdrop-filter: blur(10px);
+            display: flex; flex-wrap:wrap; gap:0.8rem; align-items:center; justify-content:center;
+        }
+        .control-group { display:flex; align-items:center; gap:0.5rem; }
+        .control-group label { font-size:0.85rem; white-space:nowrap; opacity:0.9; }
+
+        select, button, input[type="text"] {
+            padding: 0.6rem 1rem; border:none; border-radius:8px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color:white; font-weight:600; cursor:pointer;
+            transition: all 0.2s; font-size:0.9rem;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        select { appearance:none; padding-right:2rem;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat:no-repeat; background-position:right 0.5rem center; background-size:1rem;
+        }
+        select option { color:#333; background:white; }
+        input[type="text"] { min-width:150px; cursor:text; }
+        input[type="text"]::placeholder { color:rgba(255,255,255,0.6); }
+        button:hover, select:hover { transform:translateY(-2px); box-shadow:0 4px 15px var(--shadow); background:linear-gradient(135deg,var(--hover),var(--accent)); }
+        button:active { transform:translateY(0); }
+
+        input[type="range"] {
+            -webkit-appearance:none; width:100px; height:6px;
+            background:rgba(255,255,255,0.2); border-radius:3px; outline:none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance:none; width:18px; height:18px;
+            background:var(--accent); border-radius:50%; cursor:pointer;
+            box-shadow:0 0 6px var(--shadow);
         }
 
-        .stage {
-            transform-style: preserve-3d;
-            transition: transform 0.15s ease;
-            position: relative;
-            z-index: 1;
+        /* Stats bar */
+        .stats-bar {
+            display:flex; gap:1.5rem; justify-content:center;
+            padding:0.5rem; margin-bottom:1rem; font-size:0.85rem; opacity:0.8;
+        }
+        .stats-bar span { display:flex; align-items:center; gap:4px; }
+
+        /* Batch toolbar */
+        .batch-bar {
+            display:none; align-items:center; gap:0.8rem; justify-content:center;
+            background: linear-gradient(135deg, rgba(138,43,226,0.3), rgba(186,85,211,0.3));
+            border-radius:10px; padding:0.8rem; margin-bottom:1rem;
+            backdrop-filter:blur(5px); border:1px solid rgba(186,85,211,0.3);
+        }
+        .batch-bar.active { display:flex; }
+        .batch-bar .progress-bar { width:200px; height:6px; background:rgba(255,255,255,0.2); border-radius:3px; overflow:hidden; }
+        .batch-bar .progress-fill { height:100%; background:var(--accent); width:0%; transition:width 0.3s; border-radius:3px; }
+
+        /* Gallery */
+        .gallery {
+            display:grid; gap:1.2rem; margin-bottom:2rem;
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .gallery-item {
+            position:relative; border-radius:12px; overflow:hidden;
+            background:var(--card); transition:all 0.3s;
+            box-shadow:0 4px 15px var(--shadow);
+        }
+        .gallery-item:hover { transform:translateY(-5px); box-shadow:0 8px 25px var(--shadow); }
+        .gallery-item img {
+            width:100%; height:auto; display:block;
+            object-fit:cover; aspect-ratio:1; background:var(--card);
+            transition:transform 0.3s;
+        }
+        .gallery-item:hover img { transform:scale(1.03); }
+
+        /* Checkbox overlay */
+        .check-overlay {
+            position:absolute; top:8px; left:8px; z-index:5;
+            width:24px; height:24px; border-radius:6px;
+            background:rgba(0,0,0,0.5); border:2px solid rgba(255,255,255,0.5);
+            cursor:pointer; display:flex; align-items:center; justify-content:center;
+            transition:all 0.2s; opacity:0;
+        }
+        .gallery-item:hover .check-overlay, .check-overlay.checked { opacity:1; }
+        .check-overlay.checked { background:var(--accent); border-color:var(--accent); }
+        .check-overlay.checked::after { content:'✓'; color:white; font-size:14px; font-weight:bold; }
+        .batch-mode .check-overlay { opacity:1; }
+
+        /* Favorite heart */
+        .fav-btn {
+            position:absolute; top:8px; right:8px; z-index:5;
+            width:30px; height:30px; border-radius:50%;
+            background:rgba(0,0,0,0.5); border:none;
+            cursor:pointer; display:flex; align-items:center; justify-content:center;
+            color:rgba(255,255,255,0.7); font-size:14px;
+            transition:all 0.2s; opacity:0;
+        }
+        .gallery-item:hover .fav-btn, .fav-btn.active { opacity:1; }
+        .fav-btn.active { color:#ff4757; }
+
+        /* Item overlay buttons */
+        .item-overlay {
+            position:absolute; bottom:0; left:0; right:0;
+            background:linear-gradient(to top,rgba(0,0,0,0.7),transparent);
+            padding:0.8rem; opacity:0; transition:opacity 0.3s;
+            display:flex; justify-content:center; gap:0.5rem;
+        }
+        .gallery-item:hover .item-overlay { opacity:1; }
+        .item-overlay button {
+            width:32px; height:32px; border-radius:50%; padding:0;
+            display:flex; align-items:center; justify-content:center; font-size:13px;
         }
 
-        .text-3d {
-            position: relative;
-            font-size: clamp(48px, 12vw, 100px);
-            font-weight: 900;
-            color: #d97757;
-            user-select: none;
-            cursor: default;
-            transform-style: preserve-3d;
-            letter-spacing: 4px;
+        /* Modal */
+        .modal {
+            position:fixed; inset:0; background:rgba(0,0,0,0.92);
+            display:flex; justify-content:center; align-items:center;
+            z-index:1000; opacity:0; pointer-events:none; transition:opacity 0.3s;
+        }
+        .modal.active { opacity:1; pointer-events:all; }
+        .modal-content { position:relative; max-width:90%; max-height:90%; display:flex; flex-direction:column; align-items:center; }
+        .modal-content img { max-width:100%; max-height:75vh; object-fit:contain; border-radius:10px; }
+        .modal-close {
+            position:absolute; top:-40px; right:0;
+            background:var(--primary); border:none; color:white;
+            width:32px; height:32px; border-radius:50%;
+            cursor:pointer; font-size:1.2rem; transition:all 0.2s;
+        }
+        .modal-close:hover { background:var(--accent); transform:rotate(90deg); }
+        .modal-nav {
+            position:absolute; top:50%; transform:translateY(-50%);
+            background:var(--primary); border:none; color:white;
+            width:40px; height:40px; border-radius:50%;
+            cursor:pointer; font-size:1.2rem; transition:all 0.2s;
+        }
+        .modal-nav:hover { background:var(--accent); }
+        .modal-nav.prev { left:-50px; }
+        .modal-nav.next { right:-50px; }
+        .modal-actions {
+            display:flex; gap:0.5rem; margin-top:0.8rem; flex-wrap:wrap; justify-content:center;
+        }
+        .modal-actions button { max-width:180px; font-size:0.85rem; padding:0.5rem 1rem; }
+
+        /* Image info bar */
+        .img-info {
+            display:flex; gap:1rem; margin-top:0.5rem; font-size:0.8rem; opacity:0.7;
+            flex-wrap:wrap; justify-content:center;
+        }
+        .img-info span { display:flex; align-items:center; gap:4px; }
+
+        /* Slideshow */
+        .slideshow {
+            position:fixed; inset:0; background:#000; z-index:2000;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            opacity:0; pointer-events:none; transition:opacity 0.3s;
+        }
+        .slideshow.active { opacity:1; pointer-events:all; }
+        .slideshow img { max-width:95%; max-height:80vh; object-fit:contain; border-radius:8px; }
+        .slideshow-controls {
+            position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+            display:flex; gap:1rem; align-items:center;
+            background:rgba(0,0,0,0.6); padding:0.8rem 1.5rem; border-radius:30px;
+            backdrop-filter:blur(10px);
+        }
+        .slideshow-controls button {
+            width:36px; height:36px; border-radius:50%; padding:0;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .slideshow-close {
+            position:absolute; top:20px; right:20px;
+            background:var(--primary); border:none; color:white;
+            width:40px; height:40px; border-radius:50%;
+            cursor:pointer; font-size:1.3rem; z-index:10;
+        }
+        .slideshow-counter {
+            position:absolute; top:20px; left:20px;
+            font-size:1rem; opacity:0.7;
         }
 
-        .text-3d span {
-            display: inline-block;
-            transform-origin: 50% 50%;
-            transition: transform 0.2s ease;
-            text-shadow: 0 4px 30px rgba(217,119,87,0.3);
+        /* Toast */
+        .toast {
+            position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+            background:rgba(0,0,0,0.8); color:white; padding:10px 24px;
+            border-radius:8px; z-index:3000; transition:opacity 0.3s;
+            font-size:0.9rem; backdrop-filter:blur(5px);
+            border:1px solid rgba(186,85,211,0.3);
         }
 
-        .text-3d span:hover {
-            color: #c2574a;
+        /* Loading */
+        .loading { display:none; text-align:center; padding:2rem; }
+        .loading.active { display:block; }
+        .spinner {
+            width:40px; height:40px; border:4px solid rgba(255,255,255,0.2);
+            border-top-color:var(--primary); border-radius:50%;
+            animation:spin 0.8s linear infinite; margin:0 auto 1rem;
         }
+        @keyframes spin { to{transform:rotate(360deg)} }
 
-        /* Floating particles */
-        .particle {
-            position: fixed;
-            border-radius: 50%;
-            background: rgba(217,119,87,0.15);
-            animation: floatUp linear infinite;
-            z-index: 0;
+        /* Back to top */
+        .back-top {
+            position:fixed; bottom:30px; right:30px;
+            width:45px; height:45px; border-radius:50%;
+            background:linear-gradient(135deg,var(--primary),var(--accent));
+            display:flex; align-items:center; justify-content:center;
+            cursor:pointer; box-shadow:0 4px 15px var(--shadow);
+            opacity:0; visibility:hidden; transition:all 0.3s; z-index:999;
+            border:none; color:white; font-size:1.2rem;
         }
+        .back-top.visible { opacity:1; visibility:visible; }
+        .back-top:hover { transform:translateY(-3px); }
 
-        @keyframes floatUp {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        /* Shortcut help */
+        .shortcut-help {
+            position:fixed; inset:0; background:rgba(0,0,0,0.85);
+            display:flex; align-items:center; justify-content:center;
+            z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.3s;
         }
-
-        /* Back button */
-        .back-btn {
-            position: fixed;
-            top: 30px;
-            left: 30px;
-            padding: 12px 28px;
-            background: #fff;
-            border: 1px solid #e5e5e5;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #1a1a1a;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            z-index: 10;
-            text-decoration: none;
+        .shortcut-help.active { opacity:1; pointer-events:all; }
+        .shortcut-box {
+            background:var(--card); border-radius:16px; padding:2rem;
+            backdrop-filter:blur(15px); border:1px solid rgba(186,85,211,0.3);
+            max-width:400px; width:90%;
         }
+        .shortcut-box h3 { text-align:center; margin-bottom:1rem; color:var(--accent); }
+        .shortcut-row { display:flex; justify-content:space-between; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.1); }
+        .shortcut-key { background:var(--primary); padding:2px 8px; border-radius:4px; font-family:monospace; font-size:0.85rem; }
 
-        .back-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            border-color: #d97757;
-            color: #d97757;
+        /* Footer */
+        footer {
+            text-align:center; padding:1.5rem;
+            background:linear-gradient(135deg,var(--primary),var(--accent));
+            border-radius:20px 20px 0 0; margin-top:2rem;
+        }
+        footer p { font-size:0.85rem; opacity:0.9; }
+
+        /* Responsive */
+        @media(max-width:768px) {
+            .gallery { grid-template-columns: repeat(2, 1fr) !important; gap:0.8rem; }
+            header h1 { font-size:1.6rem; }
+            .controls { flex-direction:column; }
+            .control-group { width:100%; justify-content:center; }
+            .modal-nav.prev { left:10px; }
+            .modal-nav.next { right:10px; }
+        }
+        @media(max-width:480px) {
+            .gallery { grid-template-columns: repeat(2, 1fr) !important; }
         }
     </style>
 </head>
 <body>
-    <a href="../../index.html" class="back-btn">← 返回主页</a>
+    <header>
+        <h1>✨ 幻想星域 v2 ✨</h1>
+        <p class="subtitle">二次元精美图片 · 全新体验</p>
+    </header>
 
-    <div class="stage">
-        <div class="text-3d" id="text">敬请期待</div>
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls">
+            <div class="control-group">
+                <select id="api-select">
+                    <option value="https://t.alcy.cc/ycy">元气少女</option>
+                    <option value="https://t.alcy.cc/moez">萌系动漫</option>
+                    <option value="https://t.alcy.cc/ai">AI艺术</option>
+                    <option value="https://t.alcy.cc/ysz">艺术写真</option>
+                    <option value="https://t.alcy.cc/ys">原神壁纸</option>
+                    <option value="https://t.alcy.cc/pc">电脑壁纸</option>
+                    <option value="https://t.alcy.cc/moe">萌图</option>
+                    <option value="https://t.alcy.cc/fj">风景壁纸</option>
+                    <option value="https://t.alcy.cc/bd">必应壁纸</option>
+                    <option value="https://t.alcy.cc/mp">萌图手机版</option>
+                    <option value="https://t.alcy.cc/moemp">萌图手机版2</option>
+                    <option value="https://t.alcy.cc/ysmp">原神手机壁纸</option>
+                    <option value="https://t.alcy.cc/tx">腾讯壁纸</option>
+                    <option value="https://t.alcy.cc/xhl">小狐狸</option>
+                    <option value="http://www.98qy.com/sjbz/api.php">随机壁纸</option>
+                    <option value="https://imgapi.xl0408.top/index.php">二次元图片</option>
+                    <option value="https://img.paulzzh.com/touhou/random">东方Project</option>
+                    <option value="https://api.mtyqx.cn/tapi/random.php">动漫随机图</option>
+                    <option value="https://image.anosu.top/pixiv/direct">Pixiv精选</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <input type="text" id="search-input" placeholder="🔍 搜索分类...">
+            </div>
+            <div class="control-group">
+                <button id="random-btn" title="随机分类">🎲 随机</button>
+            </div>
+            <div class="control-group">
+                <button id="load-btn">加载图片</button>
+            </div>
+            <div class="control-group">
+                <label>列数</label>
+                <input type="range" id="col-slider" min="2" max="6" value="4">
+                <span id="col-label">4</span>
+            </div>
+            <div class="control-group">
+                <button id="batch-toggle">☑ 批量</button>
+                <button id="fav-toggle">❤ 收藏 <span id="fav-count">0</span></button>
+            </div>
+            <div class="control-group">
+                <button id="slideshow-btn">▶ 幻灯片</button>
+            </div>
+            <div class="control-group">
+                <button id="help-btn" title="快捷键帮助">? 帮助</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <span><i class="fas fa-image"></i> 已加载: <b id="img-count">0</b></span>
+            <span><i class="fas fa-heart"></i> 收藏: <b id="fav-stat">0</b></span>
+            <span><i class="fas fa-folder"></i> 分类: <b id="cat-name">元气少女</b></span>
+        </div>
+
+        <!-- Batch bar -->
+        <div class="batch-bar" id="batch-bar">
+            <button id="select-all">全选</button>
+            <button id="select-none">取消全选</button>
+            <button id="batch-download">📦 批量下载 (<span id="sel-count">0</span>)</button>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在加载二次元图片...</p>
+        </div>
+
+        <!-- Gallery -->
+        <div class="gallery" id="gallery"></div>
     </div>
 
-    <script>
-        // 3D text effect
-        const text = document.getElementById('text');
-        text.innerHTML = text.textContent.split('').map(c => `<span>${c}</span>`).join('');
-        const spans = text.querySelectorAll('span');
-        const stage = document.querySelector('.stage');
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close">&times;</button>
+            <button class="modal-nav prev" id="modal-prev"><i class="fas fa-chevron-left"></i></button>
+            <button class="modal-nav next" id="modal-next"><i class="fas fa-chevron-right"></i></button>
+            <img id="modal-img" src="" alt="">
+            <div class="img-info" id="img-info"></div>
+            <div class="modal-actions">
+                <button id="modal-download"><i class="fas fa-download"></i> 下载</button>
+                <button id="modal-fav"><i class="fas fa-heart"></i> 收藏</button>
+                <button id="modal-share"><i class="fas fa-share-alt"></i> 分享</button>
+            </div>
+        </div>
+    </div>
 
-        const SENSITIVITY = 0.4;
-        const MAX_TILT = 20;
-        const MAX_OFFSET = 30;
+    <!-- Slideshow -->
+    <div class="slideshow" id="slideshow">
+        <button class="slideshow-close" id="ss-close">&times;</button>
+        <div class="slideshow-counter" id="ss-counter">1 / 1</div>
+        <img id="ss-img" src="" alt="">
+        <div class="slideshow-controls">
+            <button id="ss-prev"><i class="fas fa-chevron-left"></i></button>
+            <button id="ss-pause"><i class="fas fa-pause"></i></button>
+            <button id="ss-next"><i class="fas fa-chevron-right"></i></button>
+            <label style="font-size:0.8rem">速度</label>
+            <input type="range" id="ss-speed" min="1" max="10" value="3" style="width:80px">
+            <span id="ss-speed-label" style="font-size:0.8rem">3s</span>
+        </div>
+    </div>
 
-        function handleMove(e) {
-            const { clientX, clientY } = (e.touches && e.touches[0]) || e;
-            const { innerWidth, innerHeight } = window;
-            const x = (clientX / innerWidth - 0.5) * 2;
-            const y = (clientY / innerHeight - 0.5) * 2;
+    <!-- Shortcut help -->
+    <div class="shortcut-help" id="shortcut-help">
+        <div class="shortcut-box">
+            <h3>⌨ 键盘快捷键</h3>
+            <div class="shortcut-row"><span>切换图片</span><span class="shortcut-key">← →</span></div>
+            <div class="shortcut-row"><span>关闭弹窗</span><span class="shortcut-key">Esc</span></div>
+            <div class="shortcut-row"><span>暂停/播放幻灯片</span><span class="shortcut-key">Space</span></div>
+            <div class="shortcut-row"><span>下载当前图片</span><span class="shortcut-key">D</span></div>
+            <div class="shortcut-row"><span>全屏</span><span class="shortcut-key">F</span></div>
+            <div class="shortcut-row"><span>显示帮助</span><span class="shortcut-key">?</span></div>
+        </div>
+    </div>
 
-            stage.style.transform = `rotateX(${-y * MAX_TILT * SENSITIVITY}deg) rotateY(${x * MAX_TILT * SENSITIVITY}deg)`;
+    <!-- Back to top -->
+    <button class="back-top" id="back-top"><i class="fas fa-arrow-up"></i></button>
 
-            spans.forEach((s, i) => {
-                const offsetX = x * (i - 1.5) * MAX_OFFSET * SENSITIVITY;
-                const offsetY = y * (i - 1.5) * MAX_OFFSET * SENSITIVITY;
-                const offsetZ = (Math.abs(x) + Math.abs(y)) * MAX_OFFSET * SENSITIVITY;
-                s.style.transform = `translate3d(${offsetX}px,${offsetY}px,${offsetZ}px)`;
-            });
+    <footer>
+        <p>© 2025 幻想星域 - 二次元聚集地</p>
+        <p style="margin-top:0.5rem;font-size:0.8rem;opacity:0.7">所有图片均来自公开API，版权归原作者所有 | 按 ? 查看快捷键</p>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Elements
+    const gallery = document.getElementById('gallery');
+    const apiSelect = document.getElementById('api-select');
+    const searchInput = document.getElementById('search-input');
+    const loadBtn = document.getElementById('load-btn');
+    const randomBtn = document.getElementById('random-btn');
+    const colSlider = document.getElementById('col-slider');
+    const colLabel = document.getElementById('col-label');
+    const batchToggle = document.getElementById('batch-toggle');
+    const batchBar = document.getElementById('batch-bar');
+    const favToggle = document.getElementById('fav-toggle');
+    const slideshowBtn = document.getElementById('slideshow-btn');
+    const helpBtn = document.getElementById('help-btn');
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalClose = document.getElementById('modal-close');
+    const modalPrev = document.getElementById('modal-prev');
+    const modalNext = document.getElementById('modal-next');
+    const modalDownload = document.getElementById('modal-download');
+    const modalFav = document.getElementById('modal-fav');
+    const modalShare = document.getElementById('modal-share');
+    const imgInfo = document.getElementById('img-info');
+    const slideshow = document.getElementById('slideshow');
+    const ssImg = document.getElementById('ss-img');
+    const ssClose = document.getElementById('ss-close');
+    const ssPause = document.getElementById('ss-pause');
+    const ssPrev = document.getElementById('ss-prev');
+    const ssNext = document.getElementById('ss-next');
+    const ssSpeed = document.getElementById('ss-speed');
+    const ssSpeedLabel = document.getElementById('ss-speed-label');
+    const ssCounter = document.getElementById('ss-counter');
+    const shortcutHelp = document.getElementById('shortcut-help');
+    const loading = document.getElementById('loading');
+    const backTop = document.getElementById('back-top');
+    const progressFill = document.getElementById('progress-fill');
+
+    // State
+    let images = [];
+    let currentIndex = 0;
+    let isLoading = false;
+    let batchMode = false;
+    let showFavsOnly = false;
+    let favorites = JSON.parse(localStorage.getItem('fantasy-favs') || '[]');
+    let ssPlaying = false;
+    let ssTimer = null;
+    let ssSpeedVal = 3;
+
+    const allOptions = Array.from(apiSelect.options);
+
+    // Update stats
+    function updateStats() {
+        document.getElementById('img-count').textContent = images.length;
+        document.getElementById('fav-stat').textContent = favorites.length;
+        document.getElementById('fav-count').textContent = favorites.length;
+        document.getElementById('cat-name').textContent = apiSelect.options[apiSelect.selectedIndex].text;
+    }
+
+    // Toast
+    function toast(msg) {
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2000);
+    }
+
+    // Save favorites
+    function saveFavs() {
+        localStorage.setItem('fantasy-favs', JSON.stringify(favorites));
+        updateStats();
+        document.querySelectorAll('.fav-btn').forEach(btn => {
+            const url = btn.dataset.url;
+            btn.classList.toggle('active', favorites.includes(url));
+        });
+    }
+
+    // Toggle favorite
+    function toggleFav(url) {
+        const idx = favorites.indexOf(url);
+        if (idx >= 0) { favorites.splice(idx, 1); toast('已取消收藏'); }
+        else { favorites.push(url); toast('已收藏 ❤'); }
+        saveFavs();
+        if (showFavsOnly) renderGallery();
+    }
+
+    // Fetch image
+    async function fetchImage(url) {
+        try {
+            if (url.includes('98qy.com') || url.includes('xl0408.top') || url.includes('mtyqx.cn')) {
+                const resp = await fetch(url, { redirect: 'follow' });
+                return resp.url;
+            }
+            return url;
+        } catch { return null; }
+    }
+
+    // Load images
+    async function loadImages() {
+        if (isLoading) return;
+        isLoading = true;
+        loading.classList.add('active');
+
+        const api = apiSelect.value;
+        const count = 12;
+        const promises = [];
+        for (let i = 0; i < count; i++) {
+            let url = api + (api.includes('?') ? '&' : '?') + '_=' + (Date.now() + i);
+            promises.push(fetchImage(url));
+        }
+        const results = await Promise.all(promises);
+        results.forEach(u => { if (u) images.push(u); });
+
+        renderGallery();
+        isLoading = false;
+        loading.classList.remove('active');
+        updateStats();
+    }
+
+    // Render gallery
+    function renderGallery() {
+        gallery.innerHTML = '';
+        const list = showFavsOnly ? images.filter(u => favorites.includes(u)) : images;
+        list.forEach((url, i) => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item' + (batchMode ? ' batch-mode' : '');
+
+            // Checkbox
+            const chk = document.createElement('div');
+            chk.className = 'check-overlay';
+            chk.dataset.url = url;
+            chk.onclick = (e) => { e.stopPropagation(); chk.classList.toggle('checked'); updateSelCount(); };
+
+            // Favorite
+            const fav = document.createElement('button');
+            fav.className = 'fav-btn' + (favorites.includes(url) ? ' active' : '');
+            fav.innerHTML = '<i class="fas fa-heart"></i>';
+            fav.dataset.url = url;
+            fav.onclick = (e) => { e.stopPropagation(); toggleFav(url); };
+
+            // Image
+            const img = document.createElement('img');
+            img.src = url;
+            img.loading = 'lazy';
+            img.alt = '图片';
+            img.onerror = function() { this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="200"%3E%3Crect fill="%231a1a2e" width="300" height="200"/%3E%3Ctext fill="%238a2be2" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3E加载失败%3C/text%3E%3C/svg%3E'; };
+
+            // Overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'item-overlay';
+            const viewBtn = document.createElement('button');
+            viewBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            viewBtn.onclick = (e) => { e.stopPropagation(); openModal(images.indexOf(url)); };
+            const dlBtn = document.createElement('button');
+            dlBtn.innerHTML = '<i class="fas fa-download"></i>';
+            dlBtn.onclick = (e) => { e.stopPropagation(); downloadImage(url); };
+            overlay.appendChild(viewBtn);
+            overlay.appendChild(dlBtn);
+
+            item.append(chk, fav, img, overlay);
+            item.onclick = () => openModal(images.indexOf(url));
+            gallery.appendChild(item);
+        });
+        updateSelCount();
+    }
+
+    // Column slider
+    colSlider.oninput = () => {
+        colLabel.textContent = colSlider.value;
+        gallery.style.gridTemplateColumns = `repeat(${colSlider.value}, 1fr)`;
+    };
+
+    // Search filter
+    searchInput.oninput = () => {
+        const q = searchInput.value.toLowerCase();
+        apiSelect.innerHTML = '';
+        allOptions.forEach(opt => {
+            if (opt.text.toLowerCase().includes(q)) apiSelect.appendChild(opt.cloneNode(true));
+        });
+    };
+
+    // Random
+    randomBtn.onclick = () => {
+        const opts = apiSelect.options;
+        apiSelect.selectedIndex = Math.floor(Math.random() * opts.length);
+        images = [];
+        loadImages();
+        toast('🎲 ' + apiSelect.options[apiSelect.selectedIndex].text);
+    };
+
+    // Batch mode
+    batchToggle.onclick = () => {
+        batchMode = !batchMode;
+        batchBar.classList.toggle('active', batchMode);
+        gallery.classList.toggle('batch-mode', batchMode);
+        if (!batchMode) document.querySelectorAll('.check-overlay').forEach(c => c.classList.remove('checked'));
+    };
+
+    function updateSelCount() {
+        const n = document.querySelectorAll('.check-overlay.checked').length;
+        document.getElementById('sel-count').textContent = n;
+    }
+
+    document.getElementById('select-all').onclick = () => {
+        document.querySelectorAll('.check-overlay').forEach(c => c.classList.add('checked'));
+        updateSelCount();
+    };
+    document.getElementById('select-none').onclick = () => {
+        document.querySelectorAll('.check-overlay').forEach(c => c.classList.remove('checked'));
+        updateSelCount();
+    };
+
+    // Batch download
+    document.getElementById('batch-download').onclick = async () => {
+        const checked = document.querySelectorAll('.check-overlay.checked');
+        if (!checked.length) { toast('请先选择图片'); return; }
+        const urls = Array.from(checked).map(c => c.dataset.url);
+        toast('开始打包 ' + urls.length + ' 张图片...');
+        progressFill.style.width = '0%';
+
+        const zip = new JSZip();
+        const folder = zip.folder('幻想星域');
+        let done = 0;
+
+        for (const url of urls) {
+            try {
+                const resp = await fetch(url);
+                const blob = await resp.blob();
+                const name = 'img_' + (done + 1) + '.jpg';
+                folder.file(name, blob);
+            } catch { /* skip failed */ }
+            done++;
+            progressFill.style.width = (done / urls.length * 100) + '%';
         }
 
-        function reset() {
-            stage.style.transform = 'rotateX(0) rotateY(0)';
-            spans.forEach(s => s.style.transform = '');
+        const content = await zip.generateAsync({ type: 'blob' });
+        saveAs(content, '幻想星域_' + Date.now() + '.zip');
+        toast('打包下载完成 ✅');
+        progressFill.style.width = '0%';
+    };
+
+    // Favorites toggle
+    favToggle.onclick = () => {
+        showFavsOnly = !showFavsOnly;
+        favToggle.style.background = showFavsOnly ? 'linear-gradient(135deg,#ff4757,#ff6b81)' : '';
+        renderGallery();
+        toast(showFavsOnly ? '显示收藏图片' : '显示全部图片');
+    };
+
+    // Modal
+    function openModal(idx) {
+        if (idx < 0 || idx >= images.length) return;
+        currentIndex = idx;
+        modalImg.src = images[idx];
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        updateModalInfo();
+    }
+
+    function updateModalInfo() {
+        const url = images[currentIndex];
+        modalFav.innerHTML = favorites.includes(url) ? '<i class="fas fa-heart"></i> 取消收藏' : '<i class="fas fa-heart"></i> 收藏';
+        imgInfo.innerHTML = '<span><i class="fas fa-folder"></i> ' + apiSelect.options[apiSelect.selectedIndex].text + '</span><span><i class="fas fa-hashtag"></i> #' + (currentIndex + 1) + '</span>';
+        // Get resolution after load
+        modalImg.onload = () => {
+            imgInfo.innerHTML += '<span><i class="fas fa-arrows-alt"></i> ' + modalImg.naturalWidth + '×' + modalImg.naturalHeight + '</span>';
+        };
+    }
+
+    function closeModal() { modal.classList.remove('active'); document.body.style.overflow = ''; }
+
+    modalClose.onclick = closeModal;
+    modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+    modalPrev.onclick = () => openModal((currentIndex - 1 + images.length) % images.length);
+    modalNext.onclick = () => openModal((currentIndex + 1) % images.length);
+    modalDownload.onclick = () => downloadImage(images[currentIndex]);
+    modalFav.onclick = () => toggleFav(images[currentIndex]);
+    modalShare.onclick = () => shareImage(images[currentIndex]);
+
+    // Download
+    function downloadImage(url) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '幻想星域_' + Date.now() + '.jpg';
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast('下载已开始 📥');
+    }
+
+    // Share
+    function shareImage(url) {
+        if (navigator.share) {
+            navigator.share({ title: '幻想星域 - 精美图片', url: url }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(url).then(() => toast('链接已复制 📋')).catch(() => toast('复制失败'));
+        }
+    }
+
+    // Slideshow
+    function startSlideshow() {
+        if (!images.length) { toast('请先加载图片'); return; }
+        slideshow.classList.add('active');
+        ssPlaying = true;
+        ssPause.innerHTML = '<i class="fas fa-pause"></i>';
+        showSSImage(0);
+        startSSTimer();
+    }
+
+    function showSSImage(idx) {
+        currentIndex = idx;
+        ssImg.src = images[idx];
+        ssCounter.textContent = (idx + 1) + ' / ' + images.length;
+    }
+
+    function startSSTimer() {
+        clearInterval(ssTimer);
+        ssTimer = setInterval(() => {
+            currentIndex = (currentIndex + 1) % images.length;
+            showSSImage(currentIndex);
+        }, ssSpeedVal * 1000);
+    }
+
+    function stopSlideshow() {
+        slideshow.classList.remove('active');
+        ssPlaying = false;
+        clearInterval(ssTimer);
+    }
+
+    ssClose.onclick = stopSlideshow;
+    ssPause.onclick = () => {
+        ssPlaying = !ssPlaying;
+        ssPause.innerHTML = ssPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+        if (ssPlaying) startSSTimer(); else clearInterval(ssTimer);
+    };
+    ssPrev.onclick = () => { showSSImage((currentIndex - 1 + images.length) % images.length); if (ssPlaying) startSSTimer(); };
+    ssNext.onclick = () => { showSSImage((currentIndex + 1) % images.length); if (ssPlaying) startSSTimer(); };
+    ssSpeed.oninput = () => { ssSpeedVal = ssSpeed.value; ssSpeedLabel.textContent = ssSpeedVal + 's'; if (ssPlaying) startSSTimer(); };
+    slideshowBtn.onclick = startSlideshow;
+
+    // Shortcut help
+    helpBtn.onclick = () => shortcutHelp.classList.toggle('active');
+    shortcutHelp.onclick = (e) => { if (e.target === shortcutHelp) shortcutHelp.classList.remove('active'); };
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+        if (slideshow.classList.contains('active')) {
+            if (e.key === 'Escape') stopSlideshow();
+            if (e.key === ' ') { e.preventDefault(); ssPause.click(); }
+            if (e.key === 'ArrowLeft') ssPrev.click();
+            if (e.key === 'ArrowRight') ssNext.click();
+            return;
         }
 
-        document.addEventListener('mousemove', handleMove);
-        document.addEventListener('mouseleave', reset);
-        document.addEventListener('touchmove', handleMove, { passive: true });
-        document.addEventListener('touchend', reset);
-
-        // Floating particles
-        for (let i = 0; i < 15; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            const size = Math.random() * 12 + 4;
-            p.style.cssText = `
-                width: ${size}px; height: ${size}px;
-                left: ${Math.random() * 100}%;
-                animation-duration: ${Math.random() * 8 + 8}s;
-                animation-delay: ${Math.random() * -15}s;
-            `;
-            document.body.appendChild(p);
+        if (modal.classList.contains('active')) {
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowLeft') modalPrev.click();
+            if (e.key === 'ArrowRight') modalNext.click();
+            if (e.key === 'd' || e.key === 'D') downloadImage(images[currentIndex]);
+            return;
         }
-    </script>
+
+        if (e.key === '?' || e.key === '/') { e.preventDefault(); shortcutHelp.classList.toggle('active'); }
+        if (e.key === 'f' || e.key === 'F') {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+            else document.exitFullscreen();
+        }
+    });
+
+    // Infinite scroll
+    const sentinel = document.createElement('div');
+    sentinel.style.height = '20px';
+    document.body.appendChild(sentinel);
+    new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading && !showFavsOnly) loadImages();
+    }, { threshold: 0.1 }).observe(sentinel);
+
+    // Back to top
+    window.addEventListener('scroll', () => {
+        backTop.classList.toggle('visible', window.scrollY > 300);
+    });
+    backTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Load button
+    loadBtn.onclick = () => { images = []; loadImages(); };
+
+    // Init
+    updateStats();
+    loadImages();
+});
+</script>
 </body>
 </html>
