@@ -1120,45 +1120,9 @@
             border: 1px solid var(--claude-border);
         }
 
-        /* Twikoo 评论区自定义样式 */
-        #tcomment .tk-submit {
-            border-radius: var(--radius-sm) !important;
-            border-color: var(--claude-border) !important;
-        }
-        #tcomment .tk-submit .el-textarea__inner {
-            border-radius: 8px !important;
-            border-color: var(--claude-border) !important;
-        }
-        #tcomment .tk-submit .el-button--primary {
-            background: var(--claude-accent) !important;
-            border-color: var(--claude-accent) !important;
-            border-radius: var(--radius-sm) !important;
-        }
-        #tcomment .tk-submit .el-button--primary:hover {
-            background: var(--claude-accent-dark) !important;
-        }
-        #tcomment .tk-comment {
-            border-radius: var(--radius-sm) !important;
-            border: 1px solid var(--claude-border) !important;
-            margin-bottom: 12px !important;
-        }
-        #tcomment .tk-action {
-            color: var(--claude-accent) !important;
-        }
-        #tcomment .tk-action button:hover {
-            color: var(--claude-accent-dark) !important;
-        }
-        #tcomment .tk-nick {
-            color: var(--claude-accent) !important;
-        }
-        #tcomment .tk-tag {
-            background: var(--claude-accent-light) !important;
-            color: var(--claude-accent) !important;
-            border-radius: 6px !important;
-        }
-        #tcomment .tk-admin {
-            background: var(--claude-accent-light) !important;
-            color: var(--claude-accent) !important;
+        /* Giscus 评论区样式 */
+        .giscus {
+            margin-top: 1rem;
         }
 
     </style>
@@ -1288,6 +1252,11 @@
                 <p>SillyTavern 兼容的 AI 角色扮演聊天前端，基于 TypeScript 构建。</p>
                 <a href="project/2/index.html" class="project-link">查看项目</a>
             </div>
+            <div class="project-card stagger-3" data-animate>
+                <h3>幻想星域</h3>
+                <p>二次元精美图片聚合浏览站，支持20+分类、批量下载、收藏、幻灯片放映。</p>
+                <a href="project/5/index.html" class="project-link">查看项目</a>
+            </div>
         </div>
     </section>
 
@@ -1330,14 +1299,23 @@
     <section class="comments-section">
         <h2 class="section-title">留言评论</h2>
         <p class="section-subtitle">欢迎留下你的想法</p>
-        <div id="tcomment"></div>
-        <script src="https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js"></script>
-        <script>
-        twikoo.init({
-            envId: 'https://twikoo-hyxt-bbggxs-projects.vercel.app',
-            el: '#tcomment',
-        });
-        </script>
+        <div class="giscus">
+            <script src="https://giscus.app/client.js"
+                data-repo="BBGGX/hyxt-blog"
+                data-repo-id="R_kgDOSX_5mg"
+                data-category="Announcements"
+                data-category-id="DIC_kwDOSX_5ms4C8pxN"
+                data-mapping="pathname"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="bottom"
+                data-theme="light"
+                data-lang="zh-CN"
+                crossorigin="anonymous"
+                async>
+            </script>
+        </div>
     </section>
 
     <!-- Sponsor Section -->
