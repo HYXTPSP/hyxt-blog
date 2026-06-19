@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在随身WiFi上开一个MC怀旧服 - 幻影星途</title>
+    <link rel="icon" href="favicon.ico">
+    <style>
+        :root {
+            --claude-bg: #faf9f7;
+            --claude-card: #ffffff;
+            --claude-text: #1a1a1a;
+            --claude-text-secondary: #6b6b6b;
+            --claude-accent: #d97757;
+            --claude-accent-light: #f0e6e0;
+            --claude-border: #e5e5e5;
+            --claude-gradient: linear-gradient(135deg, #d97757 0%, #c2574a 50%, #a84832 100%);
+            --radius: 20px;
+            --radius-sm: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+            background: var(--claude-bg);
+            color: var(--claude-text);
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--claude-accent);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 30px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            background: var(--claude-accent-light);
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: var(--claude-accent);
+            color: white;
+        }
+
+        .article-header {
+            margin-bottom: 40px;
+        }
+
+        .article-header h1 {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: var(--claude-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--claude-text-secondary);
+            font-size: 14px;
+        }
+
+        .article-meta .tag {
+            background: var(--claude-accent-light);
+            color: var(--claude-accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .article-cover {
+            width: 100%;
+            height: 300px;
+            background: var(--claude-gradient);
+            border-radius: var(--radius);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+
+        .article-content {
+            background: var(--claude-card);
+            border-radius: var(--radius);
+            padding: 40px;
+            border: 1px solid var(--claude-border);
+            margin-bottom: 40px;
+        }
+
+        .article-content h2 {
+            font-size: 1.5em;
+            margin: 30px 0 16px;
+            color: var(--claude-accent);
+            border-bottom: 2px solid var(--claude-accent-light);
+            padding-bottom: 8px;
+        }
+
+        .article-content h2:first-child {
+            margin-top: 0;
+        }
+
+        .article-content h3 {
+            font-size: 1.2em;
+            margin: 24px 0 12px;
+            color: var(--claude-text);
+        }
+
+        .article-content p {
+            margin-bottom: 16px;
+            color: var(--claude-text);
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        .article-content li {
+            margin-bottom: 8px;
+        }
+
+        .article-content code {
+            background: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            color: #e74c3c;
+        }
+
+        .article-content pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .article-content pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        .tip-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px 20px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin: 16px 0;
+        }
+
+        .tip-box.info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+
+        .tip-box.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .tip-box.warning {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .tip-box strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--claude-gradient);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 16px 0;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(217, 119, 87, 0.4);
+        }
+
+        .plugin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .plugin-table th, .plugin-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--claude-border);
+        }
+
+        .plugin-table th {
+            background: var(--claude-accent-light);
+            color: var(--claude-accent);
+            font-weight: 600;
+        }
+
+        .plugin-table tr:hover {
+            background: var(--claude-bg);
+        }
+
+        .steps {
+            counter-reset: step;
+        }
+
+        .step {
+            counter-increment: step;
+            margin: 24px 0;
+            padding: 20px;
+            background: var(--claude-bg);
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--claude-accent);
+        }
+
+        .step::before {
+            content: "Step " counter(step);
+            display: block;
+            font-weight: 700;
+            color: var(--claude-accent);
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 200px;
+            background: var(--claude-accent-light);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--claude-accent);
+            font-size: 14px;
+            margin: 16px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--claude-text-secondary);
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--claude-accent);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .article-content {
+                padding: 24px;
+            }
+
+            .article-header h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            返回首页
+        </a>
+
+        <div class="article-header">
+            <h1>在随身WiFi上开一个MC怀旧服</h1>
+            <div class="article-meta">
+                <span>2025-06-19</span>
+                <span class="tag">#教程</span>
+                <span class="tag">#Minecraft</span>
+                <span class="tag">#OpenStick</span>
+                <span class="tag">#Genisys</span>
+            </div>
+        </div>
+
+        <div class="article-cover">
+            🎮
+        </div>
+
+        <div class="article-content">
+            <h2>前言</h2>
+            <p>你有没有想过，一个几十块钱的随身WiFi设备，居然能跑起一个Minecraft服务器？</p>
+            <p>今天我就来分享一下，如何把一个廉价的OpenStick随身WiFi刷成Linux系统，然后在上面运行一个MCPE 0.14的怀旧服务器。</p>
+            
+            <div class="tip-box info">
+                <strong>什么是MCPE 0.14？</strong>
+                MCPE (Minecraft Pocket Edition) 0.14 是2016年发布的老版本，属于"远古时代"的MCPE。很多人对这个版本有特殊的情怀，所以今天我们就来复刻一下当年的感觉。
+            </div>
+
+            <h2>硬件准备</h2>
+            <ul>
+                <li><strong>OpenStick随身WiFi</strong> - 我用的是基于MSM8916芯片的版本，淘宝几十块钱就能买到</li>
+                <li><strong>电脑</strong> - 用于刷机和SSH连接</li>
+                <li><strong>USB数据线</strong> - 连接随身WiFi和电脑</li>
+            </ul>
+
+            <h2>系统刷机</h2>
+            <p>首先需要把随身WiFi刷成Debian系统。这一步比较复杂，需要拆机短接测试点进入9008模式，然后使用QPST工具刷入固件。</p>
+            
+            <div class="tip-box warning">
+                <strong>注意</strong>
+                刷机有风险，可能会变砖。请确保你了解风险后再操作。具体的刷机教程可以参考恩山论坛的相关帖子。
+            </div>
+
+            <p>刷完机后，通过SSH连接到设备：</p>
+            <pre><code>ssh root@192.168.1.3
+# 默认密码: 1313144</code></pre>
+
+            <h2>环境配置</h2>
+            <p>连接成功后，需要安装必要的软件包：</p>
+            <pre><code># 更新软件源
+apt update
+
+# 安装必要工具
+apt install -y build-essential autoconf pkg-config libxml2-dev libsqlite3-dev libcurl4-openssl-dev libssl-dev libgmp-dev libzip-dev libpng-dev libonig-dev libjpeg-dev libfreetype-dev</code></pre>
+
+            <h2>编译PHP</h2>
+            <p>Genisys服务器需要PHP 7.0 ZTS版本（带线程安全支持）。我们需要从源码编译：</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <p>下载PHP 7.0.33源码：</p>
+                    <pre><code>cd /root
+wget https://www.php.net/distributions/php-7.0.33.tar.gz
+tar xzf php-7.0.33.tar.gz</code></pre>
+                </div>
+
+                <div class="step">
+                    <p>配置编译选项：</p>
+                    <pre><code>cd php-7.0.33
+./configure \
+    --prefix=/root/php70-zts \
+    --enable-maintainer-zts \
+    --enable-mbstring \
+    --enable-sockets \
+    --with-curl \
+    --with-openssl \
+    --with-zlib \
+    --with-gmp \
+    --with-sqlite3 \
+    --enable-phar \
+    --enable-xml \
+    --enable-dom \
+    --disable-cgi \
+    --disable-phpdbg \
+    --enable-cli \
+    --disable-opcache \
+    --disable-fileinfo \
+    --without-pear \
+    CFLAGS="-O1"</code></pre>
+                </div>
+
+                <div class="step">
+                    <p>编译并安装（这一步比较慢，耐心等待）：</p>
+                    <pre><code>make -j1
+make install</code></pre>
+                </div>
+
+                <div class="step">
+                    <p>安装pthreads扩展：</p>
+                    <pre><code>cd /root
+wget https://github.com/krakjoe/pthreads/archive/refs/tags/v3.1.6.zip
+unzip v3.1.6.zip
+cd pthreads-3.1.6
+/root/php70-zts/bin/phpize
+./configure --with-php-config=/root/php70-zts/bin/php-config
+make -j1
+make install</code></pre>
+                </div>
+
+                <div class="step">
+                    <p>安装yaml和bcmath扩展：</p>
+                    <pre><code># yaml
+cd /root
+wget https://pecl.php.net/get/yaml-2.1.0.tgz
+tar xzf yaml-2.1.0.tgz
+cd yaml-2.1.0
+/root/php70-zts/bin/phpize
+./configure --with-php-config=/root/php70-zts/bin/php-config
+make -j1
+make install
+
+# bcmath (使用PHP源码中的扩展)
+cd /root/php-7.0.33/ext/bcmath
+/root/php70-zts/bin/phpize
+./configure --with-php-config=/root/php70-zts/bin/php-config
+make -j1
+make install</code></pre>
+                </div>
+
+                <div class="step">
+                    <p>创建php.ini配置文件：</p>
+                    <pre><code>cat > /root/php70-zts/lib/php.ini << 'EOF'
+extension=pthreads.so
+extension=yaml.so
+extension=bcmath.so
+EOF</code></pre>
+                </div>
+            </div>
+
+            <h2>部署服务器</h2>
+            <p>PHP环境准备好后，就可以部署Genisys服务器了：</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <p>下载Genisys服务器核心：</p>
+                    <pre><code>mkdir -p /root/server
+cd /root/server
+# 从开服包中获取PocketMine-MP.phar</code></pre>
+                </div>
+
+                <div class="step">
+                    <p>上传插件到plugins目录：</p>
+                    <pre><code>mkdir -p /root/server/plugins
+# 将.phar插件文件上传到此目录</code></pre>
+                </div>
+
+                <div class="step">
+                    <p>启动服务器：</p>
+                    <pre><code>cd /root/server
+/root/php70-zts/bin/php PocketMine-MP.phar --no-wizard</code></pre>
+                </div>
+            </div>
+
+            <h2>服务器插件</h2>
+            <p>我为这个服务器配置了以下插件：</p>
+            
+            <table class="plugin-table">
+                <thead>
+                    <tr>
+                        <th>插件</th>
+                        <th>功能</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>登录插件 (Protection)</td>
+                        <td>玩家注册/登录系统</td>
+                    </tr>
+                    <tr>
+                        <td>经济核心 (EconomyAPI)</td>
+                        <td>游戏内经济系统</td>
+                    </tr>
+                    <tr>
+                        <td>领地 (FResidence)</td>
+                        <td>领地保护系统</td>
+                    </tr>
+                    <tr>
+                        <td>座椅 (Seat)</td>
+                        <td>可以坐在椅子上</td>
+                    </tr>
+                    <tr>
+                        <td>邮件 (ServerMail)</td>
+                        <td>玩家互发邮件</td>
+                    </tr>
+                    <tr>
+                        <td>防OP滥用 (plcmd)</td>
+                        <td>防止OP权限被滥用</td>
+                    </tr>
+                    <tr>
+                        <td>生物插件 (WPureEntities)</td>
+                        <td>生物生成控制</td>
+                    </tr>
+                    <tr>
+                        <td>别踩白块</td>
+                        <td>小游戏</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>一键开服包</h2>
+            <p>为了方便大家快速开服，我打包了一个一键开服包，包含了所有必要的文件：</p>
+            
+            <a href="HYXT-MCPE-0.14-Server.zip" class="download-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+                下载开服包 (4.7MB)
+            </a>
+
+            <div class="tip-box success">
+                <strong>开服包使用方法</strong>
+                <ol>
+                    <li>解压开服包到任意目录</li>
+                    <li>Linux用户运行 <code>./start.sh</code></li>
+                    <li>Windows用户双击 <code>启动服务器.bat</code></li>
+                    <li>等待服务器启动完成</li>
+                </ol>
+            </div>
+
+            <h2>连接服务器</h2>
+            <p>服务器启动后，使用MCPE 0.14客户端连接：</p>
+            <ol>
+                <li>打开Minecraft PE 0.14</li>
+                <li>点击"游戏"</li>
+                <li>点击"添加服务器"</li>
+                <li>输入服务器地址：<code>你的IP:19132</code></li>
+                <li>点击"加入服务器"</li>
+            </ol>
+
+            <div class="tip-box info">
+                <strong>服务器常用命令</strong>
+                <ul>
+                    <li><code>/register 密码 密码</code> - 注册账号</li>
+                    <li><code>/login 密码</code> - 登录</li>
+                    <li><code>/tpa 玩家名</code> - 请求传送到其他玩家</li>
+                    <li><code>/sethome</code> - 设置家</li>
+                    <li><code>/home</code> - 回家</li>
+                    <li><code>/gamemode 1</code> - 切换创造模式（需要OP）</li>
+                </ul>
+            </div>
+
+            <h2>性能表现</h2>
+            <p>在OpenStick上的实际表现：</p>
+            <ul>
+                <li><strong>启动时间</strong>：约15-20秒</li>
+                <li><strong>内存占用</strong>：约150-200MB</li>
+                <li><strong>支持玩家数</strong>：2-3人同时在线</li>
+                <li><strong>世界大小</strong>：建议不超过100MB</li>
+            </ul>
+
+            <div class="tip-box warning">
+                <strong>注意事项</strong>
+                <ul>
+                    <li>随身WiFi性能有限，不要期望能跑大型服务器</li>
+                    <li>建议定期备份存档</li>
+                    <li>如果服务器卡顿，可以尝试减小视距</li>
+                    <li>玩家数据和存档在 <code>worlds/</code> 和 <code>players/</code> 目录</li>
+                </ul>
+            </div>
+
+            <h2>总结</h2>
+            <p>虽然随身WiFi的性能有限，但跑一个2-3人的MCPE 0.14怀旧服还是没问题的。整个过程最大的挑战是编译PHP和各种扩展，但只要按照步骤来，都能成功。</p>
+            <p>这种玩法最大的乐趣就在于"废物利用"——把一个几十块钱的设备变成一个能用的游戏服务器，很有成就感。</p>
+            <p>如果你也想体验一下，赶紧试试吧！</p>
+        </div>
+
+        <div class="footer">
+            <p>作者：<a href="index.html">幻影星途 (HYXT)</a></p>
+            <p>发布日期：2025年6月19日</p>
+        </div>
+    </div>
+</body>
+</html>
