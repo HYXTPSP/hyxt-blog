@@ -510,17 +510,19 @@
         }
 
         /* ========== PROJECT CARDS ========== */
-        .projects-grid {
+                    .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 24px;
+            align-items: start;
         }
 
-        .project-card {
+                    .project-card {
             background: var(--claude-card);
-            border: 1px solid var(--claude-border);
-            border-radius: var(--radius);
-            padding: 32px;
+            border: 2px solid var(--claude-border);
+            border-radius: 14px;
+            padding: 26px;
+            box-shadow: 6px 6px 0 rgba(217,119,87,0.10);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
@@ -533,58 +535,53 @@
             transform: translateY(0);
         }
 
-        .project-card::before {
+                    .project-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--claude-gradient);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            top: 12px;
+            right: 16px;
+            width: 88px;
+            height: 20px;
+            background: rgba(217,119,87,0.16);
+            transform: rotate(4deg);
+            border-radius: 2px;
+            z-index: 1;
+            pointer-events: none;
         }
 
-        .project-card:hover::before { transform: scaleX(1); }
-
-        .project-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--claude-shadow-hover);
+                            .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 8px 10px 0 rgba(217,119,87,0.16);
             border-color: var(--claude-accent);
         }
 
-        .project-card h3 {
-            font-size: 1.5rem;
+                    .project-card h3 {
+            font-size: 1.35rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: var(--claude-text);
             transition: color 0.3s;
+            line-height: 1.5;
         }
 
         .project-card:hover h3 { color: var(--claude-accent); }
 
-        .project-card p {
-            font-size: 1rem;
+                    .project-card p {
+            font-size: 0.95rem;
             color: var(--claude-text-secondary);
-            margin-bottom: 24px;
+            margin-bottom: 14px;
             line-height: 1.7;
         }
 
-        .project-link {
+                    .project-link {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 28px;
-            background: var(--claude-gradient);
-            color: #fff;
-            border-radius: 50px;
+            gap: 6px;
+            color: var(--claude-accent);
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             transition: var(--transition);
-            position: relative;
-            overflow: hidden;
         }
 
         .project-link::after {
@@ -592,24 +589,21 @@
             transition: transform 0.3s;
         }
 
-        .project-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(217,119,87,0.35);
-        }
+                    .project-link:hover { color: var(--claude-accent-dark); }
 
         .project-link:hover::after { transform: translateX(4px); }
 
         /* ========== FAVORITE PROJECTS ========== */
-        .fav-card {
+                    .fav-card {
             background: var(--claude-card);
             border: 1px solid var(--claude-border);
-            border-radius: var(--radius);
-            padding: 28px;
+            border-left: 4px solid var(--claude-accent);
+            border-radius: 10px;
+            padding: 20px 22px;
             transition: var(--transition);
             opacity: 0;
             transform: translateY(30px);
             position: relative;
-            overflow: hidden;
         }
 
         .fav-card.visible {
@@ -617,36 +611,27 @@
             transform: translateY(0);
         }
 
-        .fav-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(217,119,87,0.08) 0%, transparent 60%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+        
+                            .fav-card:hover {
+            transform: translateX(4px);
+            box-shadow: 6px 6px 0 rgba(217,119,87,0.12);
+            border-color: var(--claude-accent);
         }
 
-        .fav-card:hover::after { opacity: 1; }
-
-        .fav-card:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--claude-shadow-hover);
-        }
-
-        .fav-card h3 {
-            font-size: 1.3rem;
+                    .fav-card h3 {
+            font-size: 1.2rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            color: var(--claude-text);
             transition: color 0.3s;
         }
 
         .fav-card:hover h3 { color: var(--claude-accent); }
 
-        .fav-card p {
-            font-size: 0.95rem;
+                    .fav-card p {
+            font-size: 0.9rem;
             color: var(--claude-text-secondary);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .fav-link {
@@ -662,10 +647,11 @@
 
         .fav-link:hover { gap: 12px; }
 
-        .favs-grid {
+                    .favs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            align-items: start;
         }
 
         /* ========== VIDEO SECTION ========== */
@@ -861,17 +847,19 @@
         }
 
         /* ========== ARTICLES SECTION ========== */
-        .articles-grid {
+                    .articles-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 24px;
+            align-items: start;
         }
 
-        .article-card {
+                    .article-card {
             background: var(--claude-card);
-            border: 1px solid var(--claude-border);
-            border-radius: var(--radius);
-            padding: 32px;
+            border: 2px solid var(--claude-border);
+            border-radius: 14px;
+            padding: 26px;
+            box-shadow: 6px 6px 0 rgba(217,119,87,0.10);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
@@ -884,89 +872,83 @@
             transform: translateY(0);
         }
 
-        .article-card::before {
+                    .article-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--claude-gradient);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            top: 12px;
+            right: 16px;
+            width: 88px;
+            height: 20px;
+            background: rgba(217,119,87,0.16);
+            transform: rotate(4deg);
+            border-radius: 2px;
+            z-index: 1;
+            pointer-events: none;
         }
 
-        .article-card:hover::before { transform: scaleX(1); }
-
-        .article-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--claude-shadow-hover);
+                            .article-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 8px 10px 0 rgba(217,119,87,0.16);
             border-color: var(--claude-accent);
         }
 
-        .article-card h3 {
-            font-size: 1.5rem;
+                    .article-card h3 {
+            font-size: 1.35rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: var(--claude-text);
             transition: color 0.3s;
+            line-height: 1.5;
         }
 
         .article-card:hover h3 { color: var(--claude-accent); }
 
-        .article-card p {
-            font-size: 1rem;
+                    .article-card p {
+            font-size: 0.95rem;
             color: var(--claude-text-secondary);
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             line-height: 1.7;
         }
 
-        .article-meta {
+                    .article-meta {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 14px;
             flex-wrap: wrap;
         }
 
-        .article-date {
-            font-size: 0.85rem;
-            color: var(--claude-text-secondary);
-            background: var(--claude-accent-light);
-            padding: 4px 12px;
-            border-radius: 50px;
-        }
-
-        .article-tag {
-            font-size: 0.85rem;
+                    .article-date {
+            font-size: 0.8rem;
             color: var(--claude-accent);
             background: var(--claude-accent-light);
-            padding: 4px 12px;
-            border-radius: 50px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+                    .article-tag {
+            font-size: 0.8rem;
+            color: var(--claude-accent);
+            background: var(--claude-accent-light);
+            padding: 3px 10px;
+            border-radius: 4px;
             font-weight: 500;
         }
 
-        .article-link {
+                    .article-link {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 28px;
-            background: var(--claude-gradient);
-            color: #fff;
-            border-radius: 50px;
-            text-decoration: none;
+            gap: 6px;
+            margin-top: 12px;
+            color: var(--claude-accent);
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            text-decoration: none;
             transition: var(--transition);
-            position: relative;
-            overflow: hidden;
         }
 
-        .article-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(217,119,87,0.35);
-        }
+                    .article-link:hover { color: var(--claude-accent-dark); }
 
         /* ========== COMMENTS SECTION ========== */
         .comments-section {
@@ -1232,7 +1214,7 @@
                     <span class="article-tag">#LangBot</span>
                 </div>
                 <p>手把手教你用随身WiFi搭建QQ AI聊天机器人</p>
-                <a href="article-napcat-langbot.html" style="display:inline-block;margin-top:12px;color:var(--claude-accent);font-weight:500;font-size:0.9rem;text-decoration:none;">阅读全文 →</a>
+                <a href="article-napcat-langbot.html" class="article-link">阅读全文 →</a>
             </div>
             <div class="article-card stagger-2" data-animate>
                 <h3>在随身WiFi上开一个MC怀旧服</h3>
@@ -1243,7 +1225,7 @@
                     <span class="article-tag">#OpenStick</span>
                 </div>
                 <p>把一个几十块钱的随身WiFi变成MCPE 0.14怀旧服务器</p>
-                <a href="article-mc-wifi-server.html" style="display:inline-block;margin-top:12px;color:var(--claude-accent);font-weight:500;font-size:0.9rem;text-decoration:none;">阅读全文 →</a>
+                <a href="article-mc-wifi-server.html" class="article-link">阅读全文 →</a>
             </div>
         </div>
     </section>
@@ -1261,7 +1243,7 @@
             <div class="project-card stagger-2" data-animate>
                 <h3>ModCrafter 模组工坊</h3>
                 <p>在 Minecraft 里制作 Minecraft 模组。可视化编辑器：自定义物品、方块、配方、事件，像素画板+体素建模，热重载，一键导出独立 Fabric 模组工程。</p>
-                <a href="https://github.com/HYXTPSP/modcrafter" target="_blank" class="project-link">查看项目 →</a>
+                <a href="https://github.com/HYXTPSP/modcrafter" target="_blank" class="project-link">查看项目</a>
             </div>
             <div class="project-card stagger-3" data-animate>
                 <h3>幻想星域</h3>
