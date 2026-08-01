@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModCrafter - 幻影星途 | 游戏内模组工坊</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #faf9f7;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --text-secondary: #6b6b6b;
+            --accent: #d97757;
+            --accent-dark: #c2574a;
+            --border: #e5e5e5;
+            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --shadow-hover: 0 8px 40px rgba(0,0,0,0.12);
+            --gradient: linear-gradient(135deg, #d97757 0%, #c2574a 50%, #a84832 100%);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ========== CURSOR FOLLOWER ========== */
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease-out;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor-ring {
+            position: fixed;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid rgba(217,119,87,0.3);
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.2s ease-out;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ========== SCROLL PROGRESS ========== */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--gradient);
+            z-index: 9999;
+            transition: width 0.1s linear;
+        }
+
+        /* ========== NAV ========== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(250,249,247,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        .nav.scrolled { border-bottom-color: var(--border); }
+
+        .nav-logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo img { width: 30px; height: 30px; border-radius: 6px; }
+
+        .nav-back {
+            padding: 8px 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .nav-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 40px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(217,119,87,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(194,87,74,0.08) 0%, transparent 50%);
+            animation: meshFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes meshFloat {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(2%, -3%); }
+            50% { transform: translate(-2%, 2%); }
+            75% { transform: translate(3%, 1%); }
+        }
+
+        .hero-screenshots {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .hero-screenshots img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .hero-screenshots img.active { opacity: 0.08; }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -3px;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease 0.4s forwards;
+            opacity: 0;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.6s forwards;
+            opacity: 0;
+        }
+
+        .btn {
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 20px rgba(217,119,87,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(217,119,87,0.45);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* ========== SECTIONS ========== */
+        .section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 40px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .section-header h2.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease 0.15s;
+        }
+
+        .section-header p.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========== FEATURES ========== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(40px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .feature-card:hover::before { transform: scaleX(1); }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: var(--claude-accent-light, #f0e6e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            animation: iconBounce 2s ease-in-out infinite;
+        }
+
+        .feature-icon svg {
+            width: 30px;
+            height: 30px;
+            color: var(--accent);
+        }
+
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .feature-card:nth-child(2) .feature-icon { animation-delay: -0.3s; }
+        .feature-card:nth-child(3) .feature-icon { animation-delay: -0.6s; }
+        .feature-card:nth-child(4) .feature-icon { animation-delay: -0.9s; }
+        .feature-card:nth-child(5) .feature-icon { animation-delay: -1.2s; }
+        .feature-card:nth-child(6) .feature-icon { animation-delay: -1.5s; }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-card:hover h3 { color: var(--accent); }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* ========== WORKFLOW ========== */
+        .workflow-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 48px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workflow-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .workflow-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(217,119,87,0.06) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .workflow-card:hover::after { opacity: 1; }
+
+        .workflow-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .workflow-card p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 28px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: left;
+            border-left: 4px solid var(--accent);
+            transition: var(--transition);
+        }
+
+        .step-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .step-num {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            background: var(--gradient);
+            border-radius: 50px;
+            padding: 3px 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .step-name {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ========== SCREENSHOT ========== */
+        .shot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .shot-grid.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .shot-grid img {
+            width: 100%;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .shot-grid img:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        footer a { color: var(--accent); text-decoration: none; }
+
+        /* ========== BACK TO TOP ========== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .back-to-top.show { opacity: 1; transform: translateY(0); }
+
+        .back-to-top:hover {
+            transform: translateY(-4px) scale(1.1);
+        }
+
+        /* ========== FLOATING SHAPES ========== */
+        .floating-shape {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(217,119,87,0.06);
+            pointer-events: none;
+            z-index: 0;
+            animation: shapeDrift 20s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) { width: 300px; height: 300px; top: 20%; left: -5%; }
+        .floating-shape:nth-child(2) { width: 200px; height: 200px; top: 60%; right: -3%; animation-delay: -7s; }
+        .floating-shape:nth-child(3) { width: 150px; height: 150px; bottom: 10%; left: 30%; animation-delay: -14s; }
+
+        @keyframes shapeDrift {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(30px, -40px); }
+            50% { transform: translate(-20px, 20px); }
+            75% { transform: translate(40px, 30px); }
+        }
+
+        /* ========== STAGGER ========== */
+        .stagger-1 { transition-delay: 0.05s !important; }
+        .stagger-2 { transition-delay: 0.1s !important; }
+        .stagger-3 { transition-delay: 0.15s !important; }
+        .stagger-4 { transition-delay: 0.2s !important; }
+        .stagger-5 { transition-delay: 0.25s !important; }
+        .stagger-6 { transition-delay: 0.3s !important; }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .nav { padding: 12px 20px; }
+            .hero { padding: 100px 20px 60px; }
+            .section { padding: 60px 20px; }
+            .section-header h2 { font-size: 2rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .shot-grid { grid-template-columns: 1fr; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cursors -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Floating Shapes -->
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+
+    <!-- Nav -->
+    <nav class="nav" id="nav">
+        <a href="#" class="nav-logo"><img src="logo.png" alt="ModCrafter">ModCrafter</a>
+        <a href="../../index.html" class="nav-back">← 返回主页</a>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-screenshots">
+            <img src="hero1.jpg" alt="体素建模" class="active">
+            <img src="hero2.jpg" alt="像素画板">
+            <img src="hero3.jpg" alt="自定义方块">
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">Fabric 模组 · MC 1.21.1</div>
+            <h1>ModCrafter</h1>
+            <p class="hero-subtitle">在 Minecraft 里制作 Minecraft 模组 · 不写代码 · 不离开游戏</p>
+            <div class="hero-buttons">
+                <a href="https://github.com/HYXTPSP/modcrafter" target="_blank" class="btn btn-primary">GitHub 仓库</a>
+                <a href="../../index.html" class="btn btn-secondary">返回博客</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section">
+        <div class="section-header">
+            <h2 data-animate>核心功能</h2>
+            <p data-animate>六大能力，让你在游戏里亲手做出自己的模组内容</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card stagger-1" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                </div>
+                <h3>自定义物品</h3>
+                <p>普通物品、食物、剑、镐、斧、铲、锄、盔甲四件套，可调堆叠、耐久、稀有度、附魔光效、食物营养、工具材质与攻击属性。</p>
+            </div>
+            <div class="feature-card stagger-2" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                </div>
+                <h3>自定义方块</h3>
+                <p>硬度、抗爆、亮度、音效、滑度、挖掘等级、掉落物与矿石生成。支持单一贴图、六面贴图、体素 3D 模型与朝向设置。</p>
+            </div>
+            <div class="feature-card stagger-3" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                </div>
+                <h3>合成配方</h3>
+                <p>可视化配置工作台有序与无序合成，任意形状自由摆放，所见即所得，做出来立刻就能用。</p>
+            </div>
+            <div class="feature-card stagger-4" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <h3>事件逻辑</h3>
+                <p>为物品与方块绑定事件：使用、右键、踩踏、破坏等，让内容动起来，创造真正的互动玩法。</p>
+            </div>
+            <div class="feature-card stagger-5" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </div>
+                <h3>像素画板</h3>
+                <p>内置 16×16 像素画板，一格一格画出你的贴图，保存即用，无需任何外部图像工具。</p>
+            </div>
+            <div class="feature-card stagger-6" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <h3>体素建模</h3>
+                <p>三维体素编辑器，像搭积木一样搭出立体模型，自动生成碰撞箱与选择框，非满格方块同样完美。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflow -->
+    <section class="section">
+        <div class="workflow-card" data-animate>
+            <h3>四步完成你的模组</h3>
+            <p>从零到一，全部在游戏内完成，全程无需代码</p>
+            <div class="steps-grid">
+                <div class="step-item">
+                    <span class="step-num">STEP 1</span>
+                    <div class="step-name">画贴图</div>
+                    <div class="step-desc">用像素画板画出物品或方块的外观，或者直接使用系统预设贴图。</div>
+                </div>
+                <div class="step-item">
+                    <span class="step-num">STEP 2</span>
+                    <div class="step-name">配置属性</div>
+                    <div class="step-desc">在可视化界面中设置属性、配方与事件，所有选项一目了然。</div>
+                </div>
+                <div class="step-item">
+                    <span class="step-num">STEP 3</span>
+                    <div class="step-name">热重载体验</div>
+                    <div class="step-desc">大部分内容即时生效，无需重启游戏，边做边玩边调。</div>
+                </div>
+                <div class="step-item">
+                    <span class="step-num">STEP 4</span>
+                    <div class="step-name">一键导出</div>
+                    <div class="step-desc">导出为真正的、可独立编译分发的 Fabric 模组工程，分享给朋友。</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshot -->
+    <section class="section">
+        <div class="section-header">
+            <h2 data-animate>界面预览</h2>
+            <p data-animate>体素建模与像素画板实机截图</p>
+        </div>
+        <div class="shot-grid" data-animate>
+            <img src="hero1.jpg" alt="体素编辑器">
+            <img src="preview2.jpg" alt="导出界面">
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>ModCrafter 模组工坊 - 幻影星途(HYXT)</p>
+        <p>开源项目 · <a href="https://github.com/HYXTPSP/modcrafter" target="_blank">GitHub</a></p>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+    <script>
+        // ========== CURSOR ==========
+        const dot = document.getElementById('cursorDot');
+        const ring = document.getElementById('cursorRing');
+        let mx = 0, my = 0, rx = 0, ry = 0;
+
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+        function updateCursors() {
+            dot.style.left = mx + 'px';
+            dot.style.top = my + 'px';
+            rx += (mx - rx) * 0.15;
+            ry += (my - ry) * 0.15;
+            ring.style.left = rx + 'px';
+            ring.style.top = ry + 'px';
+            requestAnimationFrame(updateCursors);
+        }
+        updateCursors();
+
+        // ========== SCROLL ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('scrollProgress').style.width = (scrollTop / docHeight * 100) + '%';
+            document.getElementById('backToTop').classList.toggle('show', scrollTop > 500);
+            document.getElementById('nav').classList.toggle('scrolled', scrollTop > 50);
+        });
+
+        // ========== ANIMATE ==========
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+
+        // ========== HERO CAROUSEL ==========
+        const imgs = document.querySelectorAll('.hero-screenshots img');
+        let imgIdx = 0;
+        setInterval(() => {
+            imgs[imgIdx].classList.remove('active');
+            imgIdx = (imgIdx + 1) % imgs.length;
+            imgs[imgIdx].classList.add('active');
+        }, 5000);
+
+        // ========== WORKFLOW MOUSE GLOW ==========
+        document.querySelector('.workflow-card')?.addEventListener('mousemove', e => {
+            const r = e.currentTarget.getBoundingClientRect();
+            e.currentTarget.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+            e.currentTarget.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+        });
+    </script>
+</body>
+</html>
