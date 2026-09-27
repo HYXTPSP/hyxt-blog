@@ -514,7 +514,8 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 24px;
-            align-items: start;
+            align-items: stretch;
+            grid-auto-rows: 1fr;
         }
 
                     .project-card {
@@ -528,6 +529,10 @@
             overflow: hidden;
             opacity: 0;
             transform: translateY(40px);
+            display: flex;
+            flex-direction: column;
+            min-height: 250px;
+            box-sizing: border-box;
         }
 
         .project-card.visible {
@@ -582,6 +587,8 @@
             font-weight: 600;
             font-size: 0.92rem;
             transition: var(--transition);
+            margin-top: auto;
+            align-self: flex-start;
         }
 
         .project-link::after {
@@ -826,7 +833,7 @@
             .typing-text { font-size: 1.1rem; }
             .section { padding: 60px 20px; }
             .section-title { font-size: 2rem; }
-            .projects-grid { grid-template-columns: 1fr; }
+            .projects-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
             .favs-grid { grid-template-columns: 1fr; }
             .avatar { width: 120px; height: 120px; }
             .video-header { flex-direction: column; gap: 12px; }
@@ -1236,11 +1243,16 @@
         <p class="section-subtitle" data-animate>用心打造的每一个作品</p>
         <div class="projects-grid">
             <div class="project-card stagger-1" data-animate>
+                <h3>BiliLite</h3>
+                <p>学习专注型 B 站第三方客户端。黑白极简，从根源上屏蔽娱乐内容：没有推荐流、没有广告、没有弹幕，只有你主动关注的 UP 主。</p>
+                <a href="project/7/index.html" class="project-link">查看项目</a>
+            </div>
+            <div class="project-card stagger-2" data-animate>
                 <h3>HYXTBOX 6.0</h3>
                 <p>我的个人原创项目工具箱，集成多种实用功能的一站式平台。</p>
                 <a href="project/1/index.html" class="project-link">查看项目</a>
             </div>
-            <div class="project-card stagger-2" data-animate>
+            <div class="project-card stagger-3" data-animate>
                 <h3>ModCrafter 模组工坊</h3>
                 <p>在 Minecraft 里制作 Minecraft 模组。可视化编辑器：自定义物品、方块、配方、事件，像素画板+体素建模，热重载，一键导出独立 Fabric 模组工程。</p>
                 <a href="project/6/index.html" class="project-link">查看项目</a>

@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiliLite - 幻影星途 | 学习专注型 B 站客户端</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #faf9f7;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --text-secondary: #6b6b6b;
+            --accent: #d97757;
+            --accent-dark: #c2574a;
+            --border: #e5e5e5;
+            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --shadow-hover: 0 8px 40px rgba(0,0,0,0.12);
+            --gradient: linear-gradient(135deg, #d97757 0%, #c2574a 50%, #a84832 100%);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ========== CURSOR FOLLOWER ========== */
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease-out;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor-ring {
+            position: fixed;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid rgba(217,119,87,0.3);
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.2s ease-out;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ========== SCROLL PROGRESS ========== */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--gradient);
+            z-index: 9999;
+            transition: width 0.1s linear;
+        }
+
+        /* ========== NAV ========== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(250,249,247,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        .nav.scrolled { border-bottom-color: var(--border); }
+
+        .nav-logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo img { width: 30px; height: 30px; border-radius: 8px; }
+
+        .nav-back {
+            padding: 8px 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .nav-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 40px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(217,119,87,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(194,87,74,0.08) 0%, transparent 50%);
+            animation: meshFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes meshFloat {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(2%, -3%); }
+            50% { transform: translate(-2%, 2%); }
+            75% { transform: translate(3%, 1%); }
+        }
+
+        .hero-screenshots {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .hero-screenshots img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .hero-screenshots img.active { opacity: 0.08; }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -3px;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease 0.4s forwards;
+            opacity: 0;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.6s forwards;
+            opacity: 0;
+        }
+
+        .hero-dl-note {
+            margin-top: 20px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.3px;
+            animation: fadeInUp 0.8s ease 0.7s forwards;
+            opacity: 0;
+        }
+
+        .btn {
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn svg { width: 20px; height: 20px; }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 20px rgba(217,119,87,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(217,119,87,0.45);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* ========== SECTIONS ========== */
+        .section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 40px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .section-header h2.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 620px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease 0.15s;
+        }
+
+        .section-header p.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========== FEATURES ========== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(40px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .feature-card:hover::before { transform: scaleX(1); }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: #f0e6e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            animation: iconBounce 2s ease-in-out infinite;
+        }
+
+        .feature-icon svg {
+            width: 30px;
+            height: 30px;
+            color: var(--accent);
+        }
+
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .feature-card:nth-child(2) .feature-icon { animation-delay: -0.3s; }
+        .feature-card:nth-child(3) .feature-icon { animation-delay: -0.6s; }
+        .feature-card:nth-child(4) .feature-icon { animation-delay: -0.9s; }
+        .feature-card:nth-child(5) .feature-icon { animation-delay: -1.2s; }
+        .feature-card:nth-child(6) .feature-icon { animation-delay: -1.5s; }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-card:hover h3 { color: var(--accent); }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* ========== WORKFLOW ========== */
+        .workflow-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 48px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workflow-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .workflow-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(217,119,87,0.06) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .workflow-card:hover::after { opacity: 1; }
+
+        .workflow-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .workflow-card p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 28px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: left;
+            border-left: 4px solid var(--accent);
+            transition: var(--transition);
+        }
+
+        .step-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .step-num {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            background: var(--gradient);
+            border-radius: 50px;
+            padding: 3px 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .step-name {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ========== DOWNLOAD ========== */
+        .download-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 48px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .download-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .download-card > p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 620px;
+            margin: 0 auto;
+        }
+
+        .dl-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 16px;
+            margin: 34px 0 32px;
+            text-align: left;
+        }
+
+        .dl-meta-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            border-radius: 14px;
+            padding: 16px 18px;
+        }
+
+        .dl-meta-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .dl-meta-value {
+            font-weight: 700;
+            font-size: 0.98rem;
+            word-break: break-all;
+        }
+
+        .dl-meta-value.mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.85rem;
+        }
+
+        .dl-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 44px;
+            border-radius: 50px;
+            background: var(--gradient);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 6px 24px rgba(217,119,87,0.32);
+            transition: var(--transition);
+        }
+
+        .dl-btn svg { width: 22px; height: 22px; }
+
+        .dl-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 34px rgba(217,119,87,0.45);
+        }
+
+        .dl-note {
+            margin-top: 22px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .dl-note a { color: var(--accent); text-decoration: none; }
+
+        .dl-note a:hover { text-decoration: underline; }
+
+        /* ========== SCREENSHOT ========== */
+        .shot-sub {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0 0 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+
+        .shot-sub.visible { opacity: 1; transform: translateY(0); }
+
+        .shot-sub span {
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 0.95rem;
+            margin-left: 10px;
+        }
+
+        .phone-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 64px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .phone-grid.visible { opacity: 1; transform: translateY(0); }
+
+        .shot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .shot-grid.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .shot-grid img,
+        .phone-grid img {
+            width: 100%;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: block;
+        }
+
+        .shot-grid img:hover,
+        .phone-grid img:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* ========== DISCLAIMER ========== */
+        .disclaimer-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px 44px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .disclaimer-card.visible { opacity: 1; transform: translateY(0); }
+
+        .disclaimer-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .disclaimer-card p {
+            color: var(--text-secondary);
+            font-size: 0.93rem;
+            line-height: 1.8;
+            margin-bottom: 14px;
+        }
+
+        .disclaimer-card p:last-child { margin-bottom: 0; }
+
+        .disclaimer-card a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+        .disclaimer-card a:hover { text-decoration: underline; }
+
+        /* ========== FOOTER ========== */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        footer a { color: var(--accent); text-decoration: none; }
+
+        /* ========== BACK TO TOP ========== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .back-to-top.show { opacity: 1; transform: translateY(0); }
+
+        .back-to-top:hover {
+            transform: translateY(-4px) scale(1.1);
+        }
+
+        /* ========== FLOATING SHAPES ========== */
+        .floating-shape {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(217,119,87,0.06);
+            pointer-events: none;
+            z-index: 0;
+            animation: shapeDrift 20s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) { width: 300px; height: 300px; top: 20%; left: -5%; }
+        .floating-shape:nth-child(2) { width: 200px; height: 200px; top: 60%; right: -3%; animation-delay: -7s; }
+        .floating-shape:nth-child(3) { width: 150px; height: 150px; bottom: 10%; left: 30%; animation-delay: -14s; }
+
+        @keyframes shapeDrift {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(30px, -40px); }
+            50% { transform: translate(-20px, 20px); }
+            75% { transform: translate(40px, 30px); }
+        }
+
+        /* ========== STAGGER ========== */
+        .stagger-1 { transition-delay: 0.05s !important; }
+        .stagger-2 { transition-delay: 0.1s !important; }
+        .stagger-3 { transition-delay: 0.15s !important; }
+        .stagger-4 { transition-delay: 0.2s !important; }
+        .stagger-5 { transition-delay: 0.25s !important; }
+        .stagger-6 { transition-delay: 0.3s !important; }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .nav { padding: 12px 20px; }
+            .hero { padding: 100px 20px 60px; }
+            .section { padding: 60px 20px; }
+            .section-header h2 { font-size: 2rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .shot-grid { grid-template-columns: 1fr; }
+            .phone-grid { grid-template-columns: 1fr; }
+            .workflow-card, .download-card { padding: 32px 24px; }
+            .disclaimer-card { padding: 28px 24px; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cursors -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Floating Shapes -->
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+
+    <!-- Nav -->
+    <nav class="nav" id="nav">
+        <a href="#" class="nav-logo"><img src="logo.png" alt="BiliLite">BiliLite</a>
+        <a href="../../index.html" class="nav-back">← 返回主页</a>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-screenshots">
+            <img src="tablet_1.jpg" alt="视频播放页" class="active">
+            <img src="tablet_2.jpg" alt="首页横屏网格">
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">Android 客户端 · 黑白极简 · v0.5.0</div>
+            <h1>BiliLite</h1>
+            <p class="hero-subtitle">学习专注型 B 站第三方客户端 · 从根源上屏蔽娱乐内容</p>
+            <div class="hero-buttons">
+                <a href="BiliLite-v0.5.0.apk" class="btn btn-primary" download>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    下载安装包
+                </a>
+                <a href="https://github.com/HYXTPSP/BiliLite" target="_blank" class="btn btn-secondary">GitHub 仓库</a>
+                <a href="../../index.html" class="btn btn-secondary">返回博客</a>
+            </div>
+            <div class="hero-dl-note">v0.5.0 · Android 7.0 及以上 · 19.9 MB · 免费开源（MIT）</div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section">
+        <div class="section-header">
+            <h2 data-animate>核心功能</h2>
+            <p data-animate>只保留学习需要的能力，把推荐流、广告与干扰全部挡在门外</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card stagger-1" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                </div>
+                <h3>学习专注</h3>
+                <p>没有推荐流、没有广告、没有评论区、没有弹幕、也没有自动连播。首页只呈现你主动关注的 UP 主内容，打开就是你要学的东西。</p>
+            </div>
+            <div class="feature-card stagger-2" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="8" rx="1"/><rect x="14" y="13" width="7" height="8" rx="1"/></svg>
+                </div>
+                <h3>UP 主视频流</h3>
+                <p>搜索并添加 UP 主时可看到粉丝数，避免选错人；添加后集中查看其全部视频，视频列表支持竖卡与横排两种布局。</p>
+            </div>
+            <div class="feature-card stagger-3" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </div>
+                <h3>内嵌播放器</h3>
+                <p>自动记录进度、断点续播；双击暂停，左右滑动调亮度与音量，双指缩放 1x-4x，三击打书签，多 P 视频支持缓存与断点续传。</p>
+            </div>
+            <div class="feature-card stagger-4" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <h3>收藏与历史</h3>
+                <p>收藏队列集中管理并自动合并去重，观看历史自动记录、可一键清除，学习轨迹清清楚楚。</p>
+            </div>
+            <div class="feature-card stagger-5" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
+                </div>
+                <h3>插件系统</h3>
+                <p>v0.5.0 新增统一插件框架：主题插件一键切换全局配色、背景与圆角，功能插件用 Lua 脚本扩展播放器、数据与网络能力。</p>
+            </div>
+            <div class="feature-card stagger-6" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                </div>
+                <h3>登录与隐私</h3>
+                <p>支持二维码、验证码、密码三种登录方式，登录后画质与功能完整；凭据仅保存在本机本地存储，不上传任何服务器。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflow -->
+    <section class="section">
+        <div class="workflow-card" data-animate>
+            <h3>三步开始使用</h3>
+            <p>不需要注册，不需要配置，装好就能开始学习</p>
+            <div class="steps-grid">
+                <div class="step-item">
+                    <span class="step-num">STEP 1</span>
+                    <div class="step-name">下载安装包</div>
+                    <div class="step-desc">在本页点击「下载安装包」获取 APK，安装到 Android 7.0 及以上的手机或平板。</div>
+                </div>
+                <div class="step-item">
+                    <span class="step-num">STEP 2</span>
+                    <div class="step-name">登录账号</div>
+                    <div class="step-desc">用二维码、验证码或密码登录你自己的 B 站账号，凭据只留在本机。</div>
+                </div>
+                <div class="step-item">
+                    <span class="step-num">STEP 3</span>
+                    <div class="step-name">添加 UP 主</div>
+                    <div class="step-desc">搜索你想跟的 UP 主并添加，之后首页就只有这些内容，没有别的打扰。</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download -->
+    <section class="section">
+        <div class="download-card" data-animate>
+            <h3>下载 BiliLite</h3>
+            <p>当前版本 v0.5.0 · 2026-08-28 发布 · 支持手机与平板，横竖屏自适应</p>
+            <div class="dl-meta">
+                <div class="dl-meta-item">
+                    <div class="dl-meta-label">当前版本</div>
+                    <div class="dl-meta-value">v0.5.0（versionCode 18）</div>
+                </div>
+                <div class="dl-meta-item">
+                    <div class="dl-meta-label">安装包大小</div>
+                    <div class="dl-meta-value">19.9 MB</div>
+                </div>
+                <div class="dl-meta-item">
+                    <div class="dl-meta-label">系统要求</div>
+                    <div class="dl-meta-value">Android 7.0 及以上（minSdk 24）</div>
+                </div>
+                <div class="dl-meta-item">
+                    <div class="dl-meta-label">开源许可</div>
+                    <div class="dl-meta-value">MIT License</div>
+                </div>
+                <div class="dl-meta-item">
+                    <div class="dl-meta-label">文件名</div>
+                    <div class="dl-meta-value">BiliLite-v0.5.0.apk</div>
+                </div>
+                <div class="dl-meta-item">
+                    <div class="dl-meta-label">MD5 校验</div>
+                    <div class="dl-meta-value mono">f47f4a526bc72cd1c4fe5121f8770648</div>
+                </div>
+            </div>
+            <a href="BiliLite-v0.5.0.apk" class="dl-btn" download>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                下载安装包 (19.9 MB)
+            </a>
+            <p class="dl-note">旧版本与更新日志见 <a href="https://github.com/HYXTPSP/BiliLite/releases" target="_blank">GitHub Releases</a>。安装时若提示「未知来源应用」，请在系统设置中允许安装即可。</p>
+        </div>
+    </section>
+
+    <!-- Screenshot -->
+    <section class="section">
+        <div class="section-header">
+            <h2 data-animate>界面预览</h2>
+            <p data-animate>手机端竖屏与平板端横屏实机效果</p>
+        </div>
+        <div class="shot-sub" data-animate>手机端效果<span>首页 · 我的 · 收藏页</span></div>
+        <div class="phone-grid" data-animate>
+            <img src="phone_1.jpg" alt="首页 视频列表与搜索筛选">
+            <img src="phone_2.jpg" alt="我的 个人中心与收藏历史">
+            <img src="phone_3.jpg" alt="收藏页 收藏视频列表">
+        </div>
+        <div class="shot-sub" data-animate>平板端效果<span>视频播放页 · 首页横屏网格</span></div>
+        <div class="shot-grid" data-animate>
+            <img src="tablet_1.jpg" alt="视频播放页 播放器与分P章节列表">
+            <img src="tablet_2.jpg" alt="首页横屏网格布局视频列表">
+        </div>
+    </section>
+
+    <!-- Disclaimer -->
+    <section class="section">
+        <div class="disclaimer-card" data-animate>
+            <h3>免责声明</h3>
+            <p>BiliLite 是非官方第三方客户端，与哔哩哔哩（Bilibili）官方无任何隶属、合作或授权关系，哔哩哔哩官方未对本项目进行任何形式的认可、支持或审查。</p>
+            <p>本应用不包含任何哔哩哔哩官方资源或受版权保护的内容，应用内展示的视频、图片、文字均来自哔哩哔哩平台本身，版权归原权利人所有。本项目仅提供客户端壳层与交互功能，不存储、不缓存、不传播任何受版权保护的内容。</p>
+            <p>本项目按「现状」提供，仅供个人学习与技术研究使用，禁止用于任何商业用途、牟利行为或违反平台规则的行为。使用过程中可能出现的账号异常、数据损失或服务中断，由使用者自行承担；开发者不对由此产生的任何直接或间接损失负责。</p>
+            <p>如哔哩哔哩官方或任何权利人认为本项目侵犯其合法权益，可通过 <a href="https://github.com/HYXTPSP/BiliLite/issues" target="_blank">GitHub Issues</a> 联系，开发者将在核实后第一时间处理。</p>
+            <p><a href="https://github.com/HYXTPSP/BiliLite" target="_blank">查看源码与完整许可（MIT）→</a></p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>BiliLite - 幻影星途(HYXT)</p>
+        <p>开源项目 · <a href="https://github.com/HYXTPSP/BiliLite" target="_blank">GitHub</a></p>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+    <script>
+        // ========== CURSOR ==========
+        const dot = document.getElementById('cursorDot');
+        const ring = document.getElementById('cursorRing');
+        let mx = 0, my = 0, rx = 0, ry = 0;
+
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+        function updateCursors() {
+            dot.style.left = mx + 'px';
+            dot.style.top = my + 'px';
+            rx += (mx - rx) * 0.15;
+            ry += (my - ry) * 0.15;
+            ring.style.left = rx + 'px';
+            ring.style.top = ry + 'px';
+            requestAnimationFrame(updateCursors);
+        }
+        updateCursors();
+
+        // ========== SCROLL ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('scrollProgress').style.width = (scrollTop / docHeight * 100) + '%';
+            document.getElementById('backToTop').classList.toggle('show', scrollTop > 500);
+            document.getElementById('nav').classList.toggle('scrolled', scrollTop > 50);
+        });
+
+        // ========== ANIMATE ==========
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+
+        // ========== HERO CAROUSEL ==========
+        const imgs = document.querySelectorAll('.hero-screenshots img');
+        let imgIdx = 0;
+        setInterval(() => {
+            imgs[imgIdx].classList.remove('active');
+            imgIdx = (imgIdx + 1) % imgs.length;
+            imgs[imgIdx].classList.add('active');
+        }, 5000);
+
+        // ========== WORKFLOW MOUSE GLOW ==========
+        document.querySelector('.workflow-card')?.addEventListener('mousemove', e => {
+            const r = e.currentTarget.getBoundingClientRect();
+            e.currentTarget.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+            e.currentTarget.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+        });
+    </script>
+</body>
+</html>
