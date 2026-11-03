@@ -280,7 +280,8 @@ function openGame(id,title){
   $("#mTitle").textContent=title||"游戏";
   $("#mNew").href="play.html?id="+encodeURIComponent(id)+"&t="+encodeURIComponent(title||"");
   mLoad.style.display="flex"; mLoad.textContent="游戏加载中…";
-  frame.onload=()=>{ mLoad.style.display="none"; };
+  const _ld=setTimeout(()=>{mLoad.style.display="none";},12000);
+  frame.onload=()=>{ clearTimeout(_ld); mLoad.style.display="none"; };
   frame.src=embedUrl(id);
   modal.classList.add("open");
   document.body.style.overflow="hidden";
