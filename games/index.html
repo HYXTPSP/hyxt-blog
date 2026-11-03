@@ -1,128 +1,219 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>游戏厅 · Genav</title>
-<meta name="description" content="genav 在线小游戏厅，数千款 HTML5 小游戏免安装即点即玩。">
+<title>Genav-Game · 游戏厅</title>
+<meta name="description" content="Genav-Game 在线小游戏厅，两万多款 HTML5 小游戏免安装即点即玩，无需跳转、本页开玩。">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://img.gamedistribution.com">
 <style>
 :root{
-  --bg:#0f1218; --bg2:#161b24; --card:#1b2130; --line:#26303f;
-  --txt:#e8edf5; --sub:#9aa7ba; --accent:#5b8cff; --accent2:#8b5cff;
-  --radius:14px;
+  --bg:#f3f4f6; --surface:#ffffff; --surface-muted:#e4e7ed; --ink:#090a0d; --muted:#454b57;
+  --line:#090a0d; --line-soft:#bdc3cf; --signal:#ff4538; --highlight:#ffe100;
+  --hard:4px 4px 0 var(--line); --hard-lg:6px 6px 0 var(--line);
+  --radius:4px;
+}
+html[data-theme="dark"]{
+  --bg:#090a0d; --surface:#15171d; --surface-muted:#252933; --ink:#f7f8fc; --muted:#b6bdc9;
+  --line:#f7f8fc; --line-soft:#3f4550; --signal:#ff6258; --highlight:#ffe247;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
-  background:radial-gradient(1200px 600px at 50% -200px,#1a2338 0%,var(--bg) 55%) fixed;
-  color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-  min-height:100vh;
+  background:var(--bg); color:var(--ink); min-height:100vh;
+  font-family:Inter,"Noto Sans SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  font-weight:500;
 }
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1280px;margin:0 auto;padding:0 18px}
-/* header */
-header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
-  background:rgba(15,18,24,.72);border-bottom:1px solid var(--line)}
-.hd{display:flex;align-items:center;gap:14px;height:62px}
-.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px;letter-spacing:.3px;white-space:nowrap}
-.logo .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));
-  display:grid;place-items:center;font-size:15px}
-.search{flex:1;position:relative;max-width:520px}
-.search input{width:100%;height:42px;border-radius:11px;border:1px solid var(--line);
-  background:var(--bg2);color:var(--txt);padding:0 14px 0 40px;font-size:15px;outline:none}
-.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,140,255,.15)}
-.search .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--sub);font-size:15px}
-.random{height:42px;padding:0 16px;border-radius:11px;border:0;cursor:pointer;font-weight:700;font-size:14px;
-  color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));white-space:nowrap;display:flex;align-items:center;gap:6px}
-.random:active{transform:scale(.97)}
-/* hero/stats */
-.hero{padding:22px 0 6px}
-.hero h1{margin:0 0 6px;font-size:22px}
-.hero p{margin:0;color:var(--sub);font-size:14px}
-.hero .stat{color:var(--accent);font-weight:700}
-/* chips */
-.chips{display:flex;gap:8px;overflow-x:auto;padding:16px 0 8px;scrollbar-width:none}
+::selection{background:var(--highlight);color:#000}
+.wrap{max-width:1320px;margin:0 auto;padding:0 20px}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:60;background:var(--surface);border-bottom:2px solid var(--line)}
+.hd{display:flex;align-items:center;gap:16px;height:72px}
+.brand{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.logo-img{width:40px;height:40px;filter:drop-shadow(3px 3px 0 var(--line));flex:0 0 auto}
+.brand b{font-size:22px;font-weight:900;letter-spacing:-.5px}
+.brand b span{color:var(--signal)}
+.search{flex:1;position:relative;max-width:560px}
+.search input{
+  width:100%;height:46px;border:2px solid var(--line);border-radius:var(--radius);
+  background:var(--surface);color:var(--ink);padding:0 14px 0 42px;font-size:15px;
+  font-weight:600;outline:none;box-shadow:var(--hard);transition:.12s;
+}
+.search input:focus{transform:translate(-1px,-1px);box-shadow:var(--hard-lg)}
+.search input::placeholder{color:var(--muted);font-weight:500}
+.search .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.7}
+.acts{display:flex;gap:10px;align-items:center}
+.btn{
+  height:46px;padding:0 18px;border:2px solid var(--line);border-radius:var(--radius);
+  background:var(--surface);color:var(--ink);font-weight:800;font-size:14px;cursor:pointer;
+  box-shadow:var(--hard);display:flex;align-items:center;gap:7px;transition:.12s;white-space:nowrap;
+}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:var(--hard-lg)}
+.btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--line)}
+.btn.red{background:var(--signal);color:#fff}
+.icon-btn{width:46px;padding:0;justify-content:center;font-size:18px}
+
+/* ---------- hero ---------- */
+.hero{padding:34px 0 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.hero h1{margin:0;font-size:clamp(28px,5vw,46px);font-weight:900;letter-spacing:-1.5px;line-height:1.05}
+.hero h1 em{font-style:normal;background:var(--highlight);color:#000;padding:0 8px}
+.hero .sub{margin:12px 0 0;color:var(--muted);font-weight:600;font-size:15px}
+.hero .sub b{color:var(--ink)}
+.count-badge{border:2px solid var(--line);background:var(--surface);box-shadow:var(--hard);
+  padding:10px 16px;border-radius:var(--radius);font-weight:900;font-size:15px;white-space:nowrap}
+.count-badge span{color:var(--signal)}
+
+/* ---------- chips ---------- */
+.chips{display:flex;gap:10px;overflow-x:auto;padding:22px 0 6px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;padding:8px 15px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);
-  color:var(--sub);font-size:13.5px;cursor:pointer;white-space:nowrap;transition:.15s}
-.chip:hover{color:var(--txt);border-color:#33415a}
-.chip.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
-/* grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px;padding:8px 0 40px}
-@media(max-width:520px){.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:11px}}
-.card{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--card);
-  border:1px solid var(--line);cursor:pointer;transition:transform .16s,box-shadow .16s;aspect-ratio:4/3}
-.card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.45);border-color:#3a4a68}
-.card .thumb{width:100%;height:100%;object-fit:cover;display:block;background:var(--bg2)}
-.card .ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,10,15,.92) 0%,rgba(8,10,15,.15) 45%,transparent 70%);
-  display:flex;flex-direction:column;justify-content:flex-end;padding:10px 11px}
-.card .tt{font-size:13.5px;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-  text-shadow:0 1px 6px rgba(0,0,0,.7)}
-.card .cat{font-size:11px;color:#b9c6db;margin-top:3px}
-.card .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.7);opacity:0;
-  width:46px;height:46px;border-radius:50%;background:rgba(91,140,255,.92);display:grid;place-items:center;
-  font-size:18px;transition:.16s;color:#fff}
-.card:hover .play{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.chip{
+  flex:0 0 auto;padding:9px 16px;border:2px solid var(--line);background:var(--surface);
+  color:var(--ink);font-weight:800;font-size:13.5px;cursor:pointer;border-radius:var(--radius);
+  box-shadow:var(--hard);transition:.12s;white-space:nowrap;
+}
+.chip:hover{transform:translate(-1px,-1px);box-shadow:var(--hard-lg)}
+.chip.on{background:var(--highlight);color:#090a0d}
+
+/* ---------- grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(198px,1fr));gap:18px;padding:18px 0 30px}
+@media(max-width:520px){.grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}}
+.card{
+  background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:var(--hard);
+  display:flex;flex-direction:column;
+}
+.card:hover{transform:translate(-3px,-3px);box-shadow:var(--hard-lg)}
+.card:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--line)}
+.thumb-wrap{aspect-ratio:5/3;background:var(--surface-muted);border-bottom:2px solid var(--line);overflow:hidden}
+.thumb{width:100%;height:100%;object-fit:cover;display:block}
+.card .meta{padding:10px 12px 12px}
+.card .tt{font-weight:800;font-size:14px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .cat{font-size:11.5px;font-weight:700;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:.3px}
+
+/* skeleton */
+.sk{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);box-shadow:var(--hard);overflow:hidden}
+.sk .sb{aspect-ratio:5/3;background:linear-gradient(90deg,var(--surface-muted) 25%,var(--bg) 50%,var(--surface-muted) 75%);background-size:200% 100%;animation:sh 1.1s infinite;border-bottom:2px solid var(--line)}
+.sk .sl{height:12px;margin:12px;background:var(--surface-muted);border-radius:2px}
+.sk .sl.s{width:50%}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
 /* states */
-.msg{text-align:center;color:var(--sub);padding:50px 0;font-size:15px}
-.loading{text-align:center;padding:34px;color:var(--sub)}
-.spin{display:inline-block;width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--accent);
-  border-radius:50%;animation:sp .7s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-footer{border-top:1px solid var(--line);color:var(--sub);font-size:12.5px;text-align:center;padding:18px;line-height:1.7}
-footer a{color:var(--accent)}
+.msg{grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0;font-weight:700;font-size:16px}
+#sentinel{height:1px}
+
+footer{border-top:2px solid var(--line);color:var(--muted);font-size:13px;font-weight:600;text-align:center;padding:22px;line-height:1.8;margin-top:10px}
+footer a{color:var(--signal);font-weight:800}
+
+/* ---------- player modal ---------- */
+#modal{position:fixed;inset:0;z-index:100;display:none;background:rgba(9,10,13,.72);padding:16px}
+#modal.open{display:flex;align-items:center;justify-content:center}
+.player{width:min(1200px,100%);height:min(86vh,100%);display:flex;flex-direction:column;
+  background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);box-shadow:8px 8px 0 var(--line);overflow:hidden}
+.pbar{display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:2px solid var(--line);background:var(--surface)}
+.pbar .ptitle{font-weight:900;font-size:15px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbar .pbtn{width:38px;height:38px;flex:0 0 auto;border:2px solid var(--line);border-radius:var(--radius);background:var(--surface);
+  color:var(--ink);cursor:pointer;font-size:16px;display:grid;place-items:center;box-shadow:2px 2px 0 var(--line);transition:.1s}
+.pbar .pbtn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--line)}
+.pbar .pbtn.close{background:var(--signal);color:#fff}
+.pbody{position:relative;flex:1;background:#000}
+.pbody iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+@media(max-width:640px){
+  #modal{padding:0}
+  .player{width:100%;height:100%;box-shadow:none}
+  .hd{height:64px;gap:10px}
+  .brand b{font-size:18px}
+  .btn{padding:0 12px;font-size:13px}
+  .search{max-width:none}
+}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap hd">
-    <a class="logo" href="/"><span class="dot">🎮</span>游戏厅</a>
+    <a class="brand" href="/"><img class="logo-img" src="logo.png" alt="Genav-Game"><b>Genav<span>-Game</span></b></a>
     <div class="search">
       <span class="ic">🔍</span>
-      <input id="q" type="search" placeholder="搜索游戏名 / 分类 / 标签…" autocomplete="off">
+      <input id="q" type="search" placeholder="搜索游戏 / 分类…" autocomplete="off">
     </div>
-    <button class="random" id="rand">🎲 随机</button>
+    <div class="acts">
+      <button class="btn red" id="rand">🎲 随机</button>
+      <button class="btn icon-btn" id="theme" title="切换主题">🌙</button>
+    </div>
   </div>
 </header>
 
 <main class="wrap">
   <div class="hero">
-    <h1>免安装 · 即点即玩</h1>
-    <p>已收录 <span class="stat" id="total">…</span> 款 HTML5 小游戏，加载中…</p>
+    <div>
+      <h1>即点<em>即玩</em>的游戏厅</h1>
+      <p class="sub">免安装 · 本页直接开玩 · 共 <b><span id="total">2 万</span>+</b> 款 HTML5 小游戏</p>
+    </div>
+    <div class="count-badge">🕹️ <span id="total2">—</span> 款</div>
   </div>
   <div class="chips" id="chips"></div>
   <div class="grid" id="grid"></div>
-  <div class="loading" id="more"><span class="spin"></span></div>
+  <div id="sentinel"></div>
 </main>
 
 <footer>
-  游戏内容由 <a href="https://gamedistribution.com" target="_blank" rel="noopener">GameDistribution</a> 提供并与版权方授权合作。<br>
-  本页仅做导航与嵌入，游戏版权归各自作者所有。
+  Genav-Game · 游戏内容由 <a href="https://gamedistribution.com" target="_blank" rel="noopener">GameDistribution</a> 提供并与版权方授权合作，版权归各自作者所有。
 </footer>
+
+<!-- player modal -->
+<div id="modal">
+  <div class="player" id="player">
+    <div class="pbar">
+      <div class="ptitle" id="mTitle">游戏</div>
+      <a class="pbtn" id="mNew" href="#" target="_blank" title="新窗口打开">↗</a>
+      <button class="pbtn" id="mFs" title="全屏">⛶</button>
+      <button class="pbtn close" id="mClose" title="关闭">✕</button>
+    </div>
+    <div class="pbody"><iframe id="mFrame" allowfullscreen scrolling="no" frameborder="0"
+      allow="autoplay; fullscreen; gamepad; accelerometer; gyroscope; magnetometer; xr-spatial-tracking"></iframe></div>
+  </div>
+</div>
 
 <script>
 const $=s=>document.querySelector(s);
-const grid=$("#grid"), chips=$("#chips"), moreEl=$("#more");
-let ALL=[], view=[], shown=0, curCat="全部", PAGE=140;
+const grid=$("#grid"), sentinel=$("#sentinel");
+let ALL=[], view=[], shown=0, curCat="全部", BATCH=48;
 
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function thumb(id){return "https://img.gamedistribution.com/"+id+"-200x120.jpg";}
 function norm(g){
-  const id=g.id||g.i, t=g.title||g.t||"未命名",
-        m=g.img||g.m||("https://img.gamedistribution.com/"+id+"-512x384.jpg"),
-        cats=(g.cat||g.c||[]), tags=(g.tags||g.tg||[]);
-  return {id,t,m,cats,tags,
-    hay:(t+" "+cats.join(" ")+" "+tags.join(" ")).toLowerCase()};
+  const id=g.i||g.id, t=g.t||g.title||"", cats=g.c||g.cat||[];
+  return {id,t,cats,hay:(t+" "+cats.join(" ")).toLowerCase()};
+}
+
+/* theme */
+(function(){
+  const t=localStorage.getItem("gg-theme");
+  if(t) document.documentElement.dataset.theme=t;
+  const btn=$("#theme");
+  const sync=()=>btn.textContent=document.documentElement.dataset.theme==="dark"?"☀️":"🌙";
+  sync();
+  btn.onclick=()=>{const d=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=d;localStorage.setItem("gg-theme",d);sync();};
+})();
+
+function showSkeleton(n){
+  grid.innerHTML="";
+  for(let i=0;i<n;i++){const d=document.createElement("div");d.className="sk";d.innerHTML='<div class="sb"></div><div class="sl"></div><div class="sl s"></div>';grid.appendChild(d);}
 }
 
 async function boot(){
+  showSkeleton(12);
   try{
-    const r=await fetch("/games/games.json",{cache:"force-cache"});
+    const r=await fetch("games.json",{cache:"force-cache"});
     if(!r.ok) throw 0;
     ALL=(await r.json()).map(norm);
   }catch(e){
-    grid.innerHTML='<div class="msg">游戏数据加载失败，请刷新重试</div>';moreEl.style.display="none";return;
+    grid.innerHTML='<div class="msg">游戏数据加载失败，请刷新重试 🙏</div>';return;
   }
-  $("#total").textContent=ALL.length.toLocaleString();
+  const n=ALL.length.toLocaleString();
+  $("#total").textContent=n; $("#total2").textContent=n;
   buildChips(); apply();
 }
 
@@ -131,11 +222,10 @@ function buildChips(){
   ALL.forEach(g=>g.cats.forEach(c=>cnt[c]=(cnt[c]||0)+1));
   const cats=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,16);
   const list=["全部",...cats];
-  chips.innerHTML=list.map((c,i)=>`<div class="chip${i===0?' on':''}" data-c="${c}">${c}</div>`).join("");
-  chips.querySelectorAll(".chip").forEach(el=>el.onclick=()=>{
-    chips.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
-    el.classList.add("on");curCat=el.dataset.c;
-    apply();window.scrollTo({top:0,behavior:"smooth"});
+  $("#chips").innerHTML=list.map((c,i)=>`<div class="chip${i===0?' on':''}" data-c="${esc(c)}">${esc(c)}</div>`).join("");
+  $("#chips").querySelectorAll(".chip").forEach(el=>el.onclick=()=>{
+    $("#chips").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+    el.classList.add("on"); curCat=el.dataset.c; apply();
   });
 }
 
@@ -146,44 +236,60 @@ function apply(){
     if(q && !g.hay.includes(q)) return false;
     return true;
   });
-  grid.innerHTML="";shown=0;
-  moreEl.style.display=view.length?"block":"none";
-  if(!view.length){grid.innerHTML='<div class="msg">没有找到相关游戏 🕹️</div>';moreEl.style.display="none";return;}
+  grid.innerHTML=""; shown=0;
+  if(!view.length){grid.innerHTML='<div class="msg">没有找到相关游戏 🕹️</div>';return;}
   renderMore();
 }
 
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-
-function card(g){
-  const cat=g.cats[0]||"";
-  const el=document.createElement("a");
+function cardEl(g){
+  const cat=g.cats[0]||"GAME";
+  const el=document.createElement("div");
   el.className="card";
-  el.href=`/games/play.html?id=${encodeURIComponent(g.id)}&t=${encodeURIComponent(g.t)}`;
-  el.innerHTML=`<img class="thumb" loading="lazy" src="${esc(g.m)}" alt="${esc(g.t)}"
-      onerror="this.style.opacity='.25'">
-    <div class="ov"><div class="tt">${esc(g.t)}</div><div class="cat">${esc(cat)}</div></div>
-    <div class="play">▶</div>`;
+  el.innerHTML=`<div class="thumb-wrap"><img class="thumb" loading="lazy" decoding="async" src="${esc(thumb(g.id))}" alt="${esc(g.t)}" onerror="this.closest('.thumb-wrap').style.background='var(--surface-muted)';this.remove()"></div>
+    <div class="meta"><div class="tt">${esc(g.t)}</div><div class="cat">${esc(cat)}</div></div>`;
+  el.onclick=()=>openGame(g.id,g.t);
   return el;
 }
 
 function renderMore(){
   const frag=document.createDocumentFragment();
-  const end=Math.min(shown+PAGE,view.length);
-  for(let i=shown;i<end;i++) frag.appendChild(card(view[i]));
-  grid.appendChild(frag);shown=end;
-  moreEl.style.display=shown<view.length?"block":"none";
+  const end=Math.min(shown+BATCH,view.length);
+  for(let i=shown;i<end;i++) frag.appendChild(cardEl(view[i]));
+  grid.appendChild(frag); shown=end;
+  sentinel.style.display=shown<view.length?"block":"none";
 }
 
-let qTimer;
-$("#q").addEventListener("input",()=>{clearTimeout(qTimer);qTimer=setTimeout(apply,180);});
-$("#rand").onclick=()=>{
-  if(!ALL.length)return;
-  const g=ALL[Math.floor(Math.random()*ALL.length)];
-  location.href=`/games/play.html?id=${encodeURIComponent(g.id)}&t=${encodeURIComponent(g.t)}`;
+/* 触底继续加载 */
+new IntersectionObserver(es=>{
+  if(es[0].isIntersecting && shown<view.length) renderMore();
+},{rootMargin:"300px"}).observe(sentinel);
+
+let qT;
+$("#q").addEventListener("input",()=>{clearTimeout(qT);qT=setTimeout(apply,200);});
+$("#rand").onclick=()=>{ if(!ALL.length) return; const g=ALL[Math.floor(Math.random()*ALL.length)]; openGame(g.id,g.t); };
+
+/* ---- 本页弹层游玩 ---- */
+const modal=$("#modal"), frame=$("#mFrame");
+function openGame(id,title){
+  $("#mTitle").textContent=title||"游戏";
+  $("#mNew").href="play.html?id="+encodeURIComponent(id)+"&t="+encodeURIComponent(title||"");
+  frame.src="https://html5.gamedistribution.com/"+encodeURIComponent(id)+"/?gd_sdk_referrer_url="+encodeURIComponent(location.href);
+  modal.classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeGame(){
+  modal.classList.remove("open");
+  frame.src="about:blank";
+  document.body.style.overflow="";
+}
+$("#mClose").onclick=closeGame;
+modal.addEventListener("click",e=>{ if(e.target===modal) closeGame(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeGame(); });
+$("#mFs").onclick=()=>{
+  const p=$("#player");
+  if(!document.fullscreenElement){(p.requestFullscreen||p.webkitRequestFullscreen||function(){}).call(p);}
+  else{(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document);}
 };
-// infinite scroll
-new IntersectionObserver(es=>{if(es[0].isIntersecting && shown<view.length) renderMore();},{rootMargin:"600px"})
-  .observe(moreEl);
 
 boot();
 </script>
