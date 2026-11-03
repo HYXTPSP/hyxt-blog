@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Genav-Game · 游戏厅</title>
-<meta name="description" content="Genav-Game 在线小游戏厅，两万多款 HTML5 小游戏免安装即点即玩，无需跳转、本页开玩。">
+<meta name="description" content="Genav-Game 在线小游戏厅，数千款 HTML5 小游戏免安装即点即玩，无需跳转、本页开玩。">
 <link rel="icon" type="image/png" href="favicon.png">
-<link rel="preconnect" href="https://img.gamedistribution.com">
+<link rel="preconnect" href="https://img.gamemonetize.com">
+<link rel="preconnect" href="https://html5.gamemonetize.co">
 <style>
 :root{
   --bg:#f3f4f6; --surface:#ffffff; --surface-muted:#e4e7ed; --ink:#090a0d; --muted:#454b57;
@@ -120,6 +121,7 @@ footer a{color:var(--signal);font-weight:800}
 .pbar .pbtn.close{background:var(--signal);color:#fff}
 .pbody{position:relative;flex:1;background:#000}
 .pbody iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.pbody .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa7ba;font-weight:700;font-size:15px;background:#000;z-index:1}
 @media(max-width:640px){
   #modal{padding:0}
   .player{width:100%;height:100%;box-shadow:none}
@@ -149,7 +151,7 @@ footer a{color:var(--signal);font-weight:800}
   <div class="hero">
     <div>
       <h1>即点<em>即玩</em>的游戏厅</h1>
-      <p class="sub">免安装 · 本页直接开玩 · 共 <b><span id="total">2 万</span>+</b> 款 HTML5 小游戏</p>
+      <p class="sub">免安装 · 本页直接开玩 · 共 <b><span id="total">…</span></b> 款 HTML5 小游戏</p>
     </div>
     <div class="count-badge">🕹️ <span id="total2">—</span> 款</div>
   </div>
@@ -159,7 +161,7 @@ footer a{color:var(--signal);font-weight:800}
 </main>
 
 <footer>
-  Genav-Game · 游戏内容由 <a href="https://gamedistribution.com" target="_blank" rel="noopener">GameDistribution</a> 提供并与版权方授权合作，版权归各自作者所有。
+  Genav-Game · 游戏内容由 <a href="https://gamemonetize.com" target="_blank" rel="noopener">GameMonetize</a> 提供并与版权方授权合作，版权归各自作者所有。
 </footer>
 
 <!-- player modal -->
@@ -171,7 +173,7 @@ footer a{color:var(--signal);font-weight:800}
       <button class="pbtn" id="mFs" title="全屏">⛶</button>
       <button class="pbtn close" id="mClose" title="关闭">✕</button>
     </div>
-    <div class="pbody"><iframe id="mFrame" allowfullscreen scrolling="no" frameborder="0"
+    <div class="pbody"><div class="loading" id="mLoad">游戏加载中…</div><iframe id="mFrame" allowfullscreen scrolling="no" frameborder="0"
       allow="autoplay; fullscreen; gamepad; accelerometer; gyroscope; magnetometer; xr-spatial-tracking"></iframe></div>
   </div>
 </div>
@@ -179,10 +181,11 @@ footer a{color:var(--signal);font-weight:800}
 <script>
 const $=s=>document.querySelector(s);
 const grid=$("#grid"), sentinel=$("#sentinel");
-let ALL=[], view=[], shown=0, curCat="全部", BATCH=48;
+let ALL=[], view=[], shown=0, curCat="全部", BATCH=36;
 
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function thumb(id){return "https://img.gamedistribution.com/"+id+"-200x120.jpg";}
+function thumb(id){return "https://img.gamemonetize.com/"+id+"/512x384.jpg";}
+function embedUrl(id){return "https://html5.gamemonetize.co/"+id+"/";}
 function norm(g){
   const id=g.i||g.id, t=g.t||g.title||"", cats=g.c||g.cat||[];
   return {id,t,cats,hay:(t+" "+cats.join(" ")).toLowerCase()};
@@ -215,6 +218,9 @@ async function boot(){
   const n=ALL.length.toLocaleString();
   $("#total").textContent=n; $("#total2").textContent=n;
   buildChips(); apply();
+  // 分享/直达：?play=<hash>&t=<标题>
+  const ps=new URLSearchParams(location.search);
+  if(ps.get("play")) openGame(ps.get("play"), ps.get("t")||"小游戏");
 }
 
 function buildChips(){
@@ -269,11 +275,13 @@ $("#q").addEventListener("input",()=>{clearTimeout(qT);qT=setTimeout(apply,200);
 $("#rand").onclick=()=>{ if(!ALL.length) return; const g=ALL[Math.floor(Math.random()*ALL.length)]; openGame(g.id,g.t); };
 
 /* ---- 本页弹层游玩 ---- */
-const modal=$("#modal"), frame=$("#mFrame");
+const modal=$("#modal"), frame=$("#mFrame"), mLoad=$("#mLoad");
 function openGame(id,title){
   $("#mTitle").textContent=title||"游戏";
   $("#mNew").href="play.html?id="+encodeURIComponent(id)+"&t="+encodeURIComponent(title||"");
-  frame.src="https://html5.gamedistribution.com/"+encodeURIComponent(id)+"/?gd_sdk_referrer_url="+encodeURIComponent(location.href);
+  mLoad.style.display="flex"; mLoad.textContent="游戏加载中…";
+  frame.onload=()=>{ mLoad.style.display="none"; };
+  frame.src=embedUrl(id);
   modal.classList.add("open");
   document.body.style.overflow="hidden";
 }
