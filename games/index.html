@@ -209,7 +209,7 @@ function showSkeleton(n){
 async function boot(){
   showSkeleton(12);
   try{
-    const r=await fetch("games.json",{cache:"force-cache"});
+    const r=await fetch("games.json?v=gm2",{cache:"no-cache"});
     if(!r.ok) throw 0;
     ALL=(await r.json()).map(norm);
   }catch(e){
