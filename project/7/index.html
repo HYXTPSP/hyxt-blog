@@ -147,6 +147,30 @@
         .shot.wide { padding: 12px; }
         .shot.wide figcaption { font-size: 0.9rem; }
 
+        /* ========== CAROUSEL ========== */
+        .carousel { position: relative; border-radius: var(--radius); box-shadow: var(--inset); padding: 16px; overflow: hidden; }
+        .carousel-track { display: flex; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform; }
+        .car-slide { flex: 0 0 100%; margin: 0; }
+        .car-slide img { width: 100%; display: block; border-radius: 14px; }
+        .car-slide figcaption { text-align: center; font-size: 0.9rem; font-weight: 600; color: var(--text2); padding: 12px 4px 4px; }
+        .car-btn {
+            position: absolute; top: 42%; transform: translateY(-50%);
+            width: 48px; height: 48px; border: none; border-radius: 50%; background: var(--bg);
+            color: var(--accent); font-size: 1.7rem; line-height: 1; cursor: pointer; z-index: 3;
+            box-shadow: var(--raise-sm); transition: var(--trans);
+            display: flex; align-items: center; justify-content: center; padding-bottom: 4px;
+        }
+        .car-btn:hover { box-shadow: var(--raise); }
+        .car-btn:active { box-shadow: var(--inset); }
+        .car-prev { left: 22px; }
+        .car-next { right: 22px; }
+        .car-dots { display: flex; justify-content: center; gap: 10px; margin-top: 16px; }
+        .car-dot {
+            width: 10px; height: 10px; border-radius: 50%; border: none; padding: 0; cursor: pointer;
+            background: var(--bg); box-shadow: var(--inset-sm); transition: var(--trans);
+        }
+        .car-dot.active { background: var(--accent); box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.18); }
+
         /* ========== DOWNLOAD ========== */
         .dl-platforms { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
         .download-card { padding: 40px 34px; text-align: center; }
@@ -306,7 +330,7 @@
     <section class="section wrap">
         <div class="section-head reveal">
             <h2>界面预览</h2>
-            <p>手机端与 Windows 桌面版实机效果</p>
+            <p>手机端、平板端与 Windows 桌面版实机效果</p>
         </div>
         <div class="gallery-sub reveal">手机端 · 竖屏</div>
         <div class="phone-grid">
@@ -316,10 +340,24 @@
             <figure class="shot reveal"><img src="shot-phone-community.jpg" alt="社区 经验分享"><figcaption>社区 · 经验分享</figcaption></figure>
             <figure class="shot reveal"><img src="shot-phone-profile.jpg" alt="我的 个人中心"><figcaption>我的 · 个人中心</figcaption></figure>
         </div>
-        <div class="gallery-sub reveal">Windows 桌面版 · 横屏</div>
+        <div class="gallery-sub reveal">平板端 · 横屏</div>
         <div class="desktop-grid">
-            <figure class="shot wide reveal"><img src="shot-desktop-home.jpg" alt="桌面版 首页推荐"><figcaption>首页 · 推荐网格</figcaption></figure>
-            <figure class="shot wide reveal"><img src="shot-desktop-community.jpg" alt="桌面版 社区答疑帖详情"><figcaption>社区 · 答疑帖详情</figcaption></figure>
+            <figure class="shot wide reveal"><img src="shot-tablet-home.jpg" alt="平板端 首页推荐" loading="lazy"><figcaption>平板 · 首页推荐</figcaption></figure>
+            <figure class="shot wide reveal"><img src="shot-tablet-community.jpg" alt="平板端 社区答疑帖详情" loading="lazy"><figcaption>平板 · 社区答疑帖详情</figcaption></figure>
+        </div>
+        <div class="gallery-sub reveal">Windows 桌面版 · 横屏轮播</div>
+        <div class="carousel reveal" id="winCarousel">
+            <div class="carousel-track" id="winTrack">
+                <figure class="car-slide"><img src="win-home.jpg" alt="Windows 桌面版 首页聚合"><figcaption>首页聚合页</figcaption></figure>
+                <figure class="car-slide"><img src="win-up.jpg" alt="Windows 桌面版 UP 主管理"><figcaption>UP 主管理</figcaption></figure>
+                <figure class="car-slide"><img src="win-history.jpg" alt="Windows 桌面版 历史观看记录"><figcaption>历史观看记录</figcaption></figure>
+                <figure class="car-slide"><img src="win-tomato.jpg" alt="Windows 桌面版 番茄钟"><figcaption>番茄钟专注计时</figcaption></figure>
+                <figure class="car-slide"><img src="win-community.jpg" alt="Windows 桌面版 社区帖子"><figcaption>社区帖子</figcaption></figure>
+                <figure class="car-slide"><img src="win-account.jpg" alt="Windows 桌面版 账号与同步"><figcaption>账号与同步</figcaption></figure>
+            </div>
+            <button class="car-btn car-prev" id="winPrev" aria-label="上一张">‹</button>
+            <button class="car-btn car-next" id="winNext" aria-label="下一张">›</button>
+            <div class="car-dots" id="winDots"></div>
         </div>
     </section>
 
@@ -397,6 +435,60 @@
         document.querySelectorAll('.reveal').forEach((el, i) => {
             el.style.animationDelay = (Math.min(i % 6, 5) * 0.05) + 's';
         });
+
+        // ========== WINDOWS 横屏轮播（自动 + 手动干预） ==========
+        (function () {
+            const track = document.getElementById('winTrack');
+            const car = document.getElementById('winCarousel');
+            if (!track || !car) return;
+            const total = track.children.length;
+            const dotsBox = document.getElementById('winDots');
+            const AUTO = 4000;
+            let idx = 0, timer = null;
+
+            for (let i = 0; i < total; i++) {
+                const b = document.createElement('button');
+                b.className = 'car-dot';
+                b.setAttribute('aria-label', '第 ' + (i + 1) + ' 张');
+                b.addEventListener('click', () => go(i, true));
+                dotsBox.appendChild(b);
+            }
+            const dots = dotsBox.children;
+
+            function render() {
+                track.style.transform = 'translateX(' + (-idx * 100) + '%)';
+                for (let i = 0; i < dots.length; i++) dots[i].classList.toggle('active', i === idx);
+            }
+            function go(i, manual) {
+                idx = (i % total + total) % total;
+                render();
+                if (manual) restart();
+            }
+            function next() { go(idx + 1, false); }
+            function start() { stop(); timer = setInterval(next, AUTO); }
+            function stop() { if (timer) { clearInterval(timer); timer = null; } }
+            function restart() { stop(); start(); }
+
+            document.getElementById('winNext').addEventListener('click', () => go(idx + 1, true));
+            document.getElementById('winPrev').addEventListener('click', () => go(idx - 1, true));
+
+            // 鼠标悬停暂停
+            car.addEventListener('mouseenter', stop);
+            car.addEventListener('mouseleave', start);
+
+            // 触摸/鼠标拖拽滑动
+            let sx = null;
+            track.addEventListener('touchstart', e => { sx = e.touches[0].clientX; stop(); }, { passive: true });
+            track.addEventListener('touchend', e => {
+                if (sx == null) return;
+                const dx = e.touches[0].clientX - sx;
+                if (Math.abs(dx) > 40) go(idx + (dx < 0 ? 1 : -1), true); else start();
+                sx = null;
+            }, { passive: true });
+
+            render();
+            start();
+        })();
     </script>
 </body>
 </html>
