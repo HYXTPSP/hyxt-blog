@@ -71,7 +71,7 @@
         .section-head p { font-size: 1.05rem; color: var(--text2); max-width: 640px; margin: 0 auto; }
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .reveal { animation: fadeUp 0.6s ease both; }
+        .reveal { animation: fadeUp 0.6s ease backwards; }
 
         /* ========== HERO ========== */
         .hero { padding: 150px 0 60px; text-align: center; }
@@ -232,9 +232,97 @@
             .btn { padding: 14px 24px; font-size: 0.92rem; }
             .hero-btns { gap: 12px; }
         }
+
+        /* ========== MOTION & FX ========== */
+        ::selection { background: rgba(109,93,252,0.22); }
+
+        /* scroll progress */
+        .scroll-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 200;
+            background: var(--accent); box-shadow: 0 0 10px var(--accent-shadow); transition: width 0.08s linear; }
+
+        /* cursor follower */
+        .cursor-dot { position: fixed; width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+            pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); opacity: 0; transition: opacity .3s; }
+        .cursor-ring { position: fixed; width: 30px; height: 30px; border-radius: 50%; pointer-events: none; z-index: 9998;
+            transform: translate(-50%,-50%); border: 1.5px solid rgba(109,93,252,0.45); opacity: 0;
+            transition: opacity .3s, width .18s ease, height .18s ease, border-color .18s ease, background .18s ease; }
+        .cursor-ring.click { width: 54px; height: 54px; border-color: rgba(109,93,252,0.15); background: rgba(109,93,252,0.07); }
+        @media (hover:hover) and (pointer:fine) { body.show-cursor .cursor-dot, body.show-cursor .cursor-ring { opacity: 1; } }
+        @media (hover:none) { .cursor-dot, .cursor-ring { display: none; } }
+
+        /* ripple + press */
+        .btn, .dl-btn, .nav-back, .car-btn, .back-top { position: relative; overflow: hidden; }
+        .fx-ripple { position: absolute; border-radius: 50%; transform: scale(0); pointer-events: none;
+            background: rgba(255,255,255,0.5); animation: fxRipple 0.6s ease-out forwards; z-index: 1; }
+        .btn:not(.btn-primary) .fx-ripple, .nav-back .fx-ripple, .car-btn .fx-ripple, .back-top .fx-ripple { background: rgba(109,93,252,0.22); }
+        @keyframes fxRipple { to { transform: scale(2.6); opacity: 0; } }
+        .btn:active, .dl-btn:active, .nav-back:active, .back-top:active { transform: scale(0.97); }
+
+        /* hero entrance + breathing glow */
+        .hero-badge { animation: fadeUp 0.7s 0.05s ease both, floatY 4.5s 1s ease-in-out infinite; }
+        .hero h1 { animation: fadeUp 0.8s 0.12s ease both, hBreathe 5s 1.4s ease-in-out infinite; }
+        .hero-sub { animation: fadeUp 0.8s 0.25s ease both; }
+        .hero-btns { animation: fadeUp 0.8s 0.4s ease both; }
+        .hero-note { animation: fadeUp 0.8s 0.55s ease both; }
+        @keyframes floatY { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
+        @keyframes hBreathe {
+            0%,100% { text-shadow: -2px -2px 4px var(--light), 3px 3px 8px var(--dark); }
+            50% { text-shadow: -3px -3px 9px var(--light), 5px 5px 16px var(--dark); }
+        }
+
+        /* cards motion */
+        .card { transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; }
+        .card:hover { transform: translateY(-4px); }
+        .features { perspective: 1000px; }
+        .features .card { transition: transform 0.2s ease-out, box-shadow 0.3s ease-in-out; }
+
+        .feature-icon { animation: floatY 5s ease-in-out infinite; transition: transform 0.3s ease, color 0.3s ease; }
+        .features .card:nth-child(2) .feature-icon { animation-delay: -0.8s; }
+        .features .card:nth-child(3) .feature-icon { animation-delay: -1.6s; }
+        .features .card:nth-child(4) .feature-icon { animation-delay: -2.4s; }
+        .features .card:nth-child(5) .feature-icon { animation-delay: -3.2s; }
+        .features .card:nth-child(6) .feature-icon { animation-delay: -4s; }
+        .card:hover .feature-icon { animation: none; transform: scale(1.12) rotate(-5deg); }
+
+        .step-num { animation: pulseBadge 3s ease-in-out infinite; }
+        @keyframes pulseBadge {
+            0%,100% { box-shadow: 3px 3px 7px var(--accent-shadow), -3px -3px 7px var(--light); }
+            50% { box-shadow: 0 0 0 5px rgba(109,93,252,0.12), 3px 3px 7px var(--accent-shadow), -3px -3px 7px var(--light); }
+        }
+
+        /* section heading underline grow */
+        .section-head h2 { position: relative; }
+        .section-head h2::after { content: ""; position: absolute; left: 50%; bottom: -10px; width: 46px; height: 3px;
+            border-radius: 3px; background: var(--accent); transform: translateX(-50%) scaleX(0);
+            transform-origin: center; animation: underlineGrow 0.7s 0.35s cubic-bezier(0.4,0,0.2,1) forwards; }
+        @keyframes underlineGrow { to { transform: translateX(-50%) scaleX(1); } }
+
+        /* gallery zoom */
+        .shot { overflow: hidden; }
+        .shot img { transition: transform 0.5s ease; }
+        .shot:hover img { transform: scale(1.05); }
+
+        /* carousel progress + active slide pop */
+        .car-progress { height: 5px; width: 62%; margin: 16px auto 2px; border-radius: 5px; overflow: hidden; box-shadow: var(--inset-sm); }
+        .car-progress i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 5px; }
+        @keyframes progFill { from { width: 0; } to { width: 100%; } }
+        .car-slide img { transform: scale(0.955); transition: transform 0.55s ease; }
+        .carousel .car-slide.active img { transform: scale(1); }
+        .car-dot { transition: transform 0.25s ease, background 0.3s ease, box-shadow 0.3s ease; }
+        .car-dot.active { transform: scale(1.35); }
+
+        /* reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- FX layers -->
+    <div class="scroll-bar" id="scrollBar"></div>
+    <div class="cursor-dot" id="curDot"></div>
+    <div class="cursor-ring" id="curRing"></div>
 
     <!-- Nav -->
     <nav class="nav">
@@ -358,6 +446,7 @@
             <button class="car-btn car-prev" id="winPrev" aria-label="上一张">‹</button>
             <button class="car-btn car-next" id="winNext" aria-label="下一张">›</button>
             <div class="car-dots" id="winDots"></div>
+            <div class="car-progress"><i id="carProg"></i></div>
         </div>
     </section>
 
@@ -443,6 +532,8 @@
             if (!track || !car) return;
             const total = track.children.length;
             const dotsBox = document.getElementById('winDots');
+            const prog = document.getElementById('carProg');
+            const slides = track.children;
             const AUTO = 4000;
             let idx = 0, timer = null;
 
@@ -458,6 +549,7 @@
             function render() {
                 track.style.transform = 'translateX(' + (-idx * 100) + '%)';
                 for (let i = 0; i < dots.length; i++) dots[i].classList.toggle('active', i === idx);
+                for (let i = 0; i < slides.length; i++) slides[i].classList.toggle('active', i === idx);
             }
             function go(i, manual) {
                 idx = (i % total + total) % total;
@@ -465,8 +557,13 @@
                 if (manual) restart();
             }
             function next() { go(idx + 1, false); }
-            function start() { stop(); timer = setInterval(next, AUTO); }
-            function stop() { if (timer) { clearInterval(timer); timer = null; } }
+            function progRun() {
+                if (!prog) return;
+                prog.style.animation = 'none'; void prog.offsetWidth;
+                prog.style.animation = 'progFill ' + AUTO + 'ms linear forwards';
+            }
+            function start() { stop(); timer = setInterval(next, AUTO); progRun(); }
+            function stop() { if (timer) { clearInterval(timer); timer = null; } if (prog) prog.style.animationPlayState = 'paused'; }
             function restart() { stop(); start(); }
 
             document.getElementById('winNext').addEventListener('click', () => go(idx + 1, true));
@@ -488,6 +585,72 @@
 
             render();
             start();
+        })();
+    </script>
+
+    <script>
+        // ========== 动画 / 点击特效 ==========
+        (function () {
+            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const fine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+            // 顶部滚动进度条
+            const bar = document.getElementById('scrollBar');
+            function onScroll() {
+                const h = document.documentElement.scrollHeight - window.innerHeight;
+                bar.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+            }
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', onScroll);
+            onScroll();
+
+            // 按钮点击水波纹
+            const rippleSel = '.btn, .dl-btn, .nav-back, .car-btn, .back-top';
+            document.addEventListener('pointerdown', function (e) {
+                const el = e.target.closest(rippleSel);
+                if (!el) return;
+                const r = el.getBoundingClientRect();
+                const size = Math.max(r.width, r.height);
+                const s = document.createElement('span');
+                s.className = 'fx-ripple';
+                s.style.width = s.style.height = size + 'px';
+                s.style.left = (e.clientX - r.left - size / 2) + 'px';
+                s.style.top = (e.clientY - r.top - size / 2) + 'px';
+                el.appendChild(s);
+                s.addEventListener('animationend', () => s.remove());
+            });
+
+            // 光标跟随 + 点击放大环
+            const dot = document.getElementById('curDot');
+            const ring = document.getElementById('curRing');
+            if (fine && dot && ring && !reduce) {
+                document.body.classList.add('show-cursor');
+                let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+                window.addEventListener('pointermove', e => {
+                    mx = e.clientX; my = e.clientY;
+                    dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+                });
+                (function loop() {
+                    rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
+                    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+                    requestAnimationFrame(loop);
+                })();
+                window.addEventListener('pointerdown', () => ring.classList.add('click'));
+                window.addEventListener('pointerup', () => setTimeout(() => ring.classList.remove('click'), 120));
+            }
+
+            // 功能卡片 3D 跟随倾斜
+            if (fine && !reduce) {
+                document.querySelectorAll('.features .card').forEach(card => {
+                    card.addEventListener('pointermove', e => {
+                        const r = card.getBoundingClientRect();
+                        const px = (e.clientX - r.left) / r.width - 0.5;
+                        const py = (e.clientY - r.top) / r.height - 0.5;
+                        card.style.transform = 'translateY(-6px) rotateX(' + (-py * 7).toFixed(2) + 'deg) rotateY(' + (px * 9).toFixed(2) + 'deg) scale(1.02)';
+                    });
+                    card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+                });
+            }
         })();
     </script>
 </body>
