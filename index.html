@@ -571,6 +571,36 @@
 
         .project-card:hover h3 { color: var(--claude-accent); }
 
+        /* 已弃用（灰色）项目卡片 */
+        .project-card.deprecated {
+            background: #f4f4f4;
+            border-color: #d8d8d8;
+            box-shadow: 6px 6px 0 rgba(120,120,120,0.12);
+        }
+        .project-card.deprecated::before { display: none; }
+        .project-card.deprecated:hover {
+            transform: none;
+            border-color: #d8d8d8;
+            box-shadow: 6px 6px 0 rgba(120,120,120,0.12);
+        }
+        .project-card.deprecated h3,
+        .project-card.deprecated:hover h3 { color: #8a8a8a; }
+        .project-card.deprecated p { color: #a0a0a0; }
+        .project-card.deprecated .project-link { color: #ababab; }
+        .deprecated-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 2;
+            background: #9a9a9a;
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
                     .project-card p {
             font-size: 0.95rem;
             color: var(--claude-text-secondary);
@@ -1247,7 +1277,8 @@
                 <p>学习专注型 B 站第三方客户端。黑白极简，从根源上屏蔽娱乐内容：没有推荐流、没有广告、没有弹幕，只有你主动关注的 UP 主。</p>
                 <a href="project/7/index.html" class="project-link">查看项目</a>
             </div>
-            <div class="project-card stagger-2" data-animate>
+            <div class="project-card stagger-2 deprecated" data-animate>
+                <span class="deprecated-badge">已弃用</span>
                 <h3>HYXTBOX 6.0</h3>
                 <p>我的个人原创项目工具箱，集成多种实用功能的一站式平台。</p>
                 <a href="project/1/index.html" class="project-link">查看项目</a>
@@ -1258,9 +1289,14 @@
                 <a href="project/6/index.html" class="project-link">查看项目</a>
             </div>
             <div class="project-card stagger-4" data-animate>
-                <h3>游戏厅</h3>
+                <h3>Genav-Game</h3>
                 <p>收录 2 万多款 HTML5 小游戏，免安装、即点即玩。支持搜索、分类筛选、随机开局。</p>
-                <a href="games/index.html" class="project-link">进入游戏厅</a>
+                <a href="games/index.html" class="project-link">进入 Genav-Game</a>
+            </div>
+            <div class="project-card stagger-5" data-animate>
+                <h3>Genav 邮箱</h3>
+                <p>我的个人邮箱站点（mail.genav.cn）。注意：该邮箱没有发信功能。</p>
+                <a href="https://mail.genav.cn" target="_blank" rel="noopener" class="project-link">访问邮箱</a>
             </div>
             
         </div>
